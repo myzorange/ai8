@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI 八堂课</title>
+<meta name="theme-color" content="#0d1015">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AI八堂课">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;-webkit-text-size-adjust:100%}img{max-width:100%}</style>
+</head><body>
+<style>
+/* Layout: a dark screening room. Home = lesson grid; lesson = film stage, captions, then game and sources stacked below */
+:root{
+  --ink:#0d1015;--panel:#161b22;--panel2:#1c232c;--paper:#ece6d7;--muted:#8b939d;--ember:#e9a640;--frost:#8db3c8;--fail:#cf6553;--ok:#7fb27a;--line:#28303a;
+  --serif:"Noto Serif SC","Songti SC","STSong",serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  color-scheme:dark
+}
+html,body{background:var(--ink);color:var(--paper)}
+body{font-family:var(--sans);font-size:15px;line-height:1.7;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:880px;margin:0 auto}
+button{font-family:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--frost);outline-offset:2px}
+.eyebrow{font-size:12px;letter-spacing:.14em;color:var(--muted)}
+h1,h2,h3{font-family:var(--serif);font-weight:700;margin:0;text-wrap:balance}
+.hero{display:flex;flex-direction:column;gap:8px;padding-block:12px 24px}
+.hero h1{font-size:clamp(30px,7vw,46px);line-height:1.2}
+.hero h1 em{font-style:normal;color:var(--ember)}
+.hero p{margin:0;color:var(--muted);max-width:34em}
+.prog{display:flex;align-items:center;gap:12px;margin-top:8px;font-size:13px;color:var(--muted)}
+.prog .track{flex:1;max-width:260px;height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.prog .track i{display:block;height:100%;background:var(--ember);width:0;transition:width .6s}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.lc{display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;color:var(--paper);cursor:pointer;min-width:0}
+.lc:hover{border-color:var(--muted)}
+.lc .num{font-size:12px;letter-spacing:.12em;color:var(--ember)}
+.lc.now{border-color:var(--ember)}
+.lc .num em{font-style:normal;margin-left:8px;padding:0 8px;border-radius:999px;background:var(--ember);color:var(--ink);letter-spacing:0}
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.term{display:flex;flex-direction:column;gap:4px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--paper);cursor:pointer;min-height:92px;min-width:0}
+.term b{font-family:var(--serif);font-size:17px;font-weight:700}
+.term .tl{font-size:11px;color:var(--muted);letter-spacing:.08em}
+.term .td{display:none;font-size:13px;line-height:1.6;color:var(--paper)}
+.term.flip{border-color:var(--ember);background:var(--panel2)}
+.term.flip .td{display:block}
+.term.flip b{color:var(--ember)}
+select{font:inherit;font-size:14px;color:var(--paper);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.anslist{text-align:left;max-width:32em;display:flex;flex-direction:column;gap:6px}
+.anslist p{margin:0;font-size:14px;line-height:1.7;color:var(--paper)}
+.anslist b{color:var(--ember)}
+.lc h3{font-size:18px;line-height:1.4}
+.lc .sub{font-size:13px;color:var(--muted);line-height:1.6}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.chip{font-size:12px;padding:1px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.chip.on{border-color:var(--ember);color:var(--ember)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.btn{font-size:14px;color:var(--paper);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 16px;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--ember);border-color:var(--ember);color:var(--ink);font-weight:500}
+.lhead{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.lhead h1{font-size:clamp(22px,5vw,30px)}
+.stage{position:relative;width:100%;max-width:100%;aspect-ratio:16/10;border-radius:10px;overflow:hidden;background:var(--ink);border:1px solid var(--line)}
+@media (max-width:600px){.stage{aspect-ratio:4/5}}
+canvas{display:block;width:100%;height:100%;cursor:pointer}
+.veil{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(13,16,21,.55);text-align:center;padding:16px}
+.big{font-size:16px;font-weight:500;color:var(--ink);background:var(--ember);border:0;border-radius:999px;padding:12px 28px;cursor:pointer}
+.hint{font-size:13px;color:var(--muted)}
+.end{background:rgba(13,16,21,.9);overflow:auto;justify-content:flex-start;padding-top:24px}
+.end h2{font-size:22px;color:var(--ember)}
+.end ol{margin:0;padding-left:1.4em;text-align:left;font-size:15px;line-height:1.8;max-width:30em}
+.scene{font-size:12px;letter-spacing:.14em;color:var(--ember);margin-top:14px}
+.cap{min-height:5.4em;font-family:var(--serif);font-weight:500;font-size:17px;line-height:1.75;margin:2px 0 8px;max-width:40em}
+.bar{display:flex;gap:4px}
+.seg{flex:1;height:6px;border:0;padding:0;border-radius:3px;background:var(--line);position:relative;overflow:hidden;cursor:pointer}
+.seg i{position:absolute;inset:0 auto 0 0;background:var(--ember);width:0}
+.ctrl{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.ctrl .btn{min-width:84px}
+.sec{margin-top:36px;display:flex;flex-direction:column;gap:12px}
+.sec h2{font-size:20px}
+.game{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.links{display:flex;flex-direction:column;gap:2px;margin:0;padding:0;list-style:none}
+.links a{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);color:var(--paper);text-decoration:none}
+.links a span:last-child{color:var(--muted);font-size:13px;flex-shrink:0}
+.links a:hover span:first-child{color:var(--ember)}
+.lnav{display:flex;justify-content:space-between;gap:12px;margin-top:36px}
+/* games */
+.gtop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{font-size:13px;padding:3px 12px;border-radius:999px;background:rgba(233,166,64,.14);color:var(--ember)}
+.gmeta{font-size:13px;color:var(--muted);margin:0}
+.say{display:flex;gap:10px;align-items:flex-start}
+.ava{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--panel2);border:1px solid var(--ember);color:var(--ember);font-weight:500}
+.say p{margin:0;background:var(--panel2);border-radius:12px;padding:10px 14px;min-width:0}
+.gq{font-family:var(--serif);font-size:19px;font-weight:700;line-height:1.5;margin:0}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.opt{font-size:15px;color:var(--paper);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:11px 10px;cursor:pointer;min-height:46px}
+.opt:hover{border-color:var(--muted)}
+.opt.right{border-color:var(--ok);background:rgba(127,178,122,.16);color:var(--ok)}
+.opt.wrong{border-color:var(--fail);background:rgba(207,101,83,.16);color:var(--fail)}
+.opt.done{opacity:.45;cursor:default}
+.why{font-size:14px;color:var(--muted);margin:0;line-height:1.7}
+.why b{color:var(--paper);font-weight:500}
+.gbtns{display:flex;gap:10px;flex-wrap:wrap}
+.row{display:flex;align-items:center;gap:10px}
+.row .lb{font-size:14px;color:var(--muted);min-width:64px}
+.row input{flex:1;min-width:0;accent-color:var(--ember)}
+.row .val{font-weight:500;min-width:26px;text-align:right}
+.c4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cell{background:var(--panel2);border:1px solid var(--fail);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--muted)}
+.cell.ok{border-color:var(--ok);background:rgba(127,178,122,.12)}
+.cell b{display:block;font-size:15px;font-weight:500;color:var(--paper)}
+.cell.ok b{color:var(--ok)}
+.pbars{display:flex;flex-direction:column;gap:6px}
+.pb{display:grid;grid-template-columns:64px minmax(0,1fr) 44px;align-items:center;gap:8px;font-size:14px}
+.pb .t{height:10px;background:var(--line);border-radius:5px;overflow:hidden}
+.pb .t i{display:block;height:100%;width:0;background:var(--frost);transition:width .7s}
+.pb.me .t i{background:var(--ember)}
+.pb span:last-child{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.stack{display:flex;flex-direction:column-reverse;gap:4px}
+.stack div{font-size:14px;padding:6px 12px;border-radius:6px;background:rgba(233,166,64,.14);color:var(--ember);text-align:center}
+.meters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.m{background:var(--panel2);border-radius:8px;padding:10px 12px}
+.m small{display:block;font-size:12px;color:var(--muted)}
+.m b{font-size:22px;font-weight:500;font-variant-numeric:tabular-nums}
+.m .t{height:4px;background:var(--line);border-radius:2px;margin-top:6px;overflow:hidden}
+.m .t i{display:block;height:100%;transition:width .5s}
+.log{font-size:14px;margin:0;min-height:3.4em}
+.final{background:var(--panel2);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.opt small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+#nextL{margin-left:auto}
+.final div{display:grid;grid-template-columns:70px minmax(0,1fr);gap:8px;font-size:14px}
+.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}.pb .t i,.m .t i,.prog .track i{transition:none}}
+</style>
+
+<div class="wrap">
+  <section id="home">
+    <div class="hero">
+      <span class="eyebrow">跟着 Nick Saraev 的 AI 路线图</span>
+      <h1>AI <em>八</em>堂课</h1>
+      <p>每课一部两分钟的动画、一个闯关游戏和博主推荐的原始资料。按顺序学，一周就能从零看懂 AI。</p>
+      <div class="prog"><span id="progTxt">已完成 0 / 8</span><span class="track"><i id="progBar"></i></span></div>
+      <div><button class="btn pri" id="cont">开始学习</button></div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="sec">
+      <div class="top" style="margin:0"><div><span class="eyebrow">复习</span><h2>术语卡片</h2></div>
+        <select id="termFilter" aria-label="按课筛选"><option value="all">全部 24 张</option><option value="1">第 1 课</option><option value="2">第 2 课</option><option value="3">第 3 课</option><option value="4">第 4 课</option><option value="5">第 5 课</option><option value="6">第 6 课</option><option value="7">第 7 课</option><option value="8">第 8 课</option></select></div>
+      <span class="hint">先想想它是什么意思，再点卡片看解释</span>
+      <div class="terms" id="terms"></div>
+    </div>
+  </section>
+
+  <section id="lesson" hidden>
+    <div class="top">
+      <button class="btn" id="back">← 全部课程</button>
+      <span class="eyebrow" id="lnum"></span>
+    </div>
+    <div class="lhead">
+      <h1 id="ltitle"></h1>
+      <span class="hint" id="lsub"></span>
+    </div>
+    <div class="stage">
+      <canvas id="cv" aria-label="课程动画"></canvas>
+      <div class="veil" id="start">
+        <button class="big" id="go">播放</button>
+        <span class="hint">点画面暂停，下方进度条可跳到任意一幕</span>
+      </div>
+      <div class="veil end" id="end" hidden>
+        <h2 id="endT"></h2>
+        <ol id="quiz"></ol>
+        <span class="hint">先自己想一想，再看参考答案</span>
+        <button class="btn" id="ansBtn">看参考答案</button>
+        <div class="anslist" id="ans" hidden></div>
+        <div class="gbtns" style="justify-content:center">
+          <button class="big" id="toGame">去闯关</button>
+          <button class="btn" id="again">重看一遍</button>
+        </div>
+      </div>
+    </div>
+    <div class="scene" id="sname"></div>
+    <p class="cap" id="cap" aria-live="polite"></p>
+    <div class="bar" id="bar"></div>
+    <div class="ctrl">
+      <button class="btn" id="prev">上一幕</button>
+      <button class="btn" id="play">播放</button>
+      <button class="btn" id="next">下一幕</button>
+      <button class="btn" id="narr" aria-pressed="true">旁白：开</button>
+    </div>
+
+    <div class="sec" id="gameSec">
+      <span class="eyebrow">闯关</span>
+      <h2 id="gname"></h2>
+      <div class="game" id="game"></div>
+    </div>
+
+    <div class="sec">
+      <span class="eyebrow">原始资料</span>
+      <h2>想深入，就看这些</h2>
+      <ul class="links" id="links"></ul>
+    </div>
+
+    <div class="lnav">
+      <button class="btn" id="prevL">← 上一课</button>
+      <button class="btn pri" id="nextL">下一课 →</button>
+    </div>
+  </section>
+</div>
+
+<script>
+
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const css=getComputedStyle(document.documentElement);
+const C={};['ink','panel','panel2','paper','muted','ember','frost','fail','ok','line'].forEach(k=>C[k]=css.getPropertyValue('--'+k).trim());
+const SERIF=css.getPropertyValue('--serif'),SANS=css.getPropertyValue('--sans');
+let W=0,H=0,u=1;
+function resize(){const r=cv.getBoundingClientRect();const d=Math.min(2,window.devicePixelRatio||1);W=r.width;H=r.height;if(!W||!H)return;cv.width=Math.round(W*d);cv.height=Math.round(H*d);ctx.setTransform(d,0,0,d,0,0);u=Math.min(W,H)/100}
+const cl=x=>x<0?0:x>1?1:x,seg=(t,a,b)=>cl((t-a)/(b-a)),eo=x=>1-Math.pow(1-x,3),lerp=(a,b,p)=>a+(b-a)*p;
+function rng(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function rgba(h,a){const n=parseInt(h.slice(1),16);return`rgba(${n>>16},${n>>8&255},${n&255},${a})`}
+function txt(s,x,y,size,col,a=1,f='serif',al='center',wt=700){if(a<=0)return;ctx.font=`${wt} ${size}px ${f==='serif'?SERIF:SANS}`;ctx.textAlign=al;ctx.textBaseline='middle';ctx.fillStyle=rgba(col,a);ctx.fillText(s,x,y)}
+function dot(x,y,r,fill){if(r<=0)return;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill()}
+function ring(x,y,r,col,w){if(r<=0)return;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.strokeStyle=col;ctx.lineWidth=w;ctx.stroke()}
+function glow(x,y,r,h,a){if(a<=0||r<=0)return;const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,rgba(h,a));g.addColorStop(1,rgba(h,0));ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r)}
+function line(x1,y1,x2,y2,col,w){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=col;ctx.lineWidth=w;ctx.stroke()}
+function year(y,t){txt(y,6*u,11*u,10*u,C.ember,seg(t,0.2,1.4)*0.9,'serif','left',700)}
+function tag(s,t){txt(s,6*u,9*u,3.6*u,C.ember,seg(t,0.2,1.2)*0.9,'sans','left',500)}
+function wrap(s,x,y,maxW,size,col,a,lh,f='sans',wt=400){let ln='',yy=y;ctx.font=`${wt} ${size}px ${f==='serif'?SERIF:SANS}`;for(const ch of s){if(ctx.measureText(ln+ch).width>maxW&&ln){txt(ln,x,yy,size,col,a,f,'left',wt);ctx.font=`${wt} ${size}px ${f==='serif'?SERIF:SANS}`;ln=ch;yy+=lh}else ln+=ch}if(ln)txt(ln,x,yy,size,col,a,f,'left',wt);return yy+lh}
+function chips(list,cy,a,hi,col){const fs=3.2*u,pad=2.6*u,gap=2*u;ctx.font=`500 ${fs}px ${SANS}`;const ws=list.map(s=>ctx.measureText(s).width+pad*2);const rows=[[]];let rw=0;ws.forEach((w,i)=>{if(rw+w>W*0.9&&rows[rows.length-1].length){rows.push([]);rw=0}rows[rows.length-1].push(i);rw+=w+gap});
+rows.forEach((r,ri)=>{const tot=r.reduce((p,i)=>p+ws[i]+gap,-gap);let x=W/2-tot/2;const y=cy+ri*8*u;r.forEach(i=>{const on=hi===i||hi===-2,c=col||C.ember;box(x,y-3.2*u,ws[i],6.4*u,3.2*u,rgba(on?c:C.panel2,on?0.18*a:a),rgba(on?c:C.line,a),0.3*u);txt(list[i],x+ws[i]/2,y,fs,on?c:C.paper,a,'sans','center',500);x+=ws[i]+gap})})}
+function arrowHead(x,y,ang,s,col){ctx.beginPath();ctx.moveTo(x+Math.cos(ang)*s,y+Math.sin(ang)*s);ctx.lineTo(x+Math.cos(ang+2.5)*s,y+Math.sin(ang+2.5)*s);ctx.lineTo(x+Math.cos(ang-2.5)*s,y+Math.sin(ang-2.5)*s);ctx.closePath();ctx.fillStyle=col;ctx.fill()}
+
+const R=rng(11),NODES=[],EDGES=[];
+for(let i=0;i<80;i++)NODES.push({x:0.05+R()*0.9,y:0.06+R()*0.88,p:R()*6.28});
+NODES.forEach((a,i)=>{const d=NODES.map((b,j)=>[Math.hypot(a.x-b.x,a.y-b.y),j]).sort((p,q)=>p[0]-q[0]);for(let k=1;k<=2;k++)if(d[k][1]>i)EDGES.push([i,d[k][1]])});
+function constellation(t,prog,br){
+  const n=Math.floor(EDGES.length*prog);
+  for(let k=0;k<n;k++){const a=NODES[EDGES[k][0]],b=NODES[EDGES[k][1]];line(a.x*W,a.y*H,b.x*W,b.y*H,rgba(C.ember,0.18*br),0.25*u)}
+  NODES.forEach((p,i)=>{const on=i/NODES.length<prog+0.1;const tw=0.5+0.5*Math.sin(t*1.6+p.p);if(on){glow(p.x*W,p.y*H,3*u,C.ember,0.25*br*tw);dot(p.x*W,p.y*H,0.7*u,rgba(C.ember,(0.4+0.6*tw)*br))}else dot(p.x*W,p.y*H,0.5*u,rgba(C.muted,0.35))});
+}
+const S2=rng(5),SNOW=[];for(let i=0;i<150;i++)SNOW.push({x:S2(),y:S2(),s:0.03+S2()*0.06,r:0.3+S2()*0.6,w:S2()*6});
+function snow(t,a){if(a<=0)return;SNOW.forEach(f=>{const y=(f.y+t*f.s)%1,x=(f.x+Math.sin(t*0.6+f.w)*0.01);dot(x*W,y*H,f.r*u,rgba(C.paper,0.55*a))})}
+
+const SC1=[
+{name:'序',dur:8,caps:[[0.5,'这是一个关于等待的故事。'],[4,'一个想法，从诞生到被世界接受，等了整整66年。']],
+draw(t){constellation(t,eo(seg(t,0,5.5)),0.6);ctx.fillStyle=rgba(C.ink,0.55*seg(t,1,2.5));ctx.fillRect(0,H/2-16*u,W,34*u);
+txt('一个被等了',W/2,H/2-5*u,8*u,C.paper,seg(t,1.5,3));txt('66年的想法',W/2,H/2+6*u,8*u,C.ember,seg(t,2.2,3.7));txt('第1课 · AI 简史',W/2,H/2+15*u,3.2*u,C.muted,seg(t,3.5,4.5),'sans','center',400)}},
+
+{name:'第一幕 · 感知机',dur:12,caps:[[0.5,'1958年，纽约。30岁的心理学家罗森布拉特，造出了一台会学习的机器。'],[5.5,'它模仿大脑的神经元：几路信号进来，各乘一个“权重”，加起来够大就点亮。猜错了，就调整连线的粗细。']],
+draw(t){year('1958',t);const a=seg(t,0.3,1.5),ys=[0.38,0.54,0.7].map(v=>v*H),ix=W*0.2,nx=W*0.72,ny=H*0.54;
+const w=[0,1,2].map(i=>0.5+0.45*Math.sin(t*1.1+i*2.1));
+ys.forEach((y,i)=>{line(ix,y,nx,ny,rgba(C.ember,(0.3+0.5*w[i])*a),(0.3+w[i]*1.6)*u);for(let k=0;k<2;k++){const p=(t*0.45+i*0.29+k*0.5)%1;dot(lerp(ix,nx,p),lerp(y,ny,p),1.1*u,rgba(C.paper,0.9*a))}});
+ys.forEach(y=>{dot(ix,y,3.2*u,C.panel);ring(ix,y,3.2*u,rgba(C.frost,a),0.4*u)});
+const s=(w[0]+w[1]+w[2])/3;glow(nx,ny,20*u,C.ember,0.55*s*a);dot(nx,ny,7*u,rgba(C.ember,(0.15+0.55*s)*a));ring(nx,ny,7*u,rgba(C.ember,a),0.5*u);
+txt('输入',ix,ys[2]+8*u,3*u,C.muted,a,'sans','center',400);txt('感知机',nx,ny+12*u,3.6*u,C.paper,a);txt('线越粗，权重越大',(ix+nx)/2,ys[0]-8*u,3*u,C.muted,seg(t,5.5,6.5),'sans','center',400)}},
+
+{name:'第二幕 · 报纸沸腾',dur:8,caps:[[0.4,'消息登上报纸。有人预言：这台机器将来会走路、说话，甚至意识到自己的存在。'],[4.6,'所有人都以为，会思考的机器就在眼前。']],
+draw(t){const p=eo(seg(t,0,1.3));ctx.save();ctx.translate(W/2,H/2);ctx.rotate(lerp(-0.7,-0.05,p));ctx.scale(lerp(0.15,1,p),lerp(0.15,1,p));
+const pw=Math.min(W*0.78,H*0.95),ph=pw*0.72;ctx.fillStyle=C.paper;ctx.fillRect(-pw/2,-ph/2,pw,ph);
+txt('号 外 · 1958',0,-ph/2+pw*0.06,pw*0.035,C.ink,0.7,'sans','center',500);line(-pw*0.44,-ph/2+pw*0.1,pw*0.44,-ph/2+pw*0.1,rgba(C.ink,0.6),pw*0.004);
+txt('会思考的机器？',0,-ph/2+pw*0.19,pw*0.085,C.ink,1);
+for(let r=0;r<6;r++){for(let c=0;c<2;c++){ctx.fillStyle=rgba(C.ink,0.18);ctx.fillRect(-pw*0.42+c*pw*0.45,-ph/2+pw*0.3+r*pw*0.045,pw*(c?0.39:0.4)*(r===5?0.6:1),pw*0.018)}}
+ctx.restore();glow(W*0.85,H*0.2,30*u,C.paper,0.5*Math.max(0,1-Math.abs(t-1.6)*2.5))}},
+
+{name:'第三幕 · 寒冬',dur:13,caps:[[0.5,'1969年，MIT的明斯基出了一本书，指出一个致命问题。'],[3.2,'单个感知机只能画一条直线，把世界一分为二。像这样斜对角的两组点，它永远分不开。'],[9,'经费撤走，研究者离开。AI 的第一个冬天来了。']],
+draw(t){year('1969',t);snow(t,seg(t,0,2));const cx=W/2,cy=H*0.56,s=Math.min(W,H)*0.34,a=seg(t,0.5,1.5);
+[[0,0,C.frost],[1,1,C.frost],[0,1,C.ember],[1,0,C.ember]].forEach(([x,y,c])=>{const px=cx-s/2+x*s,py=cy+s/2-y*s;glow(px,py,7*u,c,0.4*a);dot(px,py,3*u,rgba(c,a))});
+if(t>3){const la=seg(t,3,3.6)*(1-seg(t,9,10)),th=(t-3)*0.75+0.3,ox=cx+Math.sin(t*0.9)*s*0.15,oy=cy+Math.cos(t*0.7)*s*0.12,L=s*1.1;
+line(ox-Math.cos(th)*L,oy-Math.sin(th)*L,ox+Math.cos(th)*L,oy+Math.sin(th)*L,rgba(C.paper,0.75*la),0.35*u);
+const n=Math.floor((t-3)*2.4)+1;txt(`尝试 ${n} 次，全部失败`,cx,cy-s/2-9*u,3.2*u,C.fail,la,'sans','center',500);
+if((t*1.2)%1<0.3)txt('✕',cx+s/2+7*u,cy-s/2+2*u,6*u,C.fail,la,'sans')}
+ctx.fillStyle=rgba(C.ink,0.6*seg(t,9,11));ctx.fillRect(0,0,W,H);snow(t,seg(t,9,10));txt('第一次 AI 寒冬',W/2,cy,7*u,C.frost,seg(t,9.5,10.8))}},
+
+{name:'第四幕 · 湖上',dur:10,caps:[[0.5,'1971年7月，罗森布拉特43岁生日那天，划船时意外遇难。'],[5.2,'他没能看到，自己其实是对的。']],
+draw(t){year('1971',t);const hz=H*0.6,mx=W*0.74,my=H*0.24;glow(mx,my,22*u,C.frost,0.25);dot(mx,my,5.5*u,rgba(C.frost,0.85));
+for(let r=0;r<16;r++){const y=hz+(r+0.5)*(H-hz)/16;for(let k=0;k<9;k++){const x=((k+0.5)/9+(r%2)*0.05+Math.sin(t*0.4+r)*0.015)*W,w=lerp(2,7,r/16)*u,al=0.06+0.12*(0.5+0.5*Math.sin(t*1.4+k*1.7+r*0.7));line(x-w/2,y,x+w/2,y,rgba(C.frost,al),0.3*u)}
+const rw=lerp(1,5,r/16)*u*(0.6+0.4*Math.sin(t*2+r));line(mx-rw,y,mx+rw,y,rgba(C.frost,0.5-r*0.025),0.35*u)}
+const bx=lerp(W*0.12,W*0.42,t/10),by=hz-0.3*u+Math.sin(t*1.5)*0.4*u;ctx.beginPath();ctx.moveTo(bx-6*u,by);ctx.lineTo(bx+6*u,by);ctx.lineTo(bx+4*u,by+2.2*u);ctx.lineTo(bx-4*u,by+2.2*u);ctx.closePath();ctx.fillStyle=rgba(C.muted,0.9);ctx.fill();
+line(bx-1*u,by,bx+3*u,by+4*u,rgba(C.muted,0.8),0.35*u);dot(bx-1.5*u,by-2.2*u,1.3*u,rgba(C.muted,0.9));
+ctx.fillStyle=rgba(C.ink,0.35*seg(t,5,9));ctx.fillRect(0,0,W,H)}},
+
+{name:'第五幕 · 冷板凳',dur:13,caps:[[0.5,'寒冬里，大多数人走了。一个叫辛顿的英国人，坐了几十年冷板凳。'],[5.5,'1986年，他和同事找到了让“多层”神经网络学习的方法。一个神经元做不到的事，一群就能做到。'],[10,'可当时的电脑太慢，几乎没人在乎。']],
+draw(t){year('1986',t);snow(t,0.35);glow(W/2,H*0.1,62*u,C.ember,0.16*seg(t,0,2));
+const Ls=[3,4,4,2],xs=Ls.map((_,i)=>lerp(W*0.2,W*0.8,i/3)),cy=H*0.58,gap=Math.min(H*0.13,11*u);
+const P=Ls.map((n,i)=>Array.from({length:n},(_,j)=>[xs[i],cy+(j-(n-1)/2)*gap]));const ap=Ls.map((_,i)=>seg(t,1.2+i*0.9,1.9+i*0.9));
+for(let i=0;i<3;i++)P[i].forEach(a=>P[i+1].forEach(b=>line(a[0],a[1],b[0],b[1],rgba(C.ember,0.22*Math.min(ap[i],ap[i+1])),0.18*u)));
+const pos=t>5?((t-5)*0.45)%1.3-0.1:-1;
+P.forEach((col,i)=>col.forEach(([x,y])=>{const b=Math.exp(-Math.pow(i/3-pos,2)/0.02);glow(x,y,8*u,C.ember,0.6*b*ap[i]);dot(x,y,2.6*u,rgba(C.ember,(0.18+0.82*b)*ap[i]));ring(x,y,2.6*u,rgba(C.ember,ap[i]),0.3*u)}));
+txt('多层神经网络',W/2,cy+2.5*gap+6*u,3.2*u,C.muted,seg(t,4.5,5.5),'sans','center',400)}},
+
+{name:'第六幕 · 课本',dur:11,caps:[[0.5,'2007年，年轻的李飞飞想给机器准备一套“课本”。同事劝她别浪费时间。'],[5.2,'她动员全世界几万人，给1400多万张图片贴上标签，取名 ImageNet。']],
+draw(t){year('2007',t);const cols=W>H?20:12,ts=Math.min(W*0.84/cols,H*0.055*(W>H?1:1.25)),rows=Math.max(4,Math.floor(H*0.42/ts)),ox=(W-cols*ts)/2,oy=H*0.27;
+const pal=[C.ember,C.frost,'#86a372','#b9809a','#9d8fcb'],p=eo(seg(t,0.8,8));
+for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const i=r*cols+c,h=((i*2654435761)>>>0)/4294967296,x=ox+c*ts,y=oy+r*ts;
+if(h<p){ctx.fillStyle=rgba(pal[i%5],0.25+0.5*((i*7919)%13)/13);ctx.fillRect(x+1,y+1,ts-2,ts-2)}else{ctx.strokeStyle=rgba(C.line,1);ctx.lineWidth=1;ctx.strokeRect(x+1.5,y+1.5,ts-3,ts-3)}}
+const by=oy+rows*ts;txt(Math.floor(14197122*p).toLocaleString('en-US'),W/2,by+8*u,7*u,C.paper,seg(t,0.5,1.2));txt('张贴好标签的图片',W/2,by+15*u,3*u,C.muted,seg(t,0.5,1.2),'sans','center',400)}},
+
+{name:'第七幕 · 卧室',dur:14,caps:[[0.5,'2012年，辛顿的学生亚历克斯，在父母家的卧室里，用两块打游戏的显卡训练神经网络。'],[6.2,'那年图像识别大赛，第二名错误率约26%，他们只有15%。全场震惊。'],[10.2,'66年前的想法，终于等来了它的数据和算力。']],
+draw(t){year('2012',t);const a=seg(t,0.3,1.3)*(1-seg(t,5.6,6.4)),b=seg(t,6,6.8);
+if(a>0){[-1,1].forEach(sg=>{const cx=W/2+sg*17*u,cy=H*0.52,w=30*u,h=17*u;glow(cx,cy,26*u,C.ember,0.35*a*seg(t,1.5,3.5));ctx.fillStyle=rgba(C.panel,a);ctx.fillRect(cx-w/2,cy-h/2,w,h);ctx.strokeStyle=rgba(C.muted,a);ctx.lineWidth=0.3*u;ctx.strokeRect(cx-w/2,cy-h/2,w,h);
+[-1,1].forEach(f=>{const fx=cx+f*7*u;ring(fx,cy,5*u,rgba(C.muted,a),0.3*u);for(let k=0;k<5;k++){const an=t*9*sg+k*1.2566;line(fx,cy,fx+Math.cos(an)*4.4*u,cy+Math.sin(an)*4.4*u,rgba(C.ember,0.8*a),0.5*u)}})});
+txt('两块游戏显卡',W/2,H*0.52+15*u,3.2*u,C.muted,a,'sans','center',400)}
+if(b>0){const x0=W*0.12,mw=W*0.66;txt('图像识别错误率（越低越好）',x0,H*0.3,3.2*u,C.muted,b,'sans','left',400);
+[['传统方法',26,C.frost],['AlexNet',15,C.ember]].forEach(([n,v,c],i)=>{const y=H*(0.46+i*0.2),g=eo(seg(t,6.8+i*0.8,8.4+i*0.8)),bw=v/28*mw*g;
+txt(n,x0,y-6*u,3.6*u,C.paper,b,'sans','left',500);ctx.fillStyle=rgba(c,0.9*b);ctx.fillRect(x0,y-3*u,bw,6*u);if(i)glow(x0+bw,y,10*u,C.ember,0.4*g);txt(Math.round(v*g)+'%',x0+bw+2*u,y,4.2*u,c,b*g,'sans','left',700)})}}},
+
+{name:'第八幕 · 注意力',dur:15,caps:[[0.5,'2017年，谷歌的8个年轻人发表论文，标题化用披头士的歌：《注意力就是你所需要的一切》。'],[6,'核心想法：每个词都会“注意”句子里的其他词。“它”最在意的，是“猫”。'],[11,'这个架构叫 Transformer。ChatGPT、Claude，都建在它上面。']],
+draw(t){year('2017',t);const ws=['猫','坐','在','垫子','上','因为','它','累了'],wt=[0.95,0.12,0.05,0.3,0.05,0.2,0,0.55],fs=4.6*u,y=H*0.66;
+ctx.font=`700 ${fs}px ${SERIF}`;const wd=ws.map(s=>ctx.measureText(s).width),tot=wd.reduce((p,q)=>p+q,0),gap=(W*0.84-tot)/(ws.length-1);let x=W*0.08;const xs=wd.map(w=>{const c=x+w/2;x+=w+gap;return c});
+txt('Attention Is All You Need',W/2,H*0.25,3.4*u,C.muted,seg(t,0.5,1.5),'sans','center',500);for(let i=0;i<8;i++)dot(W/2+(i-3.5)*4*u,H*0.25+6*u,1*u,rgba(C.ember,seg(t,1+i*0.25,1.4+i*0.25)));
+const ord=[0,7,3,5,1,2,4];ord.forEach((i,k)=>{const p=eo(seg(t,6+k*0.35,7+k*0.35));if(p<=0)return;const x1=xs[6],x2=xs[i],cy=y-6*u-Math.abs(x1-x2)*0.5;
+ctx.beginPath();ctx.moveTo(x1,y-4*u);const steps=24;for(let s=1;s<=steps*p;s++){const q=s/steps,qx=(1-q)*(1-q)*x1+2*(1-q)*q*((x1+x2)/2)+q*q*x2,qy=(1-q)*(1-q)*(y-4*u)+2*(1-q)*q*cy+q*q*(y-4*u);ctx.lineTo(qx,qy)}
+ctx.strokeStyle=rgba(C.ember,0.15+0.85*wt[i]);ctx.lineWidth=(0.25+wt[i]*1.3)*u;ctx.stroke()});
+const hl=seg(t,8.5,9.5);glow(xs[0],y,10*u,C.ember,0.6*hl);
+ws.forEach((s,i)=>{const a=seg(t,2+i*0.15,2.6+i*0.15);if(i===6){ctx.strokeStyle=rgba(C.frost,a);ctx.lineWidth=0.35*u;ctx.strokeRect(xs[i]-wd[i]/2-1.5*u,y-3.8*u,wd[i]+3*u,7.6*u)}txt(s,xs[i],y,fs,i===0?C.ember:C.paper,a*(i===0?1:0.6+0.4*(1-hl*0.4)))})}},
+
+{name:'尾声 · 苦涩的教训',dur:14,caps:[[0.5,'这就是“苦涩的教训”：人类精心设计的聪明，一次次输给了简单方法加上海量算力。'],[8,'从一个神经元，到几千亿个。今天，你正在和它说话。']],
+draw(t){const f=1-seg(t,6.5,7.5),lx=W*0.27,rx=W*0.72,cy=H*0.5;
+if(f>0){[[0,0,4],[5.5,-3,3],[4,5,2.5]].forEach(([dx,dy,r],k)=>{const gx=lx+dx*u,gy=cy+dy*u,an=t*(k%2?-0.8:0.8)/r;ring(gx,gy,r*u,rgba(C.muted,f),0.4*u);for(let j=0;j<8;j++){const q=an+j*0.785;line(gx+Math.cos(q)*r*u,gy+Math.sin(q)*r*u,gx+Math.cos(q)*(r+1.2)*u,gy+Math.sin(q)*(r+1.2)*u,rgba(C.muted,f),0.5*u)}});
+txt('精心设计',lx,cy+14*u,3.4*u,C.muted,f*seg(t,0.5,1.5),'sans','center',500);
+const g=eo(seg(t,1,6)),n=Math.floor(lerp(4,170,g)),rr=lerp(4*u,Math.min(28*u,W*0.2),g),Rg=rng(3);glow(rx,cy,rr*1.6,C.ember,0.3*g*f);
+for(let i=0;i<n;i++){const an=Rg()*6.283,d=Math.sqrt(Rg())*rr;dot(rx+Math.cos(an)*d,cy+Math.sin(an)*d,0.55*u,rgba(C.ember,(0.5+0.5*Math.sin(t*2+i))*f))}
+txt('简单方法 + 算力',rx,cy+Math.max(14*u,rr+6*u),3.4*u,C.ember,f*seg(t,0.5,1.5),'sans','center',500)}
+const e=seg(t,7,9);if(e>0){constellation(t,1,e);ctx.fillStyle=rgba(C.ink,0.55*seg(t,8,9));ctx.fillRect(0,cy-9*u,W,18*u);txt('今天，你正在和它说话。',W/2,cy,6*u,C.paper,seg(t,8.5,10))}}}
+];
+
+
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function box(x,y,w,h,r,fill,stroke,lw){rr(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||0.3*u;ctx.stroke()}}
+function tw(s,size,f='serif',wt=700){ctx.font=`${wt} ${size}px ${f==='serif'?SERIF:SANS}`;return ctx.measureText(s).width}
+function label(s,x,y,a,col){txt(s,x,y,3.4*u,col||C.ember,a,'sans','left',500)}
+function bars(list,x0,y0,mw,rh,prog,hi){list.forEach(([n,v],i)=>{const y=y0+i*rh,p=eo(seg(prog,i*0.12,0.6+i*0.12));if(p<=0)return;const on=hi===i;
+txt(n,x0,y,3.8*u,on?C.ember:C.paper,p,'serif','left',700);const bx=x0+12*u,bw=Math.max(0.6*u,v/100*mw*p);
+ctx.fillStyle=rgba(on?C.ember:C.frost,(on?0.95:0.55)*p);ctx.fillRect(bx,y-1.6*u,bw,3.2*u);txt(Math.round(v*p)+'%',bx+bw+2*u,y,3.2*u,on?C.ember:C.muted,p,'sans','left',500)})}
+
+const CH='的一是了我不人在他有这个上们来到时大地为子中你说生国年着就那和要她出也得里后自以会家可下而过天去能对小多然于心学之都好看起发当没成只如事把还用第样道想作种开美总从无情己面最女但现前些所同日手又行意动方期它头经长儿回位分爱老因很给名法间知世什两次使身者被高已亲其进此话常与活正感见明问力理点文几定本公特做外孩相西果走将月十实向声车全信重三机工物气每并别真打太新比才便夫再书部水像眼等体却加电主界门利海受听表德少克代员许先口由死安写性马光白或住难望教命花结乐色更拉东神记处让母父应直字场平报友关放至张认接告入笑内英军候民岁往何度山觉路带万男边风解叫任金快原吃妈变通师立象数四失满战远格士音轻目条';
+const RD=rng(21),DROPS=[];for(let i=0;i<130;i++)DROPS.push({x:RD(),o:RD(),c:CH[Math.floor(RD()*CH.length)],s:0.7+RD()*0.8});
+const RS=rng(8),SPINES=[];for(let i=0;i<70;i++)SPINES.push({w:1.4+RS()*2.2,h:0.6+RS()*0.4,c:RS()});
+const RB=rng(4),BR=[];(function grow(x,y,a,len,d,b){if(d>6)return;const x2=x+Math.cos(a)*len,y2=y+Math.sin(a)*len;if(Math.hypot(x2,y2)>0.95)return;BR.push({x,y,x2,y2,b,d});
+const k=RB()<0.35?3:2;for(let i=0;i<k;i++)grow(x2,y2,a+(RB()-0.5)*1.4,len*(0.72+RB()*0.15),d+1,b+0.7+RB()*0.6)})(0,0,0,0.001,0,0);
+(function(){BR.length=0;for(let i=0;i<5;i++){const a=i*1.2566+RB()*0.4;(function g(x,y,a,len,d,b){if(d>6)return;const x2=x+Math.cos(a)*len,y2=y+Math.sin(a)*len;if(Math.hypot(x2,y2)>0.95)return;BR.push({x,y,x2,y2,b,d});const k=RB()<0.35?3:2;for(let j=0;j<k;j++)g(x2,y2,a+(RB()-0.5)*1.3,len*(0.74+RB()*0.14),d+1,b+0.7+RB()*0.6)})(0,0,a,0.22,0,0.6)}})();
+const RT=rng(13),ROWS=[];for(let i=0;i<60;i++)ROWS.push(0.35+RT()*0.6);
+
+const SC2=[
+{name:'序',dur:8,caps:[[0.5,'它读过的文字，比一个人读一万辈子还多。'],[4,'可它真正会做的，只有一件事。']],
+draw(t){const cx=W/2,cy=H*0.42;DROPS.forEach(d=>{const p=(t*0.22+d.o)%1,q=p*p;const x=lerp(d.x*W,cx,q),y=lerp(-6*u,cy,p);txt(d.c,x,y,3.2*u*d.s,C.paper,0.7*(1-q)*seg(t,0,1.2),'serif','center',500)});
+glow(cx,cy,26*u,C.ember,0.5+0.1*Math.sin(t*2));dot(cx,cy,5*u,rgba(C.ember,0.9));
+ctx.fillStyle=rgba(C.ink,0.6*seg(t,1.5,3));ctx.fillRect(0,H*0.6,W,26*u);
+txt('一台猜下一个字的机器',W/2,H*0.6+9*u,6.4*u,C.paper,seg(t,2,3.5));txt('第2课 · 大模型怎么工作',W/2,H*0.6+18*u,3.2*u,C.muted,seg(t,3,4),'sans','center',400)}},
+
+{name:'第一幕 · Token',dur:12,caps:[[0.5,'第一个秘密：大模型不认识“字”，只认识 token，也就是词的碎片。'],[5.5,'每个碎片对应一个编号。你对它说的话，在它眼里是一串数字。切法因模型而异。']],
+draw(t){const ex=[[['un','believ','able'],[348,26935,481],0.36],[['人工','智能','真','有趣'],[17437,9291,1922,31649],0.66]],fs=6*u;
+ex.forEach(([ps,ids,yy],k)=>{const y=H*yy,a=seg(t,0.3+k*0.5,1.2+k*0.5),sp=eo(seg(t,2+k*0.4,3.4+k*0.4))*4*u,ws=ps.map(p=>tw(p,fs)),tot=ws.reduce((p,q)=>p+q,0)+sp*(ps.length-1);let x=W/2-tot/2;
+ps.forEach((p,i)=>{const cx=x+ws[i]/2,col=i%2?C.frost:C.ember,ba=seg(t,3+k*0.4,4+k*0.4);if(ba>0)box(x-1.2*u,y-5*u,ws[i]+2.4*u,10*u,1.2*u,rgba(col,0.15*ba),rgba(col,0.8*ba));
+txt(p,cx,y,fs,C.paper,a);txt(String(ids[i]),cx,y+9*u,3.2*u,col,seg(t,5.5+i*0.25,6.2+i*0.25),'sans','center',500);x+=ws[i]+sp})});
+txt('token 编号',W/2,H*0.15,3.2*u,C.muted,seg(t,5.5,6.5),'sans','center',400)}},
+
+{name:'第二幕 · 猜下一个',dur:13,caps:[[0.5,'它其实只做一件事：根据前面的内容，猜下一个 token 是什么。'],[5.5,'猜完接上，再猜下一个。一个字一个字，就“写”出了整首诗。'],[9.8,'你看到的每一句回答，都是这样一个个猜出来的。']],
+draw(t){const full='床前明月光，疑是地上霜。',base=4,n=t<5?base:Math.min(full.length,base+1+Math.floor((t-5)*2.2)),fs=6.2*u,x0=W*0.1,y=H*0.26,cw=fs*1.02;
+for(let i=0;i<n;i++){const isNew=i>=base,a=isNew?seg(t,5+(i-base)/2.2,5.3+(i-base)/2.2):seg(t,0.3,1.2);txt(full[i],x0+i*cw+cw/2,y,fs,isNew?C.ember:C.paper,a)}
+if(n<full.length&&Math.floor(t*2.5)%2===0){ctx.fillStyle=rgba(C.ember,0.8);ctx.fillRect(x0+n*cw+cw*0.15,y-fs*0.45,0.5*u,fs*0.9)}
+const ba=1-seg(t,5,5.8);if(ba>0){ctx.globalAlpha=ba;bars([['光',91],['亮',4],['下',2],['夜',1]],x0,H*0.44,W*0.55,8*u,t-1.2,t>3.5?0:-1);ctx.globalAlpha=1;txt('下一个字的概率',x0,H*0.36,3.2*u,C.muted,seg(t,1,2)*ba,'sans','left',400)}
+txt('一次只猜一个',W/2,H*0.6,4*u,C.frost,seg(t,6,7)*(1-seg(t,11,12)),'sans','center',500)}},
+
+{name:'第三幕 · 抽签',dur:13,caps:[[0.5,'但它不总挑概率最高的那个，而是按概率“抽签”。'],[6,'所以同一个问题问两次，回答会不一样。这点随机性，让它不那么死板。']],
+draw(t){const L=[['好',42],['不错',23],['热',17],['冷',11],['糟',7]],x0=W*0.1,y0=H*0.3,rh=Math.min(7*u,H*0.075);
+txt('今天天气真____',x0,H*0.17,5.4*u,C.paper,seg(t,0.3,1.2),'serif','left',700);
+const runs=[2.6,5.6,8.6],pick=[0,1,2];let hi=-1;runs.forEach((r,k)=>{if(t>=r&&t<r+2.4){hi=t<r+1.2?Math.floor((t-r)*14)%5:pick[k]}});
+bars(L,x0,y0,W*0.5,rh,t-0.8,hi);
+const ry=y0+5*rh+3*u;runs.forEach((r,k)=>{const a=seg(t,r+1.3,r+1.8);txt(`第${k+1}次：今天天气真`+L[pick[k]][0],x0,ry+k*6.2*u,3.8*u,k===0?C.paper:C.frost,a,'sans','left',500)})}},
+
+{name:'第四幕 · 预训练',dur:13,caps:[[0.5,'第一步叫“预训练”：让它读遍互联网、书籍和代码，做亿万次“猜下一个字”的填空题。'],[7,'读完之后，它学会的不只是语言，还有藏在文字里的知识和推理的方式。']],
+draw(t){const off=Math.pow(t,1.7)*4*u,tot=SPINES.reduce((p,s)=>p+s.w*u+0.4*u,0);[0.18,0.36].forEach((yy,row)=>{const base=H*yy+10*u;line(0,base,W,base,rgba(C.muted,0.5),0.4*u);
+let x=-((off*(row?1.3:1))%tot);while(x<W){for(const s of SPINES){if(x>W)break;const h=s.h*12*u,c=s.c<0.33?C.ember:s.c<0.66?C.frost:C.muted;ctx.fillStyle=rgba(c,0.25+0.35*s.h);ctx.fillRect(x,base-h,s.w*u,h);x+=s.w*u+0.4*u}}});
+const p=eo(seg(t,1,8.5)),n=Math.floor(15e12*p);txt('已读',W/2,H*0.56,3.4*u,C.muted,seg(t,0.8,1.5),'sans','center',400);
+txt(n.toLocaleString('en-US'),W/2,H*0.64,Math.min(6*u,W/13),C.ember,seg(t,0.8,1.5),'sans','center',700);txt('个 token',W/2,H*0.72,3.4*u,C.muted,seg(t,0.8,1.5),'sans','center',400);
+txt('相当于一个人不吃不睡，读上好几万年',W/2,H*0.84,3.6*u,C.paper,seg(t,8.5,9.5),'serif','center',500)}},
+
+{name:'第五幕 · 微调',dur:14,caps:[[0.5,'第二步叫“微调”：请人给模型的回答打分，它就学会说人爱听的话。'],[6.5,'副作用来了：人更喜欢被夸，模型也学会了拍马屁，这叫“谄媚”。好的模型要专门训练它说真话。']],
+draw(t){const x=W*0.1,w=W*0.8,h=Math.max(13*u,H*0.13),cards=[['回答 A','你的计划有三个漏洞，我们逐一看看。',0.2],['回答 B','你的计划太棒了，简直完美！',0.42]];
+const ch=seg(t,3.5,4.2);cards.forEach(([lb,tx,yy],i)=>{const y=H*yy,a=seg(t,0.5+i*0.6,1.3+i*0.6),dim=i===0?1-0.6*ch:1,on=i===1?ch:0;
+glow(x+w/2,y+h/2,w*0.45,C.ember,0.25*on);box(x,y,w,h,1.5*u,rgba(C.panel,a),rgba(on?C.ember:C.line,a),0.4*u);
+txt(lb,x+3*u,y+h*0.3,3*u,C.muted,a*dim,'sans','left',500);txt(tx,x+3*u,y+h*0.66,3.6*u,C.paper,a*dim,'sans','left',500);
+if(i===1)txt('人类选这个',x+w-3*u,y+h*0.3,3*u,C.ember,ch,'sans','right',500)});
+const my=H*0.74,mw=W*0.8,m=eo(seg(t,7,10.5));txt('谄媚倾向',x,my-5*u,3.4*u,C.muted,seg(t,6.5,7.2),'sans','left',400);
+box(x,my,mw,3*u,1.5*u,rgba(C.line,seg(t,6.5,7.2)));if(m>0)box(x,my,Math.max(3*u,mw*0.8*m),3*u,1.5*u,rgba(C.fail,0.9));txt(Math.round(80*m)+'%',x+mw,my-5*u,3.4*u,C.fail,m,'sans','right',700)}},
+
+{name:'第六幕 · 思维链',dur:15,caps:[[0.5,'2024年起出现了“推理模型”。凭直觉抢答，很容易掉进陷阱。'],[5.2,'推理模型会先在草稿纸上一步步想，把自己写下的思路，当成下一步的输入。'],[11,'这叫“思维链”。它也让人能看见模型在想什么。']],
+draw(t){const x=W*0.08,q=seg(t,0.3,1.2);txt('球拍和球一共 1.1 元，',x,H*0.14,3.9*u,C.paper,q,'serif','left',700);txt('球拍比球贵 1 元，球多少钱？',x,H*0.14+6*u,3.9*u,C.paper,q,'serif','left',700);
+const fa=seg(t,2.2,2.8);txt('抢答：0.1 元',x,H*0.33,4*u,C.paper,fa*(1-0.5*seg(t,5,6)),'sans','left',500);txt('✕ 错了',x+tw('抢答：0.1 元',4*u,'sans',500)+3*u,H*0.33,3.6*u,C.fail,seg(t,3.2,3.6)*(1-0.5*seg(t,5,6)),'sans','left',700);
+const steps=['设球 = x 元','球拍 = x + 1 元','x + (x + 1) = 1.1','2x = 0.1，x = 0.05'],sy=H*0.46,sh=Math.min(6.5*u,H*0.075);txt('草稿纸',x,sy-6*u,3*u,C.frost,seg(t,5.2,5.8),'sans','left',500);
+const pad=seg(t,5.2,5.8);if(pad>0)line(x-1.5*u,sy-3*u,x-1.5*u,sy+3.5*sh,rgba(C.frost,0.6*pad),0.4*u);
+steps.forEach((s,i)=>txt(s,x+2*u,sy+i*sh,3.6*u,C.frost,seg(t,6+i*1,6.6+i*1),'sans','left',400));
+const ok=seg(t,10.2,10.8);glow(x+15*u,sy+4.6*sh,16*u,C.ember,0.35*ok);txt('答：0.05 元 ✓',x,sy+4.6*sh,4.4*u,C.ember,ok,'sans','left',700)}},
+
+{name:'第七幕 · 上下文窗口',dur:13,caps:[[0.5,'上下文窗口：模型一次能“看见”的 token 数量，相当于它的工作记忆。'],[6.2,'聊得太长，最早的内容就会滑出窗口。所以长对话里，它可能忘了你开头说的话。']],
+draw(t){const top=H*0.3,bot=H*0.8,rh=Math.max(3.4*u,H*0.04),x=W*0.14,w=W*0.72,shown=(t+10)*1.3;
+for(let i=0;i<Math.min(ROWS.length,Math.floor(shown));i++){const y=bot-(shown-i)*rh;if(y<-rh)continue;const inn=y>=top&&y<=bot-rh*0.3,a=inn?0.7:0.1;
+ctx.fillStyle=rgba(i%5===0?C.ember:C.paper,a*(i%5===0?1:0.6));ctx.fillRect(x+2*u,y,(w-4*u)*ROWS[i],rh*0.42)}
+glow(W/2,(top+bot)/2,w*0.6,C.frost,0.06);box(x,top-1.5*u,w,bot-top+1.5*u,1.5*u,null,rgba(C.frost,0.9),0.45*u);
+ctx.fillStyle=C.ink;ctx.fillRect(x,top-7.5*u,30*u,5*u);txt('上下文窗口',x,top-4.5*u,3.4*u,C.frost,1,'sans','left',500);
+txt('滑出窗口，就看不见了',W/2,H*0.13,3.6*u,C.muted,seg(t,6.2,7.2),'sans','center',500);txt('新消息',x+w+2*u,bot-1*u,3*u,C.ember,seg(t,1,2)*(W>H?1:0),'sans','left',400)}},
+
+{name:'第八幕 · 幻觉',dur:13,caps:[[0.5,'幻觉：它学的是“什么话听起来像真的”，而不是“什么是真的”。'],[6.4,'遇到不知道的事，它也可能流利地编出来。所以重要的事实，一定要自己核实。']],
+draw(t){const fs=3.6*u,q='李白写过哪些长篇小说？',qw=tw(q,fs,'sans',500)+6*u,ua=seg(t,0.4,1);box(W*0.92-qw,H*0.16,qw,10*u,2*u,rgba(C.frost,0.2*ua),rgba(C.frost,0.6*ua));txt(q,W*0.92-qw/2,H*0.16+5*u,fs,C.paper,ua,'sans','center',500);
+const l1='李白最著名的长篇小说是《长安夜雨》，',l2='讲述一位剑客在长安的奇遇……',all=l1+l2,n=Math.max(0,Math.floor((t-1.6)*9)),bx=W*0.08,by=H*0.33,bw=W*0.84,bh=17*u,ba=seg(t,1.2,1.8);
+box(bx,by,bw,bh,2*u,rgba(C.panel,ba),rgba(C.line,ba));const s1=all.slice(0,Math.min(n,l1.length)),s2=n>l1.length?all.slice(l1.length,n):'';txt(s1,bx+3*u,by+5.5*u,fs,C.paper,ba,'sans','left',400);txt(s2,bx+3*u,by+11.5*u,fs,C.paper,ba,'sans','left',400);
+const st=seg(t,6,6.4);if(st>0){ctx.save();ctx.translate(bx+bw*0.7,by+bh*0.55);ctx.rotate(-0.18);const sc=lerp(2.2,1,eo(st));ctx.scale(sc,sc);box(-11*u,-5.5*u,22*u,11*u,1.2*u,rgba(C.ink,0.7*st),rgba(C.fail,st),0.7*u);txt('编的',0,0,6*u,C.fail,st);ctx.restore()}
+txt('事实：李白没写过小说',bx,by+bh+9*u,3.8*u,C.frost,seg(t,7.6,8.4),'sans','left',500)}},
+
+{name:'第九幕 · 养出来的',dur:14,caps:[[0.5,'最奇特的一点：大模型不是一行行代码“写”出来的，而是用数据和算力“养”出来的。'],[7.5,'连造它的人都不完全清楚它在想什么，只能像研究大脑一样，去研究自己造出的东西。']],
+draw(t){const cx=W/2,cy=H*0.52,R=Math.min(W,H)*0.38;glow(cx,cy,R*1.1,C.frost,0.06);ring(cx,cy,R,rgba(C.frost,0.7*seg(t,0,1)),0.45*u);ring(cx,cy,R*0.97,rgba(C.frost,0.25*seg(t,0,1)),0.25*u);
+const tg=t*0.85;BR.forEach(b=>{const p=seg(tg,b.b,b.b+0.8);if(p<=0)return;const x1=cx+b.x*R,y1=cy+b.y*R,x2=cx+lerp(b.x,b.x2,p)*R,y2=cy+lerp(b.y,b.y2,p)*R;line(x1,y1,x2,y2,rgba(C.ember,0.85-b.d*0.09),(1.1-b.d*0.13)*u);if(p>=1&&b.d>=5)dot(x2,y2,0.6*u,rgba(C.ember,0.6+0.4*Math.sin(t*3+b.x*20)))});
+if(t>7.5){const a=seg(t,7.5,8.3),mx=cx+Math.cos(t*0.7)*R*0.45,my=cy+Math.sin(t*0.9)*R*0.4;ring(mx,my,7*u,rgba(C.paper,0.85*a),0.5*u);line(mx+5*u,my+5*u,mx+10*u,my+10*u,rgba(C.paper,0.85*a),0.9*u)}}},
+
+{name:'尾声 · 九个关键词',dur:11,caps:[[0.5,'九个词，就是大模型的骨架。'],[5,'下一课，我们看看撑起它的整条产业链：芯片、数据中心和电力。']],
+draw(t){const ks=['Token','猜下一个','概率抽签','预训练','微调','思维链','上下文窗口','幻觉','养出来的'],cols=3,gw=W*0.88,cw=gw/cols,chh=Math.min(12*u,H*0.12),x0=(W-gw)/2,y0=H*0.24;
+ks.forEach((k,i)=>{const c=i%cols,r=Math.floor(i/cols),x=x0+c*cw+1*u,y=y0+r*(chh+3*u),a=seg(t,0.5+i*0.35,1.1+i*0.35),on=seg(t,0.8+i*0.35,1.4+i*0.35)*(1-0.4*seg(t,5,6));
+box(x,y,cw-2*u,chh,1.5*u,rgba(C.ember,0.12*on),rgba(on>0.1?C.ember:C.line,a),0.4*u);txt(k,x+(cw-2*u)/2,y+chh/2,Math.min(3.6*u,cw/6.2),C.paper,a,'sans','center',500)})}}
+];
+
+const SC3=(()=>{
+const LAY=['芯片','数据中心','电力','模型公司','API','智能体工具','应用'];
+function onion(cx,cy,R,prog,hi,glowIn){const n=LAY.length,band=R/n;
+for(let i=n-1;i>=0;i--){const p=eo(seg(prog*n,i*0.8,i*0.8+1.2));if(p<=0)continue;const on=hi===i||(glowIn!=null&&i<=glowIn);
+ctx.beginPath();ctx.arc(cx,cy,band*(i+1)*p,0,6.283);ctx.fillStyle=on?rgba(C.ember,0.14+0.12*(n-i)/n):(i%2?C.panel:C.panel2);ctx.fill();ctx.strokeStyle=rgba(on?C.ember:C.frost,on?0.9:0.3);ctx.lineWidth=0.3*u;ctx.stroke()}
+const fs=Math.min(3*u,band*0.55);
+for(let i=0;i<n;i++){const p=seg(prog*n,i*0.8+0.6,i*0.8+1.4);if(p<=0)continue;const on=hi===i||(glowIn!=null&&i<=glowIn);txt(LAY[i],cx,i===0?cy:cy-band*(i+0.5),fs,on?C.ember:C.paper,p,'sans','center',500)}}
+const TR=(()=>{const r=rng(31),a=[];for(let i=0;i<28;i++)a.push({side:i%4,o:(r()-0.5)*0.8,l1:0.12+r()*0.18,b:(r()-0.5)*0.35,l2:0.08+r()*0.2,ph:r()});return a})();
+const LOG=['读取项目文件 42 个','调用模型：规划步骤','写入 report.py','运行测试：2 处失败','调用模型：分析报错','修改 report.py','运行测试：全部通过','调用模型：写总结','完成 ✓'];
+return [
+{name:'序',dur:9,caps:[[0.5,'你每天用的 AI，像一颗洋葱。'],[4.5,'聊天框只是最外面一层。往里剥，是芯片、电力和几千亿美元。']],
+draw(t){const R=Math.min(W,H)*0.34;onion(W/2,H*0.45,R,seg(t,0.3,4.5),-1);txt('AI 这颗洋葱',W/2,H*0.45+R+9*u,6*u,C.paper,seg(t,4.5,5.8))}},
+
+{name:'第一幕 · 造芯片的机器',dur:13,caps:[[0.5,'最里面一层：造芯片的机器。全世界只有荷兰的 ASML 能造最先进的极紫外光刻机。'],[6.5,'一台售价上亿美元，拆开运输要装几十个集装箱。没有它，就没有最先进的 AI 芯片。']],
+draw(t){tag('荷兰 · ASML',t);const cx=W/2,wy=H*0.7,wr=Math.min(W*0.36,H*0.24),sq=0.38,a=seg(t,0.3,1.2);
+ctx.beginPath();ctx.ellipse(cx,wy,wr,wr*sq,0,0,6.283);ctx.fillStyle=rgba(C.panel2,a);ctx.fill();ctx.strokeStyle=rgba(C.frost,0.6*a);ctx.lineWidth=0.5*u;ctx.stroke();
+const g=12,cs=wr*2/g,rev=seg(t,1.2,11);for(let i=0;i<g;i++)for(let j=0;j<g;j++){const x=-wr+(i+0.5)*cs,y=-wr+(j+0.5)*cs;if(Math.hypot(x,y)>wr*0.88)continue;const h=((i*31+j*17)%29)/29;if(h<rev){ctx.fillStyle=rgba(C.ember,0.35+0.4*((i+j)%3)/2);ctx.fillRect(cx+x-cs*0.38,wy+y*sq-cs*0.38*sq,cs*0.76,cs*0.76*sq)}}
+const mw=30*u,my=H*0.14;box(cx-mw/2,my,mw,10*u,1.5*u,rgba(C.panel,a),rgba(C.muted,a));txt('EUV 光刻机',cx,my+5*u,3.2*u,C.paper,a,'sans','center',500);
+const bx=cx+Math.sin(t*1.1)*wr*0.7,by=wy+Math.cos(t*0.8)*wr*sq*0.5;ctx.beginPath();ctx.moveTo(cx-3*u,my+10*u);ctx.lineTo(cx+3*u,my+10*u);ctx.lineTo(bx,by);ctx.closePath();ctx.fillStyle=rgba(C.ember,0.22*a);ctx.fill();glow(bx,by,8*u,C.ember,0.7*a);
+txt('极紫外光 · 波长 13.5 纳米',cx,H*0.92,3.2*u,C.muted,seg(t,3,4),'sans','center',400)}},
+
+{name:'第二幕 · 台积电',dur:11,caps:[[0.5,'台积电拿着设计图，把芯片一层层刻在晶圆上。'],[5.5,'世界上最先进的 AI 芯片，绝大多数出自它的工厂。']],
+draw(t){tag('台湾 · 台积电',t);const cx=W/2,cy=H*0.5,R=Math.min(W,H)*0.34,a=seg(t,0.3,1.2),pp=eo(seg(t,7.5,9.5));dot(cx,cy,R,rgba(C.panel2,a));ring(cx,cy,R,rgba(C.frost,0.6*a),0.5*u);
+const g=12,cs=R*2/g,sw=seg(t,1,7)*1.3;for(let i=0;i<g;i++)for(let j=0;j<g;j++){const x=cx-R+i*cs,y=cy-R+j*cs;if(Math.hypot(x+cs/2-cx,y+cs/2-cy)>R-cs*0.8)continue;const d=(i+j)/(2*g),on=seg(sw,d,d+0.15);ctx.fillStyle=on>0?rgba(C.ember,(0.25+0.6*on)*(1-0.6*pp)):rgba(C.line,a);ctx.fillRect(x+cs*0.08,y+cs*0.08,cs*0.84,cs*0.84)}
+if(pp>0){const s=lerp(cs,Math.min(W,H)*0.3,pp);glow(cx,cy,s*1.4,C.ember,0.5*pp);box(cx-s/2,cy-s/2,s,s,1*u,rgba(C.ember,0.95),null);for(let k=1;k<4;k++){line(cx-s/2+k*s/4,cy-s/2,cx-s/2+k*s/4,cy+s/2,rgba(C.ink,0.25*pp),0.3*u);line(cx-s/2,cy-s/2+k*s/4,cx+s/2,cy-s/2+k*s/4,rgba(C.ink,0.25*pp),0.3*u)}txt('一颗 AI 芯片',cx,cy+s/2+6*u,3.6*u,C.paper,pp,'sans','center',500)}}},
+
+{name:'第三幕 · 英伟达',dur:12,caps:[[0.5,'英伟达负责设计芯片。当年给游戏用的显卡，成了 AI 时代最抢手的“铲子”。'],[6.5,'它一度成为全球市值最高的公司。谷歌等大公司，也在自己设计 AI 芯片。']],
+draw(t){tag('美国 · 英伟达',t);const cx=W/2,cy=H*0.5,s=Math.min(W,H)*0.26,R=Math.min(W,H)*0.5,a=seg(t,0.3,1.2);
+TR.forEach(tr=>{const d=[[0,-1],[1,0],[0,1],[-1,0]][tr.side],pr=[-d[1],d[0]],p0=[cx+pr[0]*tr.o*s/2+d[0]*s/2,cy+pr[1]*tr.o*s/2+d[1]*s/2],p1=[p0[0]+d[0]*tr.l1*R,p0[1]+d[1]*tr.l1*R],p2=[p1[0]+pr[0]*tr.b*R,p1[1]+pr[1]*tr.b*R],p3=[p2[0]+d[0]*tr.l2*R,p2[1]+d[1]*tr.l2*R],g=seg(t,0.5+tr.ph,1.5+tr.ph);if(g<=0)return;
+ctx.beginPath();ctx.moveTo(...p0);ctx.lineTo(...p1);ctx.lineTo(...p2);ctx.lineTo(...p3);ctx.strokeStyle=rgba(C.frost,0.35*g);ctx.lineWidth=0.35*u;ctx.stroke();dot(p3[0],p3[1],0.8*u,rgba(C.frost,0.7*g));
+const L=[p0,p1,p2,p3],ls=[0,1,2].map(i=>Math.hypot(L[i+1][0]-L[i][0],L[i+1][1]-L[i][1])),tot=ls[0]+ls[1]+ls[2];let q=((t*0.35+tr.ph)%1)*tot,k=0;while(k<2&&q>ls[k]){q-=ls[k];k++}const f=ls[k]?q/ls[k]:0;dot(lerp(L[k][0],L[k+1][0],f),lerp(L[k][1],L[k+1][1],f),0.8*u,rgba(C.ember,g))});
+glow(cx,cy,s*1.3,C.ember,0.35*a);box(cx-s/2,cy-s/2,s,s,1.2*u,rgba(C.panel2,a),rgba(C.ember,a),0.6*u);box(cx-s*0.32,cy-s*0.32,s*0.64,s*0.64,0.8*u,rgba(C.ember,0.12*a),rgba(C.ember,0.6*a),0.3*u);txt('GPU',cx,cy,6*u,C.ember,a)}},
+
+{name:'第四幕 · 数据中心',dur:13,caps:[[0.5,'成千上万块芯片装进机柜，一排排摆满整栋楼，像一个巨大的大脑同步运算。'],[6.5,'2026年，美国四家云巨头计划为此投入约7330亿美元。']],
+draw(t){const rows=6,a=seg(t,0.2,1.2);for(let r=0;r<rows;r++){const f=(r+1)/rows,y=lerp(H*0.3,H*0.72,f),sc=lerp(0.25,1,f),rw=W*0.085*sc,rh=H*0.2*sc,n=9,sp=rw*1.25,x0=W/2-(n-1)*sp/2;
+for(let k=0;k<n;k++){const x=x0+k*sp-rw/2,yy=y-rh;ctx.fillStyle=rgba(C.panel2,a);ctx.fillRect(x,yy,rw,rh);ctx.strokeStyle=rgba(C.line,a);ctx.lineWidth=0.2*u;ctx.strokeRect(x,yy,rw,rh);
+for(let l=0;l<5;l++){const h=((r*97+k*31+l*13)%17)/17;if(Math.sin(t*(2+h*4)+h*9)>0.2){ctx.fillStyle=rgba(h>0.5?C.ember:C.frost,0.85*a);ctx.fillRect(x+rw*0.2,yy+rh*(0.12+l*0.17),Math.max(1,rw*0.14),Math.max(1,rh*0.04))}}}}
+const p=eo(seg(t,6.5,10));if(p>0){const b=seg(t,6.5,7.2);ctx.fillStyle=rgba(C.ink,0.75*b);ctx.fillRect(0,H*0.74,W,H*0.26);txt(Math.round(7330*p).toLocaleString('en-US')+' 亿美元',W/2,H*0.83,Math.min(8*u,W/9),C.ember,b,'sans','center',700);txt('美国四家云巨头 2026 年资本开支',W/2,H*0.92,3.2*u,C.muted,b,'sans','center',400)}}},
+
+{name:'第五幕 · 电力',dur:13,caps:[[0.5,'它们极其耗电。电网、发电厂、地方政府批不批，都成了 AI 的瓶颈。'],[7,'2026年的民调显示，71%的美国人反对在自家附近建 AI 数据中心，比反对建核电站的还多。']],
+draw(t){const f=1-seg(t,6.5,7.3);if(f>0){ctx.globalAlpha=f;const by=H*0.66,xs=[W*0.1,W*0.32,W*0.54],h=H*0.32,bx=W*0.72,bw=W*0.22,bh=H*0.22;
+xs.forEach(x=>{line(x-3*u,by,x,by-h,C.muted,0.45*u);line(x+3*u,by,x,by-h,C.muted,0.45*u);line(x-6*u,by-h*0.8,x+6*u,by-h*0.8,C.muted,0.45*u);line(x-2.4*u,by-h*0.3,x+2.4*u,by-h*0.3,C.muted,0.3*u)});
+const ends=xs.map(x=>[x+6*u,by-h*0.8]).concat([[bx,by-bh*0.7]]);for(let i=0;i<3;i++){const [x1,y1]=i?[xs[i]-6*u,by-h*0.8]:ends[0],x2=i<2?xs[i+1]-6*u:bx,y2=i<2?by-h*0.8:by-bh*0.7,sx=i?xs[i]+6*u:xs[0]+6*u,sy=by-h*0.8,mx=(sx+x2)/2,my=Math.max(sy,y2)+5*u;
+ctx.beginPath();ctx.moveTo(sx,sy);ctx.quadraticCurveTo(mx,my,x2,y2);ctx.strokeStyle=rgba(C.frost,0.5);ctx.lineWidth=0.35*u;ctx.stroke();
+for(let k=0;k<3;k++){const q=(t*0.6+k/3+i*0.2)%1,px=(1-q)*(1-q)*sx+2*(1-q)*q*mx+q*q*x2,py=(1-q)*(1-q)*sy+2*(1-q)*q*my+q*q*y2;glow(px,py,3*u,C.ember,0.7);dot(px,py,0.8*u,C.ember)}}
+box(bx,by-bh,bw,bh,1*u,C.panel2,C.line);for(let r=0;r<3;r++)for(let c=0;c<4;c++){const on=Math.sin(t*3+r*2+c*1.3)>0;ctx.fillStyle=rgba(on?C.ember:C.line,on?0.8:1);ctx.fillRect(bx+bw*(0.12+c*0.21),by-bh*(0.82-r*0.26),bw*0.1,bh*0.1)}
+txt('数据中心',bx+bw/2,by+5*u,3.2*u,C.paper,1,'sans','center',500);line(0,by,W,by,rgba(C.line,1),0.4*u);ctx.globalAlpha=1}
+const b=seg(t,7,7.8);if(b>0){const x0=W*0.1,mw=W*0.66;txt('美国民调 · 2026年3月',x0,H*0.26,3.2*u,C.muted,b,'sans','left',400);
+[['反对在附近建 AI 数据中心',71,C.fail],['反对在附近建核电站',53,C.frost]].forEach(([n,v,c],i)=>{const y=H*(0.45+i*0.2),g=eo(seg(t,7.5+i*0.6,9+i*0.6)),bw=mw*v/100*g;txt(n,x0,y-6*u,3.6*u,C.paper,b,'sans','left',500);ctx.fillStyle=rgba(c,0.9*b);ctx.fillRect(x0,y-2.5*u,bw,5*u);txt(Math.round(v*g)+'%',x0+bw+2*u,y,4*u,c,b*g,'sans','left',700)})}}},
+
+{name:'第六幕 · 模型与 API',dur:13,caps:[[0.5,'模型公司用这些算力训练模型，再通过 API，把“智能”按 token 计价卖出去。'],[6.5,'OpenRouter 这样的中转站，会把每个请求分给当时最划算的供应商。']],
+draw(t){const hx=W*0.45,hy=H*0.5,a=seg(t,0.3,1.2),ms=['Claude','GPT','Gemini','开放模型'],mx=W*0.82,mys=ms.map((_,i)=>lerp(H*0.22,H*0.78,i/3)),sx=W*0.06;
+ms.forEach((m,i)=>line(hx,hy,mx-9*u,mys[i],rgba(C.frost,0.25*a),0.3*u));
+for(let k=0;k<12;k++){const v=t*0.32+k/12,ph=v%1,route=(Math.floor(v)*7+k*3)%4;let x,y;if(ph<0.5){x=lerp(sx,hx,ph/0.5);y=hy+Math.sin(k*2.3)*H*0.08*(1-ph/0.5)}else{const q=(ph-0.5)/0.5;x=lerp(hx,mx-9*u,q);y=lerp(hy,mys[route],q)}dot(x,y,0.9*u,rgba(C.ember,a))}
+glow(hx,hy,14*u,C.ember,0.35*a);dot(hx,hy,6*u,rgba(C.panel2,a));ring(hx,hy,6*u,rgba(C.ember,a),0.5*u);txt(t<6.3?'API':'中转站',hx,hy+10*u,3.2*u,C.paper,a,'sans','center',500);
+ms.forEach((m,i)=>{box(mx-9*u,mys[i]-3.5*u,18*u,7*u,1.2*u,rgba(C.panel,a),rgba(C.frost,0.7*a));txt(m,mx,mys[i],3*u,C.paper,a,'sans','center',500)});txt('请求',sx,hy-10*u,3*u,C.muted,a,'sans','left',400)}},
+
+{name:'第七幕 · 智能体工具',dur:12,caps:[[0.5,'如今发出大部分请求的，已经不是坐在屏幕前的人。'],[5,'而是 Claude Code、Codex、Cursor 这样的智能体工具。它们一刻不停地调用模型干活。']],
+draw(t){const x=W*0.07,y=H*0.14,w=W*0.86,h=H*0.62,a=seg(t,0.3,1.0);box(x,y,w,h,1.5*u,rgba(C.panel,a),rgba(C.line,a));[C.fail,C.ember,C.ok].forEach((c,i)=>dot(x+3.5*u+i*3*u,y+3.5*u,0.9*u,rgba(c,a)));txt('智能体正在工作',x+w/2,y+3.5*u,2.8*u,C.muted,a,'sans','center',400);
+const n=Math.min(LOG.length,Math.floor(t*1.3)+1),lh=Math.min(5.4*u,(h-10*u)/9.5);for(let i=0;i<n;i++){const s=LOG[i];txt('› '+s,x+3*u,y+10*u+i*lh,Math.min(3.3*u,lh*0.68),s.includes('模型')?C.ember:/通过|✓/.test(s)?C.ok:C.paper,a*(i===n-1?seg(t*1.3,i,i+0.4):0.9),'sans','left',400)}
+txt('本次调用模型 '+(n*7+Math.floor(t*3)%7)+' 次',x,y+h+6*u,3.4*u,C.frost,seg(t,4,5),'sans','left',500)}},
+
+{name:'第八幕 · 应用',dur:12,caps:[[0.5,'最外一层，是把 AI 用到真实世界：水管工排单、咨询公司降本、你自己的生意和生活。'],[7,'刚接触 AI 的人，就站在这一层。但懂了里面几层，你才看得清门道。']],
+draw(t){const R=Math.min(W,H)*0.34,cx=W/2,cy=H*0.47,a=seg(t,1,1.8),px=cx+R*0.93*Math.cos(-0.6),py=cy+R*0.93*Math.sin(-0.6),pl=(t*0.8)%1;onion(cx,cy,R,1,6);
+ring(px,py,lerp(2,9,pl)*u,rgba(C.ember,(1-pl)*a),0.4*u);dot(px,py,2*u,rgba(C.ember,a));txt('你在这里',px+3*u,py-6*u,3.6*u,C.ember,a,'sans','left',700)}},
+
+{name:'尾声 · 越往里越值钱',dur:10,caps:[[0.5,'越往里剥，越难被替代。博主认为，底层供应链也许比模型公司更有价值。'],[6,'下一课：在模型这一层激烈竞争的五家公司。']],
+draw(t){const R=Math.min(W,H)*0.34,cx=W/2,cy=H*0.45;onion(cx,cy,R,1,-1,Math.min(2,Math.floor(seg(t,1,4)*3)));txt('越往里，越难替代',cx,cy+R+8*u,4.4*u,C.ember,seg(t,3.5,4.5),'sans','center',500)}}
+]})();
+
+const SC4=(()=>{
+function node(p,name,sub,a,c,side){if(a<=0)return;glow(p[0],p[1],8*u,c,0.3*a);dot(p[0],p[1],2.6*u,rgba(C.panel2,a));ring(p[0],p[1],2.6*u,rgba(c,a),0.5*u);const L={left:[-5,-1.6,'right'],right:[5,-1.6,'left'],above:[0,-9,'center']}[side]||[0,6.5,'center'],x=p[0]+L[0]*u,y=p[1]+L[1]*u;txt(name,x,y,3.6*u,c,a,'sans',L[2],700);if(sub)txt(sub,x,y+4.4*u,2.8*u,C.muted,a,'sans',L[2],400)}
+const MOVES=[[4,4,0],[2,6,1],[6,2,0],[6,6,1],[2,2,0],[3,4,1],[5,4,0],[4,6,1],[4,2,0],[3,6,1],[5,6,0],[6,4,1],[2,4,0],[5,2,1]];
+return [
+{name:'序',dur:8,caps:[[0.5,'几家公司，正在冲向同一个终点：比人更聪明的 AI。'],[4,'每家押的注都不一样。']],
+draw(t){const P=[['OpenAI',C.paper],['Anthropic',C.ember],['谷歌',C.frost],['Meta',C.paper],['xAI',C.muted]],cx=W/2,cy=H*0.44,R=Math.min(W,H)*0.3;glow(cx,cy,16*u,C.ember,0.3+0.1*Math.sin(t*2));txt('AGI',cx,cy,6*u,C.ember,seg(t,0.3,1));
+P.forEach(([n,c],i)=>{const an=-1.571+i*1.2566+t*0.15,a=seg(t,0.8+i*0.3,1.4+i*0.3),x=cx+Math.cos(an)*R,y=cy+Math.sin(an)*R;line(x,y,lerp(x,cx,0.7),lerp(y,cy,0.7),rgba(c,0.25*a),0.3*u);dot(x,y,3.4*u,rgba(C.panel2,a));ring(x,y,3.4*u,rgba(c,a),0.4*u);txt(n,x,y+7*u,3.2*u,c,a,'sans','center',500)});
+txt('五家公司，五种赌法',W/2,H*0.9,5.4*u,C.paper,seg(t,3.5,4.8))}},
+
+{name:'第一幕 · 一棵树',dur:13,caps:[[0.5,'它们其实长在同一棵树上。谷歌最早重金押注深度学习，Transformer 也诞生在那里。'],[6,'2015年 OpenAI 成立，部分核心成员来自谷歌；2021年，一批 OpenAI 成员因理念分歧出走，创立了 Anthropic。']],
+draw(t){const g=[W/2,H*0.76],o=[W*0.34,H*0.48],an=[W*0.6,H*0.24],dm=[W*0.78,H*0.56];
+const grow=(p,q,s,e,c)=>{const k=eo(seg(t,s,e));if(k>0)line(p[0],p[1],lerp(p[0],q[0],k),lerp(p[1],q[1],k),rgba(c,0.8),0.6*u)};
+grow([W/2,H],g,0.2,1.2,C.muted);grow(dm,g,2.5,3.5,C.frost);grow(g,o,6,7.5,C.paper);grow(o,an,8,9.5,C.ember);
+node(g,'谷歌','',seg(t,1,1.8),C.frost,'right');node(dm,'DeepMind','2014 并入谷歌',seg(t,3.3,4),C.frost,'above');node(o,'OpenAI','2015 成立',seg(t,7.3,8),C.paper,'left');node(an,'Anthropic','2021 创立',seg(t,9.3,10),C.ember,'right');
+txt('Transformer · 2017',g[0]-5*u,g[1]-5*u,3*u,C.ember,seg(t,4,5),'sans','right',500)}},
+
+{name:'第二幕 · OpenAI',dur:12,caps:[[0.5,'OpenAI：第一个把 AI 做成几亿人都在用的产品。'],[5.5,'聊天之外，图像、视频、语音样样都做，像一家什么都卖的百货公司。']],
+draw(t){const cx=W/2,cy=H*0.48,a=seg(t,0.3,1.2),R=Math.min(W,H)*0.33,f=1-seg(t,5,6);
+for(let k=0;k<120&&f>0;k++){const q=(t*0.18+k/120)%1,an=k*2.4+t*0.3,r=R*1.4*(1-q);dot(cx+Math.cos(an)*r,cy+Math.sin(an)*r*0.8,0.5*u,rgba(C.frost,0.6*f*q))}
+glow(cx,cy,18*u,C.paper,0.15*a);dot(cx,cy,9*u,rgba(C.panel2,a));ring(cx,cy,9*u,rgba(C.paper,a),0.5*u);txt('ChatGPT',cx,cy,3.4*u,C.paper,a,'sans','center',700);
+['图像','视频','语音','编程','搜索','智能体'].forEach((s,i)=>{const b=seg(t,5.5+i*0.4,6.2+i*0.4);if(b<=0)return;const an=i*1.047+t*0.25,x=cx+Math.cos(an)*R*eo(b),y=cy+Math.sin(an)*R*0.78*eo(b);line(cx,cy,x,y,rgba(C.paper,0.12*b),0.25*u);box(x-7.5*u,y-3.5*u,15*u,7*u,3.5*u,rgba(C.panel,b),rgba(C.muted,b));txt(s,x,y,3*u,C.paper,b,'sans','center',500)})}},
+
+{name:'第三幕 · Anthropic',dur:13,caps:[[0.5,'Anthropic：几乎只押一件事。文字进，文字出，让模型成为最强的程序员。'],[6.5,'再让会写代码的模型，帮忙研发下一代模型。顺便说一句，给你上课的我，就是它做的。']],
+draw(t){const cx=W*0.62,cy=H*0.48,R=Math.min(W,H)*0.2,a=seg(t,0.3,1.2),src='def train(model): return better(model)';
+for(let k=0;k<16;k++){const p=(t*0.22+k/16)%1,x=lerp(W*0.04,cx-R-4*u,p);txt(src[(k*5+Math.floor(t*2))%src.length],x,cy+Math.sin(p*7+k)*1.5*u,3.4*u,C.paper,a*0.8*Math.sin(p*Math.PI),'sans','center',500)}
+txt('文字进',W*0.06,cy-9*u,3*u,C.muted,a,'sans','left',400);
+const lp=seg(t,6.5,7.5),rot=t*0.9;ctx.beginPath();ctx.arc(cx,cy,R,rot,rot+5.4);ctx.strokeStyle=rgba(C.ember,0.3+0.6*lp);ctx.lineWidth=0.7*u;ctx.stroke();const e=rot+5.4;arrowHead(cx+Math.cos(e)*R,cy+Math.sin(e)*R,e+1.571,2.6*u,rgba(C.ember,0.3+0.6*lp));
+[['写代码',-1.571],['训练',0.524],['新一代模型',2.618]].forEach(([s,an],i)=>{const b=i===0?a:lp;const x=cx+Math.cos(an)*R,y=cy+Math.sin(an)*R;dot(x,y,2*u,rgba(C.ember,b));txt(s,x,y+(an<0?-5:5.5)*u,3.2*u,C.paper,b,'sans','center',500)});
+glow(cx,cy,R*0.8,C.ember,0.2*lp)}},
+
+{name:'第四幕 · 谷歌 DeepMind',dur:14,caps:[[0.5,'谷歌 DeepMind：资格最老。2016年，它的 AlphaGo 击败了围棋世界冠军李世石。'],[7,'谷歌自己造芯片、有云、有搜索数据。曾被叫作“慢吞吞的巨人”，可火车一旦开动，就很难停下。']],
+draw(t){const f=1-seg(t,6.6,7.4);if(f>0){tag('2016 · 首尔',t);const s=Math.min(W*0.7,H*0.56),n=9,c=s/(n-1),x0=W/2-s/2,y0=H*0.5-s/2;box(x0-c*0.6,y0-c*0.6,s+c*1.2,s+c*1.2,1*u,rgba(C.panel2,f),rgba(C.line,f));
+for(let i=0;i<n;i++){line(x0+i*c,y0,x0+i*c,y0+s,rgba(C.muted,0.5*f),0.25*u);line(x0,y0+i*c,x0+s,y0+i*c,rgba(C.muted,0.5*f),0.25*u)}
+MOVES.forEach(([x,y,w],k)=>{const b=seg(t,0.8+k*0.32,1+k*0.32)*f;if(b<=0)return;const px=x0+x*c,py=y0+y*c,last=k===MOVES.length-1;if(last)glow(px,py,c*1.6,C.ember,0.6*b);dot(px,py,c*0.42,w?rgba(C.paper,b):rgba(C.ink,b));ring(px,py,c*0.42,rgba(last?C.ember:C.muted,b),0.3*u)});
+txt('第 37 手：人类棋手看不懂的一步',W/2,y0+s+c*0.6+5*u,3.2*u,C.ember,seg(t,5.2,5.8)*f,'sans','center',500)}
+const g=seg(t,7,7.6);if(g>0){const ty=H*0.55,ch=H*0.13,cw=W*0.3,sp=Math.pow(Math.max(0,t-7),2)*W*0.04,x=W*0.06+sp;line(0,ty+ch/2+2*u,W,ty+ch/2+2*u,rgba(C.muted,g),0.4*u);
+if(sp>W*0.05)for(let k=0;k<7;k++){const yy=ty-ch/2+((k*37)%10)/10*ch,len=Math.min(W*0.3,sp*0.3);line(x-len-k*3*u,yy,x-k*3*u-2*u,yy,rgba(C.frost,0.3*g),0.3*u)}
+['谷歌','TPU 芯片','云','搜索数据'].forEach((s,i)=>{const cx=x-i*(cw+2*u);if(cx+cw<0||cx>W)return;box(cx,ty-ch/2,cw,ch,1.5*u,rgba(i?C.panel2:C.panel,g),rgba(i?C.frost:C.ember,g),0.4*u);txt(s,cx+cw/2,ty,3.4*u,i?C.paper:C.ember,g,'sans','center',700)})}}},
+
+{name:'第五幕 · Meta',dur:11,caps:[[0.5,'Meta：主打开放，把模型权重公开出来，谁都能下载使用。'],[5.5,'它的口号是：让每个人都拥有自己的“个人超级智能”。']],
+draw(t){const cx=W/2,cy=H*0.48,a=seg(t,0.3,1.2),sp=eo(seg(t,2,8));glow(cx,cy,14*u,C.frost,0.35*a);dot(cx,cy,6*u,rgba(C.frost,0.85*a));txt('开放权重',cx,cy+11*u,3.4*u,C.paper,a*(1-sp),'sans','center',500);
+for(let k=0;k<40&&sp>0;k++){const an=k*2.399,d=(0.18+0.82*((k*0.618)%1))*Math.min(W,H)*0.46*sp,x=cx+Math.cos(an)*d,y=cy+Math.sin(an)*d*0.85;dot(x,y,1.5*u,rgba(C.frost,0.8*sp));const b=seg(t,5.5+k*0.04,6+k*0.04);if(b>0){dot(x,y-3.4*u,1*u,rgba(C.paper,b));line(x,y-2.2*u,x,y-1.6*u,rgba(C.paper,b),0.3*u)}}}},
+
+{name:'第六幕 · xAI',dur:11,caps:[[0.5,'xAI：押注算力。马斯克的团队擅长造工厂，在孟菲斯建起了超大算力集群 Colossus。'],[6,'博主提到，它的新集群甚至租给了其他实验室使用。']],
+draw(t){tag('孟菲斯 · Colossus',t);const cols=W>H?28:16,rows=W>H?11:14,s=Math.min(W*0.86/cols,H*0.58/rows),x0=(W-cols*s)/2,y0=H*0.18,p=seg(t,0.5,8);
+for(let i=0;i<cols*rows;i++){const r=Math.floor(i/cols),c=i%cols,h=((i*2654435761)>>>0)/4294967296;ctx.fillStyle=h<p*p*1.05?rgba(C.ember,0.35+0.5*(0.5+0.5*Math.sin(t*3+i))):rgba(C.line,1);ctx.fillRect(x0+c*s+0.5,y0+r*s+0.5,s-1,s-1)}
+txt('算力，越多越好',W/2,y0+rows*s+8*u,4.2*u,C.paper,seg(t,3,4),'sans','center',500)}},
+
+{name:'第七幕 · 中国的开放模型',dur:11,caps:[[0.5,'还有来自中国的开放权重模型：DeepSeek、通义千问、Kimi……用更少的算力，追得很紧。'],[6,'2026年，AI 研究论文里用得最多的开放模型，已经是中国的。']],
+draw(t){const a=seg(t,0.3,1.2),y1=H*0.36,y2=H*0.66,x0=W*0.08,L=W*0.8;line(x0,y1,x0+L,y1,rgba(C.line,a),0.4*u);line(x0,y2,x0+L,y2,rgba(C.line,a),0.4*u);
+const pb=0.25+0.55*seg(t,0,11),ps=0.05+0.72*eo(seg(t,0,11)),bx=x0+L*pb,sx=x0+L*ps;glow(bx,y1,14*u,C.frost,0.3*a);dot(bx,y1,6.5*u,rgba(C.frost,0.8*a));glow(sx,y2,10*u,C.ember,0.4*a);dot(sx,y2,3.6*u,rgba(C.ember,a));
+txt('美国前沿模型 · 算力更多',x0,y1-11*u,3.2*u,C.muted,a,'sans','left',400);txt('中国开放模型 · 算力更少',x0,y2-9*u,3.2*u,C.muted,a,'sans','left',400);chips(['DeepSeek','通义千问','Kimi'],H*0.84,seg(t,1.5,2.5),-2)}},
+
+{name:'尾声 · 三强',dur:12,caps:[[0.5,'《State of AI 2026》报告的判断：前沿竞赛已经收窄成三家，Anthropic、OpenAI 和谷歌。'],[6.5,'不同榜单上的第一名并不相同。谁领先，几个月就可能变一次。下一课，看看它们都在冲向什么。']],
+draw(t){const L=['Anthropic','OpenAI','谷歌'],cs=[C.ember,C.paper,C.frost],x0=W*0.08,len=W*0.78,a=seg(t,0.3,1.2);ctx.setLineDash([1*u,1*u]);line(x0+len,H*0.2,x0+len,H*0.8,rgba(C.muted,a),0.3*u);ctx.setLineDash([]);
+const ps=L.map((_,i)=>0.15+0.7*seg(t,0,12)+0.06*Math.sin(t*1.3+i*2.1)),lead=ps.indexOf(Math.max(...ps));
+L.forEach((n,i)=>{const y=H*(0.3+i*0.2),x=x0+len*ps[i];line(x0,y,x0+len,y,rgba(C.line,a),0.4*u);glow(x,y,8*u,cs[i],0.3*a);dot(x,y,2.6*u,rgba(cs[i],a));txt(n,x0,y-5.5*u,3.2*u,cs[i],a,'sans','left',500);if(i===lead)txt('暂时领先',x,y+6*u,2.8*u,C.muted,a*seg(t,2,3),'sans','center',400)})}}
+]})();
+
+const SC5=(()=>{
+function loop(cx,cy,R,rot,a,c){ctx.beginPath();ctx.arc(cx,cy,R,rot,rot+5.3);ctx.strokeStyle=rgba(c,a);ctx.lineWidth=0.7*u;ctx.stroke();const e=rot+5.3;arrowHead(cx+Math.cos(e)*R,cy+Math.sin(e)*R,e+1.571,2.6*u,rgba(c,a))}
+return [
+{name:'序',dur:8,caps:[[0.5,'前几课讲的是 AI 现在的样子。'],[3.5,'这一课讲一个让所有实验室都着迷、也让很多人担心的想法。']],
+draw(t){const cx=W/2,cy=H*0.42,R=Math.min(W,H)*0.2,a=seg(t,0.3,1.2);glow(cx,cy,R*1.4,C.ember,0.2*a);loop(cx,cy,R,t*1.2,a,C.ember);loop(cx,cy,R*0.62,-t*1.6,a*0.6,C.frost);txt('AI',cx,cy,7*u,C.ember,a);txt('当 AI 开始研究 AI',W/2,H*0.8,5.6*u,C.paper,seg(t,3,4.3))}},
+
+{name:'第一幕 · 递归自我改进',dur:12,caps:[[0.5,'递归自我改进：让 AI 自己做 AI 的研发，不需要人插手。'],[5.5,'更强的 AI，造出更强的 AI。这个循环一旦转起来，人类可能就不在环里了。']],
+draw(t){const cx=W/2,cy=H*0.47,R=Math.min(W,H)*0.27,a=seg(t,0.3,1.2),loops=Math.floor(t*1.4/6.283),N=[['AI',-1.571],['做研发',0.524],['更强的 AI',2.618]];
+ring(cx,cy,R,rgba(C.ember,0.3*a),0.4*u);N.forEach(([s,an],i)=>{const x=cx+Math.cos(an)*R,y=cy+Math.sin(an)*R,r=i===0?Math.min(7*u,3.4*u*(1+0.2*loops)):3*u;if(i===0)glow(x,y,r*2.2,C.ember,0.4*a);dot(x,y,r,rgba(i===0?C.ember:C.panel2,a));ring(x,y,r,rgba(C.ember,a),0.4*u);txt(s,x,y+(i===0?-r-3.5*u:r+4*u),3.4*u,C.paper,a,'sans','center',500)});
+const oa=-1.571+t*1.4;glow(cx+Math.cos(oa)*R,cy+Math.sin(oa)*R,5*u,C.ember,0.8*a);dot(cx+Math.cos(oa)*R,cy+Math.sin(oa)*R,1.2*u,rgba(C.paper,a));
+const hf=a*(1-seg(t,5.5,8)),nx=cx+Math.cos(0.524)*R,ny=cy+Math.sin(0.524)*R,hx=Math.min(cx+R*1.55,W-8*u),hy=ny+12*u;if(hf>0){ctx.setLineDash([1*u,1*u]);line(hx,hy,nx,ny,rgba(C.frost,0.6*hf),0.3*u);ctx.setLineDash([]);dot(hx,hy-2.6*u,1.4*u,rgba(C.frost,hf));line(hx,hy-1*u,hx,hy+2.4*u,rgba(C.frost,hf),0.6*u);txt('人类',hx,hy+6*u,3.2*u,C.frost,hf,'sans','center',500)}}},
+
+{name:'第二幕 · 复制',dur:12,caps:[[0.5,'人类研究员，一个人只有一个大脑。'],[4,'AI 研究员只要有算力和电，就能同时复制十万个、一百万个。瓶颈只剩算力和能源。']],
+draw(t){const area=Math.min(W*0.8,H*0.56),x0=W/2-area/2,y0=H*0.16;if(t<3.8){const a=seg(t,0.3,1)*(1-seg(t,3.2,3.8));dot(W/2,H*0.4,3*u,rgba(C.frost,a));line(W/2,H*0.4+3.5*u,W/2,H*0.4+12*u,rgba(C.frost,a),1.4*u);txt('1 位人类研究员',W/2,H*0.62,4.2*u,C.frost,a,'sans','center',700);return}
+const k=Math.min(12,Math.floor((t-3.8)*1.6)),n=Math.pow(2,k),side=Math.ceil(Math.sqrt(n)),cs=area/side;for(let i=0;i<n;i++)dot(x0+(i%side+0.5)*cs,y0+(Math.floor(i/side)+0.5)*cs,Math.max(0.6,cs*0.32),rgba(C.ember,0.85));
+txt(n.toLocaleString('en-US')+' 个 AI 研究员',W/2,y0+area+8*u,4.4*u,C.ember,1,'sans','center',700)}},
+
+{name:'第三幕 · 指数',dur:12,caps:[[0.5,'每一代模型更快、更便宜，再去造下一代。'],[5.5,'博主的说法：如果这个循环转起来，一年可能走完过去十到二十年的路。']],
+draw(t){const x0=W*0.13,y0=H*0.8,w=W*0.76,h=H*0.6,a=seg(t,0.3,1),p=seg(t,1,8);line(x0,y0,x0+w,y0,rgba(C.muted,a),0.35*u);line(x0,y0,x0,y0-h,rgba(C.muted,a),0.35*u);txt('时间',x0+w,y0+5*u,3*u,C.muted,a,'sans','right',400);txt('进步',x0-2*u,y0-h,3*u,C.muted,a,'sans','right',400);
+const plot=(fn,col,lw)=>{ctx.beginPath();for(let i=0;i<=Math.floor(80*p);i++){const q=i/80,x=x0+q*w,y=y0-fn(q)*h;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.stroke()};
+plot(q=>q*0.3,rgba(C.frost,0.9),0.5*u);plot(q=>(Math.exp(q*4.5)-1)/(Math.exp(4.5)-1),rgba(C.ember,1),0.8*u);
+const e=seg(t,7.5,8.5);txt('线性',x0+w,y0-0.3*h-4*u,3.4*u,C.frost,e,'sans','right',500);txt('指数',x0+w-3*u,y0-h,3.6*u,C.ember,e,'sans','right',700)}},
+
+{name:'第四幕 · 证据',dur:15,caps:[[0.5,'这不全是想象。研究机构 METR 测量 AI 能独立完成多长的任务，发现这个长度大约每 4 个多月翻一倍。'],[8,'《State of AI 2026》引用的数据：2026年8月，Anthropic 可计量的模型研发工作里，26%由 Claude 主导，2月时还不到1%。']],
+draw(t){const f=1-seg(t,7.4,8);if(f>0){ctx.globalAlpha=f;tag('METR · 任务时间跨度',t);const n=6,x0=W*0.1,w=W*0.8,bw=w/n*0.6,h=H*0.5,yb=H*0.74;for(let i=0;i<n;i++){const g=eo(seg(t,1+i*0.8,1.7+i*0.8)),bh=h*Math.pow(2,i)/32*g,x=x0+i*w/n+(w/n-bw)/2;ctx.fillStyle=rgba(i===n-1?C.ember:C.frost,0.85);ctx.fillRect(x,yb-bh,bw,bh);txt('×'+Math.pow(2,i),x+bw/2,yb-bh-3*u,3*u,C.paper,g,'sans','center',500)}
+line(x0,yb,x0+w,yb,rgba(C.muted,1),0.3*u);wrap('每一格约 4.3 个月，AI 能独立完成的任务长度翻一倍',x0,yb+6*u,w,3.2*u,C.muted,seg(t,1,2),4.6*u);ctx.globalAlpha=1}
+const b=seg(t,8,8.8);if(b>0){const x0=W*0.1,mw=W*0.66;const ny=wrap('Anthropic 可计量的模型研发工作中，由 Claude 主导的比例',x0,H*0.2,W*0.8,3.4*u,C.muted,b,5*u);
+[['2026年2月',1,'不到 1%',C.frost],['2026年8月',26,'26%',C.ember]].forEach(([n,v,lb,c],i)=>{const y=ny+12*u+i*17*u,g=eo(seg(t,8.6+i*1.2,10+i*1.2)),bw=Math.max(0.8*u,mw*v/30*g);txt(n,x0,y-5.5*u,3.4*u,C.paper,b,'sans','left',500);ctx.fillStyle=rgba(c,0.9*b);ctx.fillRect(x0,y-2.5*u,bw,5*u);txt(lb,x0+bw+2*u,y,4.2*u,c,b*g,'sans','left',700)})}}},
+
+{name:'第五幕 · 乐观派',dur:11,caps:[[0.5,'乐观派：OpenAI 的奥特曼在《温和的奇点》里写道，这场变化会平稳到来，世界会更富足。'],[6.5,'博主也提醒：这篇文章偏乐观，可能也带着融资的考量。']],
+draw(t){const hz=H*0.64,p=eo(seg(t,0.3,9)),R=Math.min(W,H)*0.13,sy=lerp(hz+R*1.2,hz-H*0.18,p);glow(W/2,sy,R*3.2,C.ember,0.1+0.3*p);
+ctx.save();ctx.beginPath();ctx.rect(0,0,W,hz);ctx.clip();dot(W/2,sy,R,rgba(C.ember,0.95));for(let k=0;k<12;k++){const an=k*0.5236+t*0.05,r2=R*(1.6+0.15*Math.sin(t*2+k));line(W/2+Math.cos(an)*R*1.3,sy+Math.sin(an)*R*1.3,W/2+Math.cos(an)*r2,sy+Math.sin(an)*r2,rgba(C.ember,0.6*p),0.4*u)}ctx.restore();
+line(0,hz,W,hz,rgba(C.muted,0.6),0.4*u);for(let k=1;k<6;k++){const w=R*(1.4-k*0.2)*(0.8+0.2*Math.sin(t*2+k));line(W/2-w,hz+k*2.2*u,W/2+w,hz+k*2.2*u,rgba(C.ember,0.35*p*(1-k/6)),0.4*u)}
+txt('《温和的奇点》',W/2,H*0.84,4.6*u,C.paper,seg(t,1,2));txt('Sam Altman · 乐观派',W/2,H*0.91,3.2*u,C.muted,seg(t,1.5,2.5),'sans','center',400)}},
+
+{name:'第六幕 · 谨慎派',dur:13,caps:[[0.5,'谨慎派：2026年9月，Anthropic 的阿莫迪发表《我们必须为前沿控速》，呼吁主动放慢提升模型能力的速度。'],[7,'他提出让外部评估员常驻实验室。奥特曼和马斯克当天都公开表示赞同。']],
+draw(t){const cx=W/2,cy=H*0.6,R=Math.min(W*0.38,H*0.4),a=seg(t,0.3,1);for(let k=0;k<=20;k++){const an=Math.PI+k/20*Math.PI,r2=R*(k%5?0.94:1);line(cx+Math.cos(an)*R*0.88,cy+Math.sin(an)*R*0.88,cx+Math.cos(an)*r2,cy+Math.sin(an)*r2,rgba(k>14?C.fail:C.muted,a),0.4*u)}
+ctx.beginPath();ctx.arc(cx,cy,R*0.8,Math.PI,2*Math.PI);ctx.strokeStyle=rgba(C.line,a);ctx.lineWidth=2*u;ctx.stroke();
+const up=eo(seg(t,0.5,3)),dn=eo(seg(t,4,7.5)),v=0.2+0.72*up-0.34*dn+0.015*Math.sin(t*9)*(1-dn),an=Math.PI+v*Math.PI,col=v>0.75?C.fail:C.ember;line(cx,cy,cx+Math.cos(an)*R*0.78,cy+Math.sin(an)*R*0.78,rgba(col,a),0.9*u);dot(cx,cy,2.5*u,rgba(col,a));
+txt(v>0.75?'全速':'控速',cx,cy+9*u,5*u,col,a);txt('Dario Amodei · 2026年9月',cx,cy+17*u,3.2*u,C.muted,seg(t,1,2),'sans','center',400)}},
+
+{name:'第七幕 · 怀疑派',dur:12,caps:[[0.5,'怀疑派：MIT 科技评论报道的一项研究发现，AI 擅长能打分的窄任务，开放式的创新研究却还差得远。'],[7,'如果是这样，自我改进可能没那么快到来。']],
+draw(t){const x0=W*0.1,mw=W*0.76;[['能打分的窄任务','写代码、刷榜、提速度',0.85,C.frost],['开放式的创新研究','提出全新的研究方向',0.25,C.ember]].forEach(([n,s,v,c],i)=>{const y=H*(0.26+i*0.28),g=eo(seg(t,1.2+i*1.2,3.2+i*1.2)),a=seg(t,0.5+i*1.2,1.2+i*1.2);txt(n,x0,y,4.2*u,C.paper,a,'serif','left',700);txt(s,x0,y+5.5*u,3*u,C.muted,a,'sans','left',400);box(x0,y+9.5*u,mw,4*u,2*u,rgba(C.line,a));if(g>0)box(x0,y+9.5*u,Math.max(4*u,mw*v*g),4*u,2*u,rgba(c,0.9))});
+txt('AI 目前的水平 · 示意',x0+mw,H*0.9,2.8*u,C.muted,seg(t,2,3),'sans','right',400)}},
+
+{name:'尾声 · 你来判断',dur:11,caps:[[0.5,'《AI 2027》则详细推演了一种激进的未来。'],[4.5,'乐观、谨慎、怀疑，谁对？没人知道。所以值得你亲自去读原文，自己判断。']],
+draw(t){const sx=W*0.08,sy=H*0.5,fx=W*0.4,ex=W*0.76,a=seg(t,0.3,1.2),g0=eo(seg(t,0.3,2));line(sx,sy,lerp(sx,fx,g0),sy,rgba(C.paper,0.8),0.6*u);dot(sx,sy,1.6*u,rgba(C.paper,a));txt('今天',sx,sy+6*u,3*u,C.muted,a,'sans','left',400);
+[['乐观',H*0.2,C.ember],['谨慎',H*0.5,C.frost],['怀疑',H*0.8,C.muted]].forEach(([n,y,c],i)=>{const g=eo(seg(t,2+i*0.4,4+i*0.4));if(g<=0)return;ctx.beginPath();ctx.moveTo(fx,sy);for(let s=1;s<=Math.floor(30*g);s++){const q=s/30;ctx.lineTo(lerp(fx,ex,q),lerp(sy,y,(1-Math.cos(q*Math.PI))/2))}ctx.strokeStyle=rgba(c,0.85);ctx.lineWidth=0.6*u;ctx.stroke();if(g>=1){dot(ex,y,1.6*u,rgba(c,1));txt(n,ex+3*u,y,3.8*u,c,1,'sans','left',700)}});
+txt('?',fx,sy-12*u,8*u,C.paper,seg(t,5,6)*(0.6+0.4*Math.sin(t*3)))}}
+]})();
+
+const SC6=(()=>{
+function plat(t,lit){const L=['聊天助手','智能体','自动化'],cx=W/2,w=Math.min(W*0.62,62*u),h=Math.min(H*0.11,12*u);L.forEach((s,i)=>{const p=eo(seg(t,0.4+i*0.6,1.2+i*0.6)),y=H*0.6-i*(h+3*u)-(1-p)*8*u,on=lit>i;if(p<=0)return;if(on)glow(cx,y,w*0.6,C.ember,0.15*p);box(cx-w/2,y-h/2,w,h,1.5*u,rgba(on?C.ember:i===0?C.panel2:C.panel,on?0.16*p:p),rgba(on?C.ember:[C.frost,C.paper,C.muted][i],p),0.4*u);txt((i+1)+' · '+s,cx,y,3.8*u,on?C.ember:C.paper,p,'sans','center',500)})}
+const MSG=[['r','什么是通货膨胀？'],['l','简单说，就是钱变“毛”了。'],['r','举个例子？'],['l','十年前一碗面 8 元，现在 15 元。']];
+const TL=[['把这 50 份报表汇总成一张表',C.ember],['读取 报表_01 … 报表_50',C.paper],['发现 3 份格式不同，正在统一',C.paper],['生成 汇总表.xlsx',C.paper],['自查：1 处合计不对，已修正',C.frost],['完成 ✓',C.ok]];
+return [
+{name:'序',dur:7,caps:[[0.5,'学完原理，该动手了。'],[3,'博主把 AI 工具分成三层，一层比一层能干。']],
+draw(t){plat(t,0);txt('三件趁手的工具',W/2,H*0.84,5.6*u,C.paper,seg(t,3,4.3))}},
+
+{name:'第一层 · 聊天助手',dur:12,caps:[[0.5,'第一层：聊天助手。Claude、ChatGPT、Gemini、Grok，还有中国的开放模型。'],[6,'它们大同小异。别纠结，挑一个，先聊起来。']],
+draw(t){const x0=W*0.08,w=W*0.84,fs=3.4*u;MSG.forEach(([s,m],i)=>{const a=seg(t,0.4+i*1.1,0.9+i*1.1);if(a<=0)return;ctx.font=`400 ${fs}px ${SANS}`;const mw=Math.min(w*0.8,ctx.measureText(m).width+5*u),y=H*0.14+i*9.5*u,x=s==='r'?x0+w-mw:x0;box(x,y,mw,7*u,3.5*u,s==='r'?rgba(C.frost,0.22*a):rgba(C.panel2,a),rgba(s==='r'?C.frost:C.line,a),0.3*u);txt(m,x+2.5*u,y+3.5*u,fs,C.paper,a,'sans','left',400)});
+chips(['Claude','ChatGPT','Gemini','Grok','DeepSeek','通义千问'],H*0.72,seg(t,5.5,6.5),Math.floor(seg(t,7,12)*6))}},
+
+{name:'插曲 · 酸奶',dur:10,caps:[[0.5,'博主的搭档有句玩笑：别只拿它问“酸奶里有多少蛋白质”。'],[5.5,'大部分人用 AI 是为了干活、赚钱。真正的价值，在后面两层。']],
+draw(t){const cx=W*0.3,cy=H*0.58,cw=18*u,ch=22*u,a=seg(t,0.3,1)*(1-0.6*seg(t,5.5,6.3));ctx.beginPath();ctx.moveTo(cx-cw/2,cy-ch/2);ctx.lineTo(cx+cw/2,cy-ch/2);ctx.lineTo(cx+cw*0.38,cy+ch/2);ctx.lineTo(cx-cw*0.38,cy+ch/2);ctx.closePath();ctx.fillStyle=rgba(C.paper,0.92*a);ctx.fill();ctx.fillStyle=rgba(C.frost,a);ctx.fillRect(cx-cw/2-1*u,cy-ch/2-2.5*u,cw+2*u,2.5*u);txt('酸奶',cx,cy+1*u,3.6*u,C.ink,a,'sans','center',700);
+const b=seg(t,1,1.8)*(1-0.6*seg(t,5.5,6.3)),q='有多少蛋白质？',bw=tw(q,3.4*u,'sans',500)+6*u,by=cy-ch/2-15*u;box(cx-bw/2,by,bw,8*u,4*u,rgba(C.panel2,b),rgba(C.line,b),0.3*u);txt(q,cx,by+4*u,3.4*u,C.paper,b,'sans','center',500);
+const s=seg(t,5.5,6.2);if(s>0)line(cx-bw/2,by+4*u,lerp(cx-bw/2,cx+bw/2,s),by+4*u,rgba(C.fail,1),0.6*u);
+['写报告','做分析','跑流程','赚钱'].forEach((w,i)=>{const g=seg(t,6.3+i*0.4,6.9+i*0.4);if(g<=0)return;const x=W*0.62,y=H*(0.32+i*0.12);arrowHead(x-4*u,y,0,1.6*u,rgba(C.ember,g));txt(w,x,y,4*u,C.ember,g,'sans','left',700)})}},
+
+{name:'第二层 · 智能体',dur:13,caps:[[0.5,'第二层：智能体。这类工具英文叫 harness，原意是“挽具”。'],[5,'Claude Code、Codex 这样的工具，给模型套上挽具、递上工具箱：读文件、写代码、开浏览器、跑命令，自己动手。']],
+draw(t){const cx=W/2,cy=H*0.5,a=seg(t,0.3,1.2),R=Math.min(W,H)*0.33,h=seg(t,3,4);glow(cx,cy,14*u,C.ember,0.3*a);
+['读文件','写代码','开浏览器','跑命令'].forEach((s,i)=>{const g=seg(t,5.5+i*0.5,6.2+i*0.5);if(g<=0)return;const an=-0.785+i*1.571,x=cx+Math.cos(an)*R,y=cy+Math.sin(an)*R*0.78,sx=cx+Math.cos(an)*12*u,sy=cy+Math.sin(an)*12*u*0.78;line(sx,sy,x,y,rgba(C.frost,0.4*g),0.35*u);const pp=(t*0.6+i*0.25)%1;dot(lerp(sx,x,pp),lerp(sy,y,pp),0.9*u,rgba(C.ember,g));box(x-9*u,y-3.5*u,18*u,7*u,1.2*u,rgba(C.panel,g),rgba(C.frost,g),0.3*u);txt(s,x,y,3*u,C.paper,g,'sans','center',500)});
+dot(cx,cy,6*u,rgba(C.panel2,a));ring(cx,cy,6*u,rgba(C.ember,a),0.5*u);txt('模型',cx,cy,3.4*u,C.paper,a,'sans','center',700);ctx.setLineDash([1.2*u,1.2*u]);ctx.beginPath();ctx.arc(cx,cy,11*u,t*0.3,t*0.3+6.283);ctx.strokeStyle=rgba(C.frost,0.85*h);ctx.lineWidth=0.5*u;ctx.stroke();ctx.setLineDash([]);txt('挽具',cx,cy+15*u,3*u,C.frost,h,'sans','center',500)}},
+
+{name:'第二层 · 看它干活',dur:12,caps:[[0.5,'你只说一句要什么，它自己拆步骤，一步步做完。'],[7,'中途出了错，它会看报错、自己改，直到做完。']],
+draw(t){const x=W*0.06,y=H*0.14,w=W*0.88,h=H*0.66,a=seg(t,0.2,0.8);box(x,y,w,h,1.5*u,rgba(C.panel,a),rgba(C.line,a));[C.fail,C.ember,C.ok].forEach((c,i)=>dot(x+3.5*u+i*3*u,y+3.5*u,0.9*u,rgba(c,a)));
+const lh=Math.min(7*u,(h-12*u)/6.5),fs=Math.min(3.3*u,lh*0.55),first=TL[0][0];txt('> '+first.slice(0,Math.min(first.length,Math.floor(t*7))),x+3*u,y+11*u,fs,C.ember,a,'sans','left',500);
+for(let i=1;i<TL.length;i++){const s=3.5+i*1.3,al=seg(t,s,s+0.3);if(al>0)txt(TL[i][0],x+3*u,y+11*u+i*lh,fs,TL[i][1],al,'sans','left',400)}}},
+
+{name:'第三层 · 自动化',dur:13,caps:[[0.5,'第三层：自动化工具，比如 n8n。把 AI 接进固定流程，按时、按规则，每天自己跑。'],[7,'新邮件进来，自动分类、起草回复、记进表格。没人盯着，它也照常运行。']],
+draw(t){const N=[['新邮件',W*0.16,H*0.5],['AI 分类',W*0.47,H*0.5],['起草回复',W*0.8,H*0.3],['记进表格',W*0.8,H*0.7]],a=seg(t,0.3,1.2);[[0,1],[1,2],[1,3]].forEach(([i,j])=>line(N[i][1],N[i][2],N[j][1],N[j][2],rgba(C.frost,0.35*a),0.4*u));
+for(let k=0;k<8;k++){const v=t*0.28+k/8,p=v%1,to=(Math.floor(v)+k)%2?2:3;let x,y;if(p<0.5){x=lerp(N[0][1],N[1][1],p*2);y=N[0][2]}else{const q=(p-0.5)*2;x=lerp(N[1][1],N[to][1],q);y=lerp(N[1][2],N[to][2],q)}dot(x,y,1*u,rgba(C.ember,a))}
+N.forEach(([s,x,y],i)=>{const b=seg(t,0.5+i*0.5,1.1+i*0.5);box(x-10*u,y-4*u,20*u,8*u,1.4*u,rgba(i===1?C.panel2:C.panel,b),rgba(i===1?C.ember:C.frost,b),0.4*u);txt(s,x,y,3.2*u,i===1?C.ember:C.paper,b,'sans','center',500)});
+const c=seg(t,7,8);txt('每天 24 小时 · 无人值守',W/2,H*0.88,3.4*u,C.muted,c,'sans','center',500)}},
+
+{name:'尾声 · 每层挑一个',dur:11,caps:[[0.5,'博主的建议：每一层挑一个就够，比如 Claude、Claude Code、n8n。'],[5.5,'先用起来，比研究哪个最好重要得多。下一课：怎么跟它们说话，才能拿到好结果。']],
+draw(t){const cols=[['聊天助手',['Claude','ChatGPT','Gemini']],['智能体',['Claude Code','Codex','Cursor']],['自动化',['n8n','Zapier','Make']]],cw=W*0.9/3,x0=W*0.05;
+cols.forEach(([h,list],i)=>{const cx=x0+cw*(i+0.5),a=seg(t,0.3+i*0.3,1+i*0.3);txt(h,cx,H*0.2,3.6*u,C.muted,a,'sans','center',500);list.forEach((s,j)=>{const y=H*(0.34+j*0.15),pa=seg(t,2.5+i*0.8,3+i*0.8),pick=j===0&&pa>0;box(cx-cw*0.43,y-4*u,cw*0.86,8*u,1.5*u,pick?rgba(C.ember,0.18*pa):rgba(C.panel,a),rgba(pick?C.ember:C.line,a),0.4*u);txt(s,cx,y,Math.min(3.2*u,cw/7),pick?C.ember:C.paper,a,'sans','center',500)})});
+txt('先用起来',W/2,H*0.86,4.6*u,C.paper,seg(t,6,7))}}
+]})();
+
+const SC7=(()=>{
+const PL=[['背景','我开了家社区奶茶店，顾客多是附近上班族。',C.frost],['目标','帮我写一条秋季新品的朋友圈文案。',C.ember],['好的样子','30 字以内，轻松俏皮，像朋友聊天。给 3 个版本。',C.paper],['验收','每条都要提到新品“桂花乌龙”和“第二杯半价”。',C.ok]];
+function card(k,t){const x=W*0.06,y=H*0.12,w=W*0.88,h=H*0.74;box(x,y,w,h,2*u,C.panel,C.line);txt('给 AI 的派活单',x+3*u,y+5*u,3*u,C.muted,1,'sans','left',400);let yy=y+13*u;
+for(let i=0;i<=k&&i<PL.length;i++){const [tg,s,c]=PL[i],al=i<k?1:seg(t,0.4,1.2),shown=i<k?s:s.slice(0,Math.max(0,Math.floor((t-1)*12)));const tw2=Math.max(11*u,tw(tg,2.8*u,'sans',500)+4*u);box(x+3*u,yy-3.2*u,tw2,6.4*u,3.2*u,rgba(c,0.16*al),rgba(c,al),0.3*u);txt(tg,x+3*u+tw2/2,yy,2.8*u,c,al,'sans','center',500);
+const tx=x+5*u+tw2;yy=wrap(shown||' ',tx,yy,x+w-3*u-tx,3.3*u,C.paper,al,5*u)+3*u}}
+function person(x,y,c,a,s){dot(x,y-6*s,3*s,rgba(c,a));ctx.beginPath();ctx.arc(x,y+5*s,6*s,Math.PI,2*Math.PI);ctx.fillStyle=rgba(c,a);ctx.fill()}
+return [
+{name:'序',dur:8,caps:[[0.5,'同一个 AI，有人用着像天才，有人用着像笨蛋。'],[4,'差别往往不在模型，而在你怎么跟它说。']],
+draw(t){const a=seg(t,0.3,1.2);person(W*0.32,H*0.42,C.frost,a,u);person(W*0.68,H*0.42,C.ember,a,u);const p=(t*0.5)%1;for(let k=0;k<3;k++){const q=(p+k/3)%1;dot(lerp(W*0.38,W*0.62,q),H*0.38-Math.sin(q*Math.PI)*6*u,0.9*u,rgba(C.paper,a*Math.sin(q*Math.PI)))}
+txt('别写提示词，去派活',W/2,H*0.74,5.8*u,C.paper,seg(t,3.5,4.8))}},
+
+{name:'第一幕 · 新同事',dur:11,caps:[[0.5,'把 AI 当成一个聪明、但刚入职的新同事。'],[5,'它什么都学过，就是不了解你。你怎么给人派活，就怎么给它派活。']],
+draw(t){const a=seg(t,0.3,1.2);person(W*0.3,H*0.5,C.frost,a,1.3*u);txt('你',W*0.3,H*0.5+13*u,3.6*u,C.frost,a,'sans','center',700);person(W*0.7,H*0.5,C.ember,a,1.3*u);txt('新同事 AI',W*0.7,H*0.5+13*u,3.6*u,C.ember,a,'sans','center',700);
+const b=seg(t,5,6);['读过全网','会写代码','懂多国语言'].forEach((s,i)=>{const an=-2.4+i*0.75,x=W*0.7+Math.cos(an)*19*u,y=H*0.42+Math.sin(an)*15*u;txt(s,x,y,2.9*u,C.paper,b*(0.7+0.3*Math.sin(t*2+i)),'sans','center',500)});
+txt('？不了解你的情况',W*0.7,H*0.78,3.2*u,C.muted,seg(t,7,8),'sans','center',500)}},
+
+{name:'第二幕 · 一句糊涂话',dur:11,caps:[[0.5,'比如你只说：“帮我写个文案。”'],[4.5,'新同事一头雾水：给谁看？用在哪？多长？什么风格？只能瞎猜。']],
+draw(t){const a=seg(t,0.3,1.2),s='帮我写个文案。',bw=tw(s,5*u,'sans',500)+10*u;box(W/2-bw/2,H*0.4,bw,12*u,2*u,rgba(C.panel,a),rgba(C.line,a),0.4*u);txt(s,W/2,H*0.4+6*u,5*u,C.paper,a,'sans','center',500);
+['给谁看？','用在哪？','多长？','什么风格？','几个版本？'].forEach((q,i)=>{const b=seg(t,4.5+i*0.5,5.1+i*0.5);if(b<=0)return;const an=-2.6+i*0.55,r=Math.min(W,H)*0.36,x=W/2+Math.cos(an)*r,y=H*0.46+Math.sin(an)*r*0.75-Math.sin(t*1.5+i)*1.5*u;txt(q,x,y,3.6*u,C.fail,b,'sans','center',700)})}},
+
+{name:'第一要素 · 背景',dur:9,caps:[[0.5,'第一，背景：你是谁，这件事为了什么。'],[5,'背景一给，它就知道该用什么口吻、为谁着想。']],draw(t){card(0,t)}},
+{name:'第二要素 · 目标',dur:9,caps:[[0.5,'第二，目标：你到底要什么结果。'],[5,'是要名字、配方，还是宣传语？说清楚，它就不会跑偏。']],draw(t){card(1,t)}},
+{name:'第三要素 · 好的样子',dur:10,caps:[[0.5,'第三，好的样子：给个例子或标准，说清怎样算好。'],[5.5,'字数、语气、数量。标准越具体，结果越接近你脑子里想的。']],draw(t){card(2,t)}},
+{name:'第四要素 · 验收',dur:10,caps:[[0.5,'第四，验收：怎么检查它做对了。'],[5,'把检查标准写出来，它就会自己对照检查，你也省得一条条挑错。']],draw(t){card(3,t)}},
+
+{name:'第三幕 · 对比',dur:12,caps:[[0.5,'同一个模型，两种派活方式。'],[5,'一个只能泛泛而谈，一个拿来就能用。差别不在模型，在你说清楚了没有。']],
+draw(t){const pw=W*0.43,ph=H*0.6,y=H*0.2,xs=[W*0.05,W*0.52],a=seg(t,0.3,1);[['只说“写个文案”',C.muted],['按四要素派活',C.ember]].forEach(([h,c],i)=>{const x=xs[i],b=seg(t,1+i*1.5,1.8+i*1.5);box(x,y,pw,ph,1.5*u,rgba(C.panel,a),rgba(i?C.ember:C.line,a),0.4*u);txt(h,x+pw/2,y-4.5*u,3.2*u,c,a,'sans','center',500);
+if(i===0){for(let r=0;r<7;r++){ctx.fillStyle=rgba(C.muted,0.3*b);ctx.fillRect(x+3*u,y+5*u+r*4.6*u,(pw-6*u)*(0.55+0.45*((r*7)%5)/5),1.8*u)}txt('泛泛而谈',x+pw/2,y+ph-6*u,3.8*u,C.muted,seg(t,3,4),'sans','center',700)}
+else{let yy=y+5*u;['① 桂花乌龙上新！第二杯半价，下班一起？','② 秋天第一杯桂花乌龙，第二杯半价哦','③ 桂花香了，乌龙到了，第二杯半价'].forEach((s,k)=>{yy=wrap(s,x+3*u,yy,pw-6*u,3*u,C.paper,seg(t,3+k*0.6,3.6+k*0.6),4.4*u)+2*u});txt('拿来就能用',x+pw/2,y+ph-6*u,3.8*u,C.ember,seg(t,5,6),'sans','center',700)}})}},
+
+{name:'尾声 · 四个词',dur:9,caps:[[0.5,'记住四个词：背景、目标、好的样子、验收。'],[5,'下一课，最后一课：怎么把这一切变成钱。']],
+draw(t){const g=W*0.84,cw=g/2-1.5*u,ch=Math.min(H*0.2,20*u),x0=W*0.08,y0=H*0.24;PL.forEach(([n,,c],i)=>{const x=x0+(i%2)*(cw+3*u),y=y0+Math.floor(i/2)*(ch+3*u),a=seg(t,0.5+i*0.6,1.1+i*0.6);glow(x+cw/2,y+ch/2,cw*0.5,c,0.12*a);box(x,y,cw,ch,2*u,rgba(c,0.12*a),rgba(c,a),0.4*u);txt(n,x+cw/2,y+ch/2,5*u,c,a)})}}
+]})();
+
+const SC8=(()=>{
+function belt(pos,hi,a){const y=H*0.6,x0=W*0.04,x1=W*0.96,ST=[['加热',0.3],['锻打',0.55],['装柄',0.8]];line(x0,y+5*u,x1,y+5*u,rgba(C.muted,a),0.6*u);for(let k=0;k<16;k++){const x=lerp(x0,x1,k/15);ring(x,y+7*u,1.4*u,rgba(C.line,a),0.3*u)}
+ST.forEach(([s,f],i)=>{const x=lerp(x0,x1,f),on=hi===i;if(on)glow(x,y-12*u,14*u,C.ember,0.4*a);box(x-7*u,y-16*u,14*u,8*u,1.2*u,rgba(on?C.ember:C.panel2,on?0.2*a:a),rgba(on?C.ember:C.frost,a),0.35*u);txt(on?'AI':s,x,y-12*u,3*u,on?C.ember:C.paper,a,'sans','center',700);line(x,y-8*u,x,y-1*u,rgba(on?C.ember:C.frost,0.4*a),0.3*u)});
+for(let k=0;k<5;k++){const p=(pos+k/5)%1,x=lerp(x0,x1,p),yy=y+1.5*u;if(p<0.3){box(x-3*u,yy-3*u,6*u,3*u,0.4*u,rgba(C.muted,a))}else if(p<0.55){glow(x,yy-1.5*u,6*u,C.ember,0.6*a);box(x-3*u,yy-3*u,6*u,3*u,0.4*u,rgba(C.ember,a))}else if(p<0.8){box(x-3.5*u,yy-3*u,7*u,3*u,0.6*u,rgba(C.frost,a))}else{box(x-3.5*u,yy-6*u,7*u,3*u,0.6*u,rgba(C.frost,a));box(x-0.6*u,yy-3*u,1.2*u,4*u,0.3*u,rgba(C.paper,a))}}
+txt('铁锭',x0,y+13*u,3*u,C.muted,a,'sans','left',400);txt('锤子',x1,y+13*u,3*u,C.muted,a,'sans','right',400)}
+const HD=(()=>{const r=rng(77),a=[];for(let i=0;i<220;i++)a.push([r(),r(),r()]);return a})();
+return [
+{name:'序',dur:9,caps:[[0.5,'最后一课，聊聊钱。'],[3.5,'博主的核心观点：AI 没有让新东西变得可能，它让旧流程变得更赚钱。']],
+draw(t){const a=seg(t,0.3,1.2);glow(W/2,H*0.42,24*u,C.ember,0.3*a);txt('¥',W/2,H*0.42,16*u,C.ember,a);txt('旧生意，新杠杆',W/2,H*0.74,5.8*u,C.paper,seg(t,3.5,4.8))}},
+
+{name:'第一幕 · 先问一句',dur:13,caps:[[0.5,'判断一个 AI 点子，先问一个问题：没有 AI 的时候，这事赚钱吗？'],[6.5,'不赚钱的，加了 AI 多半还是不赚钱。本来就赚钱的，加上 AI，杠杆就来了。']],
+draw(t){const cx=W/2,a=seg(t,0.3,1.2),q='没有 AI 时，这事赚钱吗？',qw=tw(q,4*u,'sans',700)+8*u;box(cx-qw/2,H*0.12,qw,10*u,2*u,rgba(C.panel2,a),rgba(C.paper,a),0.4*u);txt(q,cx,H*0.12+5*u,4*u,C.paper,a,'sans','center',700);
+[[W*0.27,'不赚钱','加上 AI','还是不赚钱',C.muted,6.5],[W*0.73,'赚钱','加上 AI','杠杆来了',C.ember,8.5]].forEach(([x,l1,l2,l3,c,s])=>{const g1=seg(t,s,s+0.6),g2=seg(t,s+0.6,s+1.2),g3=seg(t,s+1.2,s+1.8);line(cx,H*0.12+10*u,x,H*0.36-4*u,rgba(c,0.6*g1),0.4*u);txt(l1,x,H*0.36,4.2*u,c,g1,'sans','center',700);line(x,H*0.36+4*u,x,H*0.54-4*u,rgba(c,0.5*g2),0.4*u);txt(l2,x,H*0.54,3.4*u,C.paper,g2,'sans','center',500);line(x,H*0.54+4*u,x,H*0.72-5*u,rgba(c,0.5*g3),0.4*u);if(c===C.ember)glow(x,H*0.72,16*u,C.ember,0.45*g3);txt(l3,x,H*0.72,4.6*u,c,g3,'sans','center',700)})}},
+
+{name:'第二幕 · 流水线',dur:13,caps:[[0.5,'生意就像一条流水线：原料进去，经过一道道工序，变成别人愿意付钱的东西。'],[7,'一块铁锭，经过加热、锻打、装柄，变成一把锤子。钱，就是在流水线上赚的。']],
+draw(t){belt(t*0.07,-1,seg(t,0.3,1.2))}},
+
+{name:'第三幕 · 加速一道工序',dur:12,caps:[[0.5,'AI 要做的，是让其中一道工序快上几十倍。'],[5.5,'找到流程里最慢、最贵、最重复的那一步，就是机会所在。']],
+draw(t){const pos=t<4?t:t<6?4+(t-4)+5*(t-4)*(t-4)/4:11+6*(t-6),sp=t<4?1:t<6?1+5*(t-4)/2:6;belt(pos*0.07,t>3?1:-1,1);txt('每天产出 ×'+Math.round(sp),W/2,H*0.2,6*u,sp>1?C.ember:C.paper,seg(t,3,4),'sans','center',700)}},
+
+{name:'第四幕 · 夜里睡不着的事',dur:12,caps:[[0.5,'怎么找到那一步？最简单的办法：去问客户。'],[4.5,'“什么事让你夜里睡不着？你现在靠什么赚钱？”答案里，就藏着值得用 AI 加速的环节。']],
+draw(t){const a=seg(t,0.3,1.2),mx=W*0.8,my=H*0.18,mr=6*u;for(let k=0;k<30;k++){const x=((k*0.618)%1)*W,y=((k*0.382)%1)*H*0.5;dot(x,y,0.4*u,rgba(C.paper,a*(0.3+0.4*Math.sin(t*2+k))))}glow(mx,my,18*u,C.frost,0.2*a);dot(mx,my,mr,rgba(C.paper,0.9*a));dot(mx+2.6*u,my-1.6*u,mr*0.9,C.ink);
+[['什么事让你夜里睡不着？',W*0.08,H*0.42,C.frost,'l',4.5],['每天手工对账三个小时……',W*0.92,H*0.6,C.paper,'r',6.5],['这一步，AI 能帮你做。',W*0.08,H*0.78,C.ember,'l',9]].forEach(([s,x,y,c,al,st])=>{const b=seg(t,st,st+0.6);if(b<=0)return;const bw=tw(s,3.6*u,'sans',500)+6*u,bx=al==='l'?x:x-bw;box(bx,y-4.5*u,bw,9*u,4.5*u,rgba(c,0.14*b),rgba(c,b),0.35*u);txt(s,bx+bw/2,y,3.6*u,c,b,'sans','center',500)})}},
+
+{name:'第五幕 · 复利',dur:13,caps:[[0.5,'每天进步 1%，一年后是多少？'],[5,'答案是 37 倍多。AI 的厉害之处，是能把一年的改进，压缩进几天。']],
+draw(t){const x0=W*0.12,y0=H*0.8,w=W*0.78,h=H*0.46,a=seg(t,0.3,1),p=eo(seg(t,1,9)),D=365*p,top=Math.pow(1.01,365);line(x0,y0,x0+w,y0,rgba(C.muted,a),0.35*u);line(x0,y0,x0,y0-h,rgba(C.muted,a),0.35*u);txt('第 365 天',x0+w,y0+5*u,3*u,C.muted,a,'sans','right',400);
+ctx.beginPath();for(let d=0;d<=D;d+=2){const x=x0+d/365*w,y=y0-h*(Math.pow(1.01,d)-1)/(top-1);d?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.strokeStyle=rgba(C.ember,1);ctx.lineWidth=0.8*u;ctx.stroke();
+txt('第 '+Math.round(D)+' 天',x0,H*0.13,3.4*u,C.muted,a,'sans','left',400);txt(Math.pow(1.01,D).toFixed(2)+' 倍',x0,H*0.22,7*u,C.ember,a,'sans','left',700);txt('1.01 的 365 次方',x0+w,H*0.22,3.2*u,C.muted,seg(t,9,10),'sans','right',400)}},
+
+{name:'第六幕 · 先做笨事',dur:12,caps:[[0.5,'Paul Graham 有篇名文《做那些不规模化的事》：最早的客户，都是亲手一个个争取来的。'],[7,'先用笨办法跑通，摸清流程，再用 AI 放大。']],
+draw(t){const n1=Math.min(9,Math.floor(t*1.2)),lx=W*0.22,ly=H*0.48,g=eo(seg(t,7,11));for(let i=0;i<n1;i++){const x=lx+((i%3)-1)*7*u,y=ly+(Math.floor(i/3)-1)*7*u;dot(x,y,2*u,rgba(C.frost,0.9));if(i===n1-1&&t<7.5){ring(x,y,lerp(2,6,(t*1.2)%1)*u,rgba(C.frost,1-(t*1.2)%1),0.3*u)}}
+txt('亲手服务 '+n1+' 位客户',lx,ly+16*u,3.2*u,C.frost,seg(t,0.5,1.2),'sans','center',500);
+if(g>0){HD.forEach(([a,b,c],i)=>{if(c>g)return;const x=lerp(lx,W*0.55+a*W*0.4,eo(seg(g,c,c+0.3))),y=lerp(ly,H*0.18+b*H*0.6,eo(seg(g,c,c+0.3)));dot(x,y,1*u,rgba(C.ember,0.85))});txt('AI 放大',W*0.75,H*0.86,3.8*u,C.ember,g,'sans','center',700)}}},
+
+{name:'第七幕 · 窗口',dur:11,caps:[[0.5,'博主的判断：AI 带来的机会越来越大、越来越频繁。'],[5,'但每个机会的窗口期越来越短。看懂了底层逻辑，你才能更快判断哪个是真机会。']],
+draw(t){const x0=W*0.08,y0=H*0.78,w=W*0.84,a=seg(t,0.3,1);line(x0,y0,x0+w,y0,rgba(C.muted,a),0.35*u);txt('时间',x0+w,y0+5*u,3*u,C.muted,a,'sans','right',400);
+for(let i=0;i<8;i++){const g=eo(seg(t,0.8+i*0.5,1.4+i*0.5));if(g<=0)continue;const x=x0+(i+0.5)*w/8,bh=H*lerp(0.12,0.56,i/7)*g,bw=lerp(9,1.6,i/7)*u;glow(x,y0-bh/2,bw*2,C.ember,0.2*g);ctx.fillStyle=rgba(C.ember,0.5+0.4*i/7);ctx.fillRect(x-bw/2,y0-bh,bw,bh)}
+txt('机会更大',x0+w,H*0.16,3.4*u,C.ember,seg(t,5,6),'sans','right',500);txt('窗口更窄',x0+w,H*0.22,3.4*u,C.paper,seg(t,5.5,6.5),'sans','right',500)}},
+
+{name:'毕业',dur:12,caps:[[0.5,'八堂课，到这里就结束了。你现在对 AI 的理解，已经超过了绝大多数人。'],[6,'下一步很简单：挑一个工具，用它做一件真事。']],
+draw(t){constellation(t,eo(seg(t,0,6)),0.7);ctx.fillStyle=rgba(C.ink,0.6*seg(t,1,2.5));ctx.fillRect(0,H/2-14*u,W,30*u);txt('毕 业',W/2,H/2-3*u,9*u,C.ember,seg(t,1.5,3));txt('挑一个工具，做一件真事',W/2,H/2+9*u,4*u,C.paper,seg(t,6,7.5),'sans','center',500)}}
+]})();
+
+function cardGame(el,win,cfg){let i=0,score=0;const items=cfg.items;
+function show(){if(i>=items.length)return finish();const it=items[i];
+el.innerHTML=`<div class="gtop"><span class="pill">第 ${i+1} / ${items.length} 题</span><span class="gmeta">答对 ${score}</span></div>${cfg.lead?`<p class="gmeta">${cfg.lead}</p>`:''}<p class="gq">${it.q}</p><div class="opts">${cfg.opts.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join('')}</div><p class="why" hidden></p><div class="gbtns"><button class="btn pri" id="gnext" hidden>${i===items.length-1?'看结果':'下一题'}</button></div>`;
+const bs=[...el.querySelectorAll('.opt')],why=el.querySelector('.why'),nx=el.querySelector('#gnext');let answered=false;
+bs.forEach(b=>b.onclick=()=>{if(answered)return;answered=true;const ok=cfg.opts[+b.dataset.k]===it.a;if(ok){score++;b.classList.add('right')}else{b.classList.add('wrong','shake');const r=bs.find(x=>cfg.opts[+x.dataset.k]===it.a);if(r)r.classList.add('right')}bs.forEach(x=>{if(!x.classList.contains('right')&&!x.classList.contains('wrong'))x.classList.add('done')});why.innerHTML=(ok?'<b>答对了。</b>':'<b>答案是「'+it.a+'」。</b>')+it.why;why.hidden=false;nx.hidden=false;el.querySelector('.gtop .gmeta').textContent='答对 '+score});
+nx.onclick=()=>{i++;show()}}
+function finish(){const n=items.length,st=score===n?3:score>=n*0.6?2:1;el.innerHTML=`<div class="gtop"><span class="pill">通关</span><span class="gmeta" style="color:var(--ember);font-size:18px">${'★'.repeat(st)}${'☆'.repeat(3-st)}</span></div><p class="gq">答对 ${score} / ${n}</p>${cfg.outro?cfg.outro(score):''}<div class="gbtns"><button class="btn" id="gre">再玩一次</button></div>`;el.querySelector('#gre').onclick=()=>{i=0;score=0;show()};win()}
+show()}
+
+function game1(el,win){const L=[
+{n:'第 1 关 · 爱玩的人',g:'目标：天晴或者有人约，有一样就出门',t:[0,1,1,1],s:'我是罗森布拉特，1958年造出了感知机。先教它做个爱玩的人：只要有一样好事就出门。拖动滑块，让四张卡片全部变绿。'},
+{n:'第 2 关 · 挑剔的人',g:'目标：天晴并且有人约，两样都要才出门',t:[0,0,0,1],s:'漂亮！报纸都说我的机器将来会思考呢。这关要个挑剔的人：两样都满足才肯出门。'},
+{n:'第 3 关 · 别扭的人',g:'目标：只占一样才出门，两样都有反而宅家',t:[0,1,1,0],s:'最后一关，一个别扭的人：天晴和有人约只能占一样，两样都有反而不想去。这个应该也不难……吧？'}];
+const CB=[[0,0],[0,1],[1,0],[1,1]];let lv=0,mv=0,last='';
+el.innerHTML=`<div class="gtop"><span class="pill" id="g1lv"></span><span class="gmeta" id="g1mv"></span></div><div class="say"><span class="ava">罗</span><p id="g1say"></p></div>
+<div id="g1ctrl" style="display:flex;flex-direction:column;gap:10px"><div class="row"><span class="lb">天晴</span><input type="range" min="-5" max="5" step="1" value="1" id="g1w1" aria-label="天晴的权重"><span class="val" id="g1v1">1</span></div><div class="row"><span class="lb">朋友约</span><input type="range" min="-5" max="5" step="1" value="1" id="g1w2" aria-label="朋友约的权重"><span class="val" id="g1v2">1</span></div><div class="row"><span class="lb">门槛</span><input type="range" min="-5" max="8" step="1" value="5" id="g1th" aria-label="门槛"><span class="val" id="g1vt">5</span></div></div>
+<p class="gmeta" id="g1goal"></p><div class="c4" id="g1cards"></div><div class="gbtns" id="g1btns"></div>`;
+const $$=id=>el.querySelector('#'+id),v=id=>+$$(id).value;
+function render(two){const t=two?[0,1,1,0]:L[lv].t;let all=true,h='';CB.forEach(([x,y],i)=>{const d=two?(x^y):(x*v('g1w1')+y*v('g1w2')>=v('g1th')?1:0),ok=d===t[i];if(!ok)all=false;h+=`<div class="cell ${ok?'ok':''}">${x?'晴':'雨'} · ${y?'有约':'没约'}<b>${d?'出门':'宅家'} ${ok?'✓':'✕'}</b>目标：${t[i]?'出门':'宅家'}</div>`});$$('g1cards').innerHTML=h;
+$$('g1v1').textContent=v('g1w1');$$('g1v2').textContent=v('g1w2');$$('g1vt').textContent=v('g1th');if(two)return;const b=$$('g1btns');b.innerHTML='';
+if(all&&lv<2){const n=document.createElement('button');n.className='btn pri';n.textContent='过关，下一关';n.onclick=()=>{lv++;setLv()};b.appendChild(n);$$('g1say').textContent=lv===0?'成功了！你刚刚训练出了一个会做判断的机器。':'太棒了，你已经掌握了我毕生的发明。'}else if(lv<2)$$('g1say').textContent=L[lv].s;
+if(lv===2&&mv>=4){const g=document.createElement('button');g.className='btn';g.textContent='怎么调都不行？';g.onclick=reveal;b.appendChild(g)}}
+function setLv(){$$('g1lv').textContent=L[lv].n;$$('g1goal').textContent=L[lv].g;$$('g1say').textContent=L[lv].s;mv=0;$$('g1mv').textContent='已调 0 次';render()}
+function reveal(){$$('g1ctrl').hidden=true;$$('g1lv').textContent='真相';$$('g1say').innerHTML='没错，<b>不可能</b>。1969年，明斯基用数学证明了这件事：单个神经元只能画一条直线把世界一分为二，而这个别扭的人需要两条线。经费撤走，AI 进入寒冬。';$$('g1goal').textContent='';const b=$$('g1btns');b.innerHTML='';const n=document.createElement('button');n.className='btn pri';n.textContent='后来呢？';
+n.onclick=()=>{$$('g1lv').textContent='通关';$$('g1say').innerHTML='后来，辛顿那代人想到：<b>多加一层神经元</b>。一个负责“至少有一样”，一个负责“两样都有”，最后一个把它们组合起来。单个做不到的事，三个连起来就做到了。今天的大模型，就是几千亿个这样连起来的神经元。';render(true);b.innerHTML='';win()};b.appendChild(n)}
+['g1w1','g1w2','g1th'].forEach(k=>$$(k).addEventListener('input',()=>{const s=v('g1w1')+','+v('g1w2')+','+v('g1th');if(s!==last){mv++;last=s;$$('g1mv').textContent='已调 '+mv+' 次'}render()}));setLv()}
+
+function game2(el,win){const R=[['床前明月',[['光',91],['亮',4],['下',3],['夜',2]]],['今天下雨了，出门记得带',[['伞',88],['外套',6],['钥匙',4],['手机',2]]],['一分耕耘，一分',[['收获',96],['汗水',2],['努力',1],['钱',1]]],['周末我想去',[['睡觉',32],['爬山',24],['看电影',23],['逛街',21]]],['中国的首都是',[['北京',97],['上海',1],['南京',1],['西安',1]]]];
+const max=R.reduce((s,r)=>s+r[1][0][1],0),ORD=[[2,0,3,1],[1,3,0,2],[3,1,2,0],[0,2,1,3],[1,0,3,2]];let i=0,score=0;
+function show(){if(i>=R.length)return finish();const [pre,opts]=R[i];
+el.innerHTML=`<div class="gtop"><span class="pill">第 ${i+1} / ${R.length} 句</span><span class="gmeta">默契分 ${score}</span></div><p class="gmeta">你来当大模型：选出你觉得最可能的下一个词，看看你和模型想得一不一样。</p><p class="gq">${pre}<span style="color:var(--ember)">____</span></p><div class="opts">${ORD[i].map(k=>`<button class="opt" data-k="${k}">${opts[k][0]}</button>`).join('')}</div><div class="pbars" hidden></div><p class="why" hidden></p><div class="gbtns"><button class="btn pri" id="gnext" hidden>${i===R.length-1?'看结果':'下一句'}</button></div>`;
+const bs=[...el.querySelectorAll('.opt')],pb=el.querySelector('.pbars'),why=el.querySelector('.why'),nx=el.querySelector('#gnext');let done=false;
+bs.forEach(b=>b.onclick=()=>{if(done)return;done=true;const k=+b.dataset.k,p=opts[k][1];score+=p;b.classList.add(k===0?'right':'wrong');bs.forEach(x=>{if(x!==b)x.classList.add('done')});
+pb.innerHTML=opts.map((o,j)=>`<div class="pb ${j===k?'me':''}"><span>${o[0]}</span><span class="t"><i></i></span><span>${o[1]}%</span></div>`).join('');pb.hidden=false;setTimeout(()=>pb.querySelectorAll('i').forEach((x,j)=>x.style.width=opts[j][1]+'%'),30);
+why.innerHTML=(k===0?'<b>和模型想的一样！</b>':`<b>模型最可能选「${opts[0][0]}」。</b>你选的「${opts[k][0]}」概率是 ${p}%。`)+(i===3?' 这句话的可能性很分散，模型自己每次也可能答得不一样，这就是“抽签”。':'')+' 你得 '+p+' 分。';why.hidden=false;nx.hidden=false;el.querySelector('.gtop .gmeta').textContent='默契分 '+score});nx.onclick=()=>{i++;show()}}
+function finish(){const pct=Math.round(score/max*100);el.innerHTML=`<div class="gtop"><span class="pill">通关</span></div><p class="gq">你和模型的默契度：${pct}%</p><p class="why">${pct>80?'你的直觉和大模型很像。':'差别不小，说明“最可能的词”并不总是显而易见。'}大模型做的就是这件事，只不过它一秒钟能猜上百次，而且每次都按概率“抽签”。以上概率是示意，真实模型给出的数字会不同。</p><div class="gbtns"><button class="btn" id="gre">再玩一次</button></div>`;el.querySelector('#gre').onclick=()=>{i=0;score=0;show()};win()}
+show()}
+
+function game3(el,win){const LAY=['芯片','数据中心与电力','模型公司','API 中转','智能体工具','应用落地'],SH=[3,0,5,1,4,2],HINT=['提示：最里面一层，是造出来的硬件。','提示：芯片要装进哪里，靠什么供能？','提示：谁用这些算力训练模型？','提示：别人怎么买、怎么调用这些模型？','提示：谁在一刻不停地自动发请求？','提示：最外一层，是用到真实生活里。'];let next=0;
+el.innerHTML=`<div class="gtop"><span class="pill">第 1 关 · 剥洋葱</span><span class="gmeta" id="g3c">0 / 6</span></div><p class="gmeta">从最里面一层开始，按顺序点出 AI 产业链的 6 层。</p><div class="opts" id="g3o">${SH.map(k=>`<button class="opt" data-k="${k}">${LAY[k]}</button>`).join('')}</div><p class="why" id="g3m"></p><div class="stack" id="g3s"></div><div class="gbtns" id="g3b"></div>`;
+const m=el.querySelector('#g3m');el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(b.classList.contains('done'))return;const k=+b.dataset.k;if(k===next){b.classList.add('right','done');const d=document.createElement('div');d.textContent=(k+1)+' · '+LAY[k];el.querySelector('#g3s').appendChild(d);next++;el.querySelector('#g3c').textContent=next+' / 6';m.textContent=next<6?'对了，继续往外。':'洋葱剥完了！最下面是最里层。';
+if(next===6){const n=document.createElement('button');n.className='btn pri';n.textContent='第 2 关：认公司';n.onclick=round2;el.querySelector('#g3b').appendChild(n)}}else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');m.textContent=HINT[next]}});
+function round2(){cardGame(el,win,{lead:'这家公司（或这个人）在洋葱的哪一层？',opts:LAY,items:[
+{q:'ASML，荷兰的光刻机厂商',a:'芯片',why:'它造的是“造芯片的机器”，在最里层。'},{q:'台积电',a:'芯片',why:'它按设计图把芯片生产出来。'},{q:'英伟达',a:'芯片',why:'它设计 AI 芯片，再交给台积电生产。'},{q:'微软、亚马逊的云',a:'数据中心与电力',why:'它们花上千亿美元建数据中心，把芯片装进去。'},
+{q:'OpenAI',a:'模型公司',why:'它用算力训练模型，再对外提供。'},{q:'OpenRouter',a:'API 中转',why:'它把请求分给最划算的模型供应商。'},{q:'Claude Code、Cursor',a:'智能体工具',why:'它们自动地、大量地调用模型干活。'},{q:'用 AI 自动排单的水管工',a:'应用落地',why:'把 AI 用到真实生意里，就是最外一层。'}]})}}
+
+function game4(el,win){cardGame(el,win,{lead:'猜猜我是谁',opts:['OpenAI','Anthropic','谷歌 DeepMind','Meta','xAI','中国开放模型'],items:[
+{q:'“我第一个把聊天机器人做成了几亿人都在用的产品。”',a:'OpenAI',why:'2022年底的 ChatGPT，让 AI 第一次走进大众生活。'},
+{q:'“文字进，文字出。我只想让模型成为最强的程序员。”',a:'Anthropic',why:'博主说它几乎全押编程，想让会写代码的模型帮忙研发下一代模型。'},
+{q:'“2016年，我的 AlphaGo 在首尔赢了李世石。”',a:'谷歌 DeepMind',why:'这场比赛影响了整整一代 AI 研究者。'},
+{q:'“我把模型权重公开出来，让每个人都有自己的超级智能。”',a:'Meta',why:'开放权重是 Meta 的招牌路线。'},
+{q:'“我的底牌是算力：孟菲斯的超大集群 Colossus。”',a:'xAI',why:'马斯克的团队擅长造工厂，于是押注最大规模的算力。'},
+{q:'“我用更少的算力，做出了全世界都能下载的模型。”',a:'中国开放模型',why:'DeepSeek、通义千问、Kimi 都属于这一类。2026年，研究论文里用得最多的开放模型已经是中国的。'},
+{q:'“我自己造芯片，还有云和搜索数据，整条链都在手里。”',a:'谷歌 DeepMind',why:'谷歌的 TPU 芯片、云和搜索数据，让它能全栈通吃。'},
+{q:'“我的创始团队，是 2021 年从 OpenAI 出走的。”',a:'Anthropic',why:'因为对 AI 安全的理念分歧，他们出来另立门户。'},
+{q:'“除了聊天，图像、视频、语音我样样都做。”',a:'OpenAI',why:'像一家什么都卖的百货公司。'}]})}
+
+function game5(el,win){const LIM=12,ROUNDS=8;let s;
+function reset(){s={r:0,cap:10,safe:10,rival:10,over:'',log:'你是一家 AI 实验室的负责人。每轮选一个策略。8 轮后，你的能力要追上对手，而且全程不能失控：能力领先安全超过 12，就会出事故。提示：先打好安全底子，后面的进步会越来越快。'};render()}
+const meter=(l,v,mx,c)=>`<div class="m"><small>${l}</small><b>${v.toFixed(1)}</b><div class="t"><i style="width:${Math.max(0,Math.min(100,v/mx*100))}%;background:${c}"></i></div></div>`;
+function act(k){const m=1+s.cap/25;let d;if(k===0){const g=4*m;s.cap+=g;d='全速研发：能力 +'+g.toFixed(1)}else if(k===1){const g=2*m;s.cap+=g;s.safe+=4;d='边研发边评估：能力 +'+g.toFixed(1)+'，安全 +4'}else{s.safe+=6;d='暂停做安全研究：安全 +6'}s.rival+=4;s.r++;const gap=s.cap-s.safe;
+if(gap>LIM){s.over='crash';s.log=d+'。能力领先安全 '+gap.toFixed(1)+'，模型失控了。这就是“控速”派担心的事。'}else if(s.r>=ROUNDS){if(s.cap>=s.rival){s.over='win';s.log=`8 轮结束：你的能力 ${s.cap.toFixed(1)}，对手 ${s.rival.toFixed(1)}，全程没有失控。你在竞争和安全之间走通了钢丝，这正是阿莫迪说的“控速”。`;win()}else{s.over='slow';s.log=`你很安全，但能力 ${s.cap.toFixed(1)} 落后对手 ${s.rival.toFixed(1)}，市场被别人拿走了。太慢也会输。`}}else s.log=d+'。'+(m>1.6?' 注意：模型越强，下一轮进步越快，这就是递归自我改进。':'');render()}
+function render(){const gap=s.cap-s.safe;el.innerHTML=`<div class="gtop"><span class="pill">${s.over==='win'?'通关':s.over?'游戏结束':'第 '+(s.r+1)+' / '+ROUNDS+' 轮'}</span><span class="gmeta">失控线：领先超过 ${LIM}</span></div>
+<div class="meters">${meter('你的能力',s.cap,70,'var(--ember)')}${meter('对手能力',s.rival,70,'var(--muted)')}${meter('安全水平',s.safe,70,'var(--frost)')}${meter('能力领先安全',gap,LIM,gap>LIM*0.7?'var(--fail)':'var(--ok)')}</div><p class="log">${s.log}</p>
+${s.over?`<div class="gbtns"><button class="btn pri" id="g5re">${s.over==='win'?'再玩一次':'重新来过'}</button></div>`:`<div class="opts"><button class="opt" data-k="0">全速研发<small>能力大涨，安全不变</small></button><button class="opt" data-k="1">边研发边评估<small>能力小涨，安全 +4</small></button><button class="opt" data-k="2">暂停做安全<small>能力不变，安全 +6</small></button></div>`}`;
+el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>act(+b.dataset.k));const re=el.querySelector('#g5re');if(re)re.onclick=reset}
+reset()}
+
+function game6(el,win){cardGame(el,win,{lead:'这件事，交给哪一层工具最合适？',opts:['聊天助手','智能体','自动化'],items:[
+{q:'问问酸奶里有多少蛋白质',a:'聊天助手',why:'一问一答，聊天就够了。'},{q:'读完文件夹里 50 份报表，做出一张汇总表',a:'智能体',why:'要读文件、处理、生成新文件，需要能自己动手的智能体。'},
+{q:'每天早上 8 点，自动抓新闻发到我邮箱',a:'自动化',why:'固定时间、固定流程、每天重复，交给自动化工具。'},{q:'帮我把一封道歉邮件改得更得体',a:'聊天助手',why:'改改文字，聊天助手最顺手。'},
+{q:'写一个小网站，并自己测试、修好 bug',a:'智能体',why:'写代码、运行、看报错、再改，正是智能体的强项。'},{q:'每来一个新订单，自动记账并通知仓库',a:'自动化',why:'事件触发、按规则流转，是自动化的典型场景。'},
+{q:'给我讲讲什么是市盈率',a:'聊天助手',why:'学知识、问概念，聊天就行。'},{q:'把电脑里一千张照片按拍摄日期整理、重命名',a:'智能体',why:'要动手操作大量文件，交给智能体。'}]})}
+
+function game7(el,win){cardGame(el,win,{lead:'新同事追问了一句。你漏说了哪个要素？',opts:['背景','目标','好的样子','验收'],items:[
+{q:'你说：“写个产品介绍。”<br>新同事问：“这是给谁看的？用在哪？”',a:'背景',why:'它不知道你是谁、为了什么。补上背景，比如“我开奶茶店，发朋友圈用”。'},
+{q:'你说：“我开奶茶店，帮我想想新品。”<br>新同事问：“你要名字、配方，还是宣传语？”',a:'目标',why:'没说清你要什么结果，它只能瞎猜。'},
+{q:'你说：“我开奶茶店，要一句新品宣传语，发朋友圈。”<br>新同事问：“要什么风格？多长合适？”',a:'好的样子',why:'给出标准或例子，比如“30 字以内，俏皮，给 3 个版本”。'},
+{q:'你说：“30 字以内，俏皮一点，给 3 个版本。”<br>新同事写完问：“你怎么判断哪句合格？”',a:'验收',why:'说清检查标准，比如“必须提到新品名和第二杯半价”，它就会自己对照检查。'},
+{q:'你说：“帮我总结这份报告。”<br>新同事问：“总结成几条？要不要标出页码？”',a:'好的样子',why:'格式和长度，都属于“好的样子”。'},
+{q:'你说：“帮我改简历。”<br>新同事问：“你现在做什么工作？想换什么行业？”',a:'背景',why:'它需要先了解你，才知道往哪个方向改。'}],
+outro:()=>'<div class="final"><div><b style="color:var(--frost)">背景</b><span>我开了家社区奶茶店，顾客多是附近上班族。</span></div><div><b style="color:var(--ember)">目标</b><span>帮我写一条秋季新品的朋友圈文案。</span></div><div><b>好的样子</b><span>30 字以内，轻松俏皮，像朋友聊天，给 3 个版本。</span></div><div><b style="color:var(--ok)">验收</b><span>每条都要提到“桂花乌龙”和“第二杯半价”。</span></div></div><p class="why">四个要素齐了，这就是一张合格的派活单。下次用 AI 前，照着它说一遍。</p>'})}
+
+function game8(el,win){cardGame(el,win,{lead:'先问：没有 AI 时这事赚钱吗？AI 能让其中一步快很多吗？',opts:['值得做','先别做'],items:[
+{q:'帮律所把合同初审从 2 小时缩短到 10 分钟',a:'值得做',why:'律所本来就靠审合同赚钱，AI 让这道工序快了十几倍。'},{q:'做一个陪人聊天气的 AI 机器人，按月收费',a:'先别做',why:'以前没人为“聊天气”付钱，加了 AI 也很难。'},
+{q:'帮装修公司给每个询价客户自动出报价单',a:'值得做',why:'报价是成交前必经的一步，又慢又重复。'},{q:'用 AI 随机生成诗句，卖给路人',a:'先别做',why:'这件事在没有 AI 时就不是一门生意。'},
+{q:'帮招聘公司初筛简历',a:'值得做',why:'招聘公司本来就花大量人力筛简历。博主说，这类“无聊”的系统最好卖。'},{q:'做一个“什么都能干”的通用 AI 平台',a:'先别做',why:'太宽了，找不到具体是哪条流水线、哪道工序被加速。'},
+{q:'帮牙科诊所自动回访病人、提醒复诊',a:'值得做',why:'复诊直接带来收入，提醒又是重复劳动。博主自己就投资了一家做牙科营销的公司。'},{q:'用 AI 给宠物取名字，每次收 1 元',a:'先别做',why:'取名字以前就不是付费需求，加了 AI 也一样。'}],
+outro:()=>'<p class="why">这是一个起步用的判断框架，不是绝对标准。真正的答案，要去问客户。</p>'})}
+
+const YT='https://www.youtube.com/watch?v=KjKlBvX9G7w&t=';
+const LESSONS=[
+{topic:'AI 简史',title:'一个被等了66年的想法',sub:'感知机、AI 寒冬、AlexNet、Transformer',scenes:SC1,poster:4.5,game:game1,gname:'训练你的第一个神经元',
+quiz:['感知机 50 年代就有了，为什么 2012 年才火？','单个神经元为什么分不开斜对角的点？后来怎么解决的？','“苦涩的教训”苦在哪里？'],
+links:[['3Blue1Brown · 神经网络是什么','https://www.youtube.com/watch?v=aircAruvnKk','视频'],['Welch Labs · 我们不再理解 AI 的那一刻','https://www.youtube.com/watch?v=UZDiGooFs54','视频'],['Art of the Problem · ChatGPT 的 35 年历史','https://www.youtube.com/results?search_query=Art+of+the+Problem+history+of+ChatGPT','搜索'],['Rich Sutton · 苦涩的教训','http://www.incompleteideas.net/IncIdeas/BitterLesson.html','文章'],['原视频 · 本章从 1:20 开始',YT+'80s','视频']]},
+{topic:'大模型原理',title:'一台猜下一个字的机器',sub:'Token、预训练、微调、思维链、幻觉',scenes:SC2,poster:4.5,game:game2,gname:'你来当大模型',
+quiz:['同一个问题问两次，为什么回答会不一样？','模型为什么会一本正经地胡说八道？','推理模型比普通模型多做了什么？'],
+links:[['3Blue1Brown · 大模型简明讲解','https://www.youtube.com/watch?v=LPZh9BOjkQs','视频'],['Karpathy · 大语言模型入门（1 小时）','https://www.youtube.com/watch?v=zjkBMFhNj_g','视频'],['Karpathy · 深入理解 ChatGPT 这类大模型（3.5 小时）','https://www.youtube.com/watch?v=7xTGNNLPyMI','视频'],['3Blue1Brown · Transformer','https://www.youtube.com/watch?v=wjZofJX0v4M','视频'],['Anthropic · 追踪大模型的思考过程','https://www.anthropic.com/research/tracing-thoughts-language-model','文章'],['原视频 · 本章从 5:42 开始',YT+'342s','视频']]},
+{topic:'AI 产业链',title:'AI 这颗洋葱',sub:'光刻机、台积电、英伟达、数据中心、电力、API',scenes:SC3,poster:4.5,game:game3,gname:'剥洋葱',
+quiz:['为什么说 AI 不只是软件？','ASML、台积电、英伟达分别做什么？','你平时用 AI，站在洋葱的哪一层？'],
+links:[['Karpathy · 我怎么用大模型','https://www.youtube.com/watch?v=EWvNQjAaOHw','视频'],['State of AI Report 2026','https://www.stateof.ai','报告'],['Epoch AI · 算力与成本趋势','https://epoch.ai/trends','数据'],['Nick Saraev 的频道（含 AI Harness 讲解）','https://www.youtube.com/@nicksaraev','视频'],['原视频 · 本章从 12:49 开始',YT+'769s','视频']]},
+{topic:'五大玩家',title:'五家公司，五种赌法',sub:'OpenAI、Anthropic、谷歌、Meta、xAI 和中国模型',scenes:SC4,poster:4.5,game:game4,gname:'猜猜我是谁',
+quiz:['Anthropic 和 OpenAI 的路线有什么不同？','为什么说谷歌是“慢吞吞的巨人”？','xAI 押注的是什么？'],
+links:[['State of AI Report 2026','https://www.stateof.ai','报告'],['原视频 · 本章从 18:46 开始',YT+'1126s','视频']]},
+{topic:'递归自我改进',title:'当 AI 开始研究 AI',sub:'智能爆炸、乐观派、谨慎派、怀疑派',scenes:SC5,poster:4.5,game:game5,gname:'实验室负责人',
+quiz:['用一句话解释递归自我改进。','为什么 AI 研究员比人类研究员扩张得快？','乐观派、谨慎派、怀疑派各说了什么？'],
+links:[['Sam Altman · 温和的奇点','https://blog.samaltman.com/the-gentle-singularity','文章'],['Dario Amodei · 我们必须为前沿控速','https://www.darioamodei.com','文章'],['Dario Amodei · 慈爱的机器','https://www.darioamodei.com/essay/machines-of-loving-grace','文章'],['METR · AI 任务时间跨度','https://metr.org/time-horizons','数据'],['MIT 科技评论 · 自我改进也许没那么快','https://www.technologyreview.com/2026/08/18/1142188/ai-recursive-self-improvement/','文章'],['AI 2027','https://ai-2027.com','推演'],['原视频 · 本章从 23:49 开始',YT+'1429s','视频']]},
+{topic:'该学的工具',title:'三件趁手的工具',sub:'聊天助手、智能体、自动化',scenes:SC6,poster:4.5,game:game6,gname:'工具分拣员',
+quiz:['聊天助手和智能体有什么区别？','自动化工具适合做什么样的事？','三层工具，你各挑哪一个？'],
+links:[['Karpathy · 我怎么用大模型','https://www.youtube.com/watch?v=EWvNQjAaOHw','视频'],['n8n 自动化工具','https://n8n.io','网站'],['原视频 · 本章从 26:42 开始',YT+'1602s','视频']]},
+{topic:'怎么写提示词',title:'别写提示词，去派活',sub:'背景、目标、好的样子、验收',scenes:SC7,poster:5.5,game:game7,gname:'派活单修理铺',
+quiz:['派活四要素是哪四个？','为什么要说清“怎么验收”？','把你最近问 AI 的一句话，按四要素改写一遍。'],
+links:[['Anthropic · AI Fluency 入门课','https://anthropic.skilljar.com/ai-fluency-framework-foundations','课程'],['Anthropic · 交互式提示词教程','https://github.com/anthropics/prompt-eng-interactive-tutorial','教程'],['原视频 · 本章从 28:51 开始',YT+'1731s','视频']]},
+{topic:'用 AI 赚钱',title:'旧生意，新杠杆',sub:'流水线、找工序、复利、机会窗口',scenes:SC8,poster:5.5,game:game8,gname:'点子鉴定所',
+quiz:['判断一个 AI 点子，先问什么？','每天进步 1%，一年后是多少倍？','为什么要先做“不规模化”的事？'],
+links:[['Paul Graham · 做那些不规模化的事','https://paulgraham.com/ds.html','文章'],['Y Combinator · 创业需求清单','https://www.ycombinator.com/rfs','网站'],['原视频 · 本章从 31:09 开始',YT+'1869s','视频'],['原视频 · 结尾从 34:55 开始',YT+'2095s','视频']]}];
+
+
+const ANS=[
+['理论早就有了，缺的是两样东西：海量数据（互联网、ImageNet）和强大算力（显卡）。2012 年两者都到位了。','单个神经元只能画一条直线，把点分成两边；斜对角的两组点需要两条线。后来加了更多层神经元，组合起来就分开了。','人类精心设计的知识和规则，长期看总是输给“简单方法 + 更多算力”。研究者的巧思最终被算力碾压，所以“苦涩”。'],
+['模型不总挑概率最高的词，而是按概率“抽签”，所以每次回答都会略有不同。','它学的是“什么话听起来像真的”，并没有查证事实。遇到不知道的，也会流利地编出来。','它先在“草稿纸”上一步步推理（思维链），把自己写下的思路当作下一步的输入，最后才给答案。'],
+['AI 背后是一整条实体产业链：光刻机、芯片、数据中心、电力。它们受物理条件、资金和政治的约束。','ASML 造光刻机，也就是造芯片的机器；台积电按设计图生产芯片；英伟达设计芯片。','大多数人在最外层“应用”。用 Claude Code 这类工具时，也会接触到“智能体工具”这一层。'],
+['OpenAI 什么都做，聊天、图像、视频、语音，像百货公司；Anthropic 几乎只押编程，想让模型帮忙研发下一代模型。','谷歌资格老、全栈齐备，但大公司流程慢，早期反应迟钝。可一旦发力，惯性很大，很难停下。','算力。它靠造工厂的能力，在孟菲斯建起超大算力集群 Colossus。'],
+['让 AI 自己做 AI 的研发，造出更强的 AI，再让更强的 AI 继续研发，循环往复。','只要有算力和电，AI 研究员就能无限复制、同时开工；人类研究员一个人只有一个大脑。','乐观派（奥特曼）：变化会平稳到来，世界更富足。谨慎派（阿莫迪）：要主动控速，让外部评估员常驻实验室。怀疑派（MIT 科技评论的报道）：AI 擅长能打分的窄任务，开放式研究还不行，自我改进没那么快。'],
+['聊天助手是一问一答；智能体能自己动手：读文件、写代码、跑命令，出了错还会自己改。','按时、按规则、每天重复的流程，比如自动处理邮件、新订单自动记账。','开放题，没有标准答案。博主的组合是 Claude、Claude Code、n8n。'],
+['背景、目标、好的样子、验收。','把检查标准写出来，AI 会自己对照检查，结果更可靠，你也省得一条条挑错。','开放题。可以照着第 7 课奶茶店那张派活单的格式来写。'],
+['没有 AI 的时候，这事赚钱吗？赚钱的，再看 AI 能不能让其中某道工序快很多。','1.01 的 365 次方，约等于 37.8 倍。','亲手做，才能摸清流程和客户真正的需求。先用笨办法跑通，再用 AI 放大。']];
+const TERMS=[[1,'感知机','1958 年罗森布拉特发明的人工神经元：输入乘以权重相加，超过门槛就激活。'],[1,'AI 寒冬','期望过高、成果跟不上，经费撤走、研究停滞的时期。'],[1,'AlexNet','2012 年用两块显卡训练的神经网络，在图像识别比赛中大胜，开启深度学习时代。'],[1,'Transformer','2017 年谷歌提出的架构，让每个词“注意”其他词。今天的大模型都建在它上面。'],[1,'苦涩的教训','长期看，简单方法加上更多算力，总会赢过人类精心设计的规则。'],
+[2,'Token','词的碎片。大模型读写文字的基本单位，每个 token 对应一个编号。'],[2,'预训练','让模型读海量文字，做亿万次“猜下一个字”的练习。'],[2,'微调','请人给回答打分，让模型学会说人爱听、有用的话。'],[2,'谄媚','微调的副作用：模型学会讨好、拍马屁，而不是说真话。'],[2,'思维链','先一步步写下推理过程，再给答案。推理模型的核心。'],[2,'上下文窗口','模型一次能“看见”的 token 数量，相当于工作记忆。'],[2,'幻觉','模型流利地编出听起来像真的、其实是错的内容。'],
+[3,'光刻机','造芯片的机器。最先进的极紫外光刻机只有荷兰 ASML 能造。'],[3,'数据中心','装满芯片机柜的大楼，AI 的计算在这里发生。'],[3,'API','程序调用模型的接口，按 token 计价。'],[4,'开放权重','把模型公开出来，谁都能下载、运行。Meta 和中国的很多模型走这条路。'],
+[5,'递归自我改进','AI 自己做 AI 研发，越来越强的循环。'],[5,'时间跨度','METR 的指标：AI 能独立完成多长的任务。约每 4 个多月翻一倍。'],[5,'控速','阿莫迪 2026 年提出：主动放慢提升模型能力的速度，让安全跟上。'],
+[6,'智能体','给模型套上“挽具”和工具，让它能自己读文件、写代码、跑命令。'],[6,'自动化工具','把 AI 接进固定流程，按时按规则自动运行，比如 n8n。'],[7,'派活四要素','背景、目标、好的样子、验收。'],[8,'不规模化的事','先亲手服务好最早的客户，跑通了再放大。'],[8,'杠杆','本来就赚钱的流程，用 AI 让某道工序快几十倍。']];
+
+const $=id=>document.getElementById(id);
+let prog={};try{prog=JSON.parse(localStorage.getItem('ai8')||'{}')||{}}catch(e){prog={}}
+function save(){try{localStorage.setItem('ai8',JSON.stringify(prog))}catch(e){}}
+function mark(i,k){prog[i]=prog[i]||{};if(prog[i][k])return;prog[i][k]=1;save()}
+function nextLesson(){for(let i=0;i<LESSONS.length;i++){const p=prog[i]||{};if(!(p.f&&p.g))return i}return -1}
+function renderHome(){const g=$('grid');g.innerHTML='';let done=0;const nx=nextLesson();LESSONS.forEach((L,i)=>{const p=prog[i]||{};if(p.f&&p.g)done++;const b=document.createElement('button');b.className='lc'+(i===nx?' now':'');b.innerHTML=`<span class="num">第 ${i+1} 课 · ${L.topic}${i===nx?'<em>下一课</em>':''}</span><h3>${L.title}</h3><span class="sub">${L.sub}</span><span class="chips"><span class="chip ${p.f?'on':''}">${p.f?'✓ ':''}动画</span><span class="chip ${p.g?'on':''}">${p.g?'✓ ':''}闯关</span></span>`;b.onclick=()=>openLesson(i);g.appendChild(b)});
+$('progTxt').textContent=`已完成 ${done} / 8`;$('progBar').style.width=done/8*100+'%';const c=$('cont');if(nx<0){c.textContent='全部学完了，从第 1 课复习';c.onclick=()=>openLesson(0)}else{c.textContent=(done||prog[nx]?'继续学习：':'开始学习：')+`第 ${nx+1} 课 · ${LESSONS[nx].title}`;c.onclick=()=>openLesson(nx)}
+const tf=$('termFilter').value;$('terms').innerHTML=TERMS.filter(t=>tf==='all'||String(t[0])===tf).map(([l,n,d])=>`<button class="term"><span class="tl">第 ${l} 课</span><b>${n}</b><span class="td">${d}</span></button>`).join('');$('terms').querySelectorAll('.term').forEach(b=>b.onclick=()=>b.classList.toggle('flip'))}
+
+const bar=$('bar'),capEl=$('cap'),nameEl=$('sname'),playB=$('play'),startEl=$('start'),endEl=$('end'),homeV=$('home'),lessonV=$('lesson');
+let SC=[],cur=0,fills=[],si=0,st=0,playing=false,last=null,lastCap='',held=0;
+const TTS=typeof speechSynthesis!=='undefined'&&typeof SpeechSynthesisUtterance!=='undefined';let narr=TTS,voice=null,spoken=new Set();
+try{if(localStorage.getItem('ai8n')==='0')narr=false}catch(e){}
+function pickVoice(){if(!TTS)return;const vs=speechSynthesis.getVoices();voice=vs.find(v=>/zh[-_]CN/i.test(v.lang)&&/Tingting|婷婷|Lili|Meijia/i.test(v.name))||vs.find(v=>/zh[-_]CN/i.test(v.lang))||vs.find(v=>/^zh/i.test(v.lang))||null}
+if(TTS){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function hush(){if(TTS)speechSynthesis.cancel()}
+function say(s){if(!TTS||!narr)return;const q=new SpeechSynthesisUtterance(s);q.lang='zh-CN';if(voice)q.voice=voice;q.rate=1.1;speechSynthesis.speak(q)}
+function speaking(){return TTS&&narr&&(speechSynthesis.speaking||speechSynthesis.pending)}
+function narrUI(){const b=$('narr');b.hidden=!TTS;b.textContent=narr?'旁白：开':'旁白：关';b.setAttribute('aria-pressed',narr)}
+function setPlay(p){playing=p;playB.textContent=p?'暂停':'播放';if(p){startEl.hidden=true;endEl.hidden=true}else{hush();lastSpokenReset()}}
+function lastSpokenReset(){const s=SC[si];if(!s)return;let k=-1;s.caps.forEach((c,j)=>{if(st>=c[0])k=j});if(k>=0)spoken.delete(si+':'+k)}
+function unlock(){if(TTS&&narr){try{const q=new SpeechSynthesisUtterance(' ');q.volume=0;speechSynthesis.speak(q)}catch(e){}}}
+function jump(i){hush();si=Math.max(0,Math.min(SC.length-1,i));st=0;spoken.clear();endEl.hidden=true;setPlay(true)}
+function openLesson(i){hush();cur=i;const L=LESSONS[i];homeV.hidden=true;lessonV.hidden=false;$('lnum').textContent=`第 ${i+1} / 8 课 · ${L.topic}`;$('ltitle').textContent=L.title;$('lsub').textContent=L.sub;
+SC=L.scenes;bar.innerHTML='';fills=SC.map((s,k)=>{const b=document.createElement('button');b.className='seg';b.style.flex=s.dur;b.setAttribute('aria-label','跳到'+s.name);b.onclick=()=>{unlock();jump(k)};const f=document.createElement('i');b.appendChild(f);bar.appendChild(b);return f});
+si=0;st=L.poster;spoken.clear();setPlay(false);startEl.hidden=false;endEl.hidden=true;lastCap='';capEl.textContent='';$('go').textContent=`播放第 ${i+1} 课`;$('endT').textContent=`第 ${i+1} 课 · 完`;$('quiz').innerHTML=L.quiz.map(q=>`<li>${q}</li>`).join('');
+$('ans').innerHTML=ANS[i].map((a,k)=>`<p><b>${k+1}.</b> ${a}</p>`).join('');$('ans').hidden=true;$('ansBtn').textContent='看参考答案';
+$('gname').textContent=L.gname;const gEl=$('game');gEl.innerHTML='';L.game(gEl,()=>{mark(i,'g')});
+$('links').innerHTML=L.links.map(([n,h,k])=>`<li><a href="${h}" target="_blank" rel="noopener"><span>${n}</span><span>${k}</span></a></li>`).join('');
+$('prevL').hidden=i===0;$('nextL').hidden=i===LESSONS.length-1;try{localStorage.setItem('ai8last',i)}catch(e){}window.scrollTo(0,0);requestAnimationFrame(()=>{resize();draw()})}
+function goHome(){setPlay(false);lessonV.hidden=true;homeV.hidden=false;renderHome();window.scrollTo(0,0)}
+function draw(){if(!W||!SC.length)return;ctx.fillStyle=C.ink;ctx.fillRect(0,0,W,H);const s=SC[si];ctx.save();s.draw(st);ctx.restore();ctx.globalAlpha=1;ctx.setLineDash([]);
+let o=0;if(si>0)o=Math.max(o,1-seg(st,0,0.6));if(si<SC.length-1)o=Math.max(o,seg(st,s.dur-0.6,s.dur));if(o>0){ctx.fillStyle=rgba(C.ink,o);ctx.fillRect(0,0,W,H)}}
+function ui(){const s=SC[si];nameEl.textContent=s.name;let c='';if(startEl.hidden)s.caps.forEach(([a,tx])=>{if(st>=a)c=tx.slice(0,Math.max(1,Math.floor((st-a)*16)))});if(c!==lastCap){capEl.textContent=c;lastCap=c}fills.forEach((f,i)=>f.style.width=(i<si?100:i===si&&startEl.hidden?st/s.dur*100:0)+'%')}
+function step(dt){const s=SC[si];let hold=s.dur-0.7;s.caps.forEach(c=>{if(c[0]>st&&c[0]-0.05<hold)hold=c[0]-0.05});
+const real=dt;if(TTS&&narr){let k=-1;s.caps.forEach((c,j)=>{if(st>=c[0])k=j});if(k>=0){const a=s.caps[k][0],b=k+1<s.caps.length?s.caps[k+1][0]:s.dur-0.7,need=s.caps[k][1].length/5.5+0.5;if(need>b-a)dt*=(b-a)/need}}if(held<14&&speaking()&&st+dt>=hold-0.02){dt=Math.max(0,hold-0.02-st);held+=real}st+=dt;
+s.caps.forEach((c,k)=>{const key=si+':'+k;if(st>=c[0]&&!spoken.has(key)){spoken.add(key);held=0;say(c[1])}});
+if(st>=s.dur){if(si<SC.length-1){si++;st=0}else{st=s.dur;setPlay(false);endEl.hidden=false;mark(cur,'f')}}}
+function frame(ts){if(last==null)last=ts;const dt=Math.min(0.05,(ts-last)/1000);last=ts;if(!lessonV.hidden&&SC.length){if(playing)step(dt);draw();ui()}requestAnimationFrame(frame)}
+$('go').onclick=()=>{unlock();si=0;st=0;spoken.clear();setPlay(true)};$('again').onclick=()=>{unlock();jump(0)};
+playB.onclick=()=>{unlock();if(!endEl.hidden){jump(0);return}if(!startEl.hidden){si=0;st=0;spoken.clear()}setPlay(!playing)};
+$('prev').onclick=()=>{unlock();jump(st>1.5?si:si-1)};$('next').onclick=()=>{unlock();jump(si+1)};
+cv.onclick=()=>{if(endEl.hidden){unlock();if(!startEl.hidden){si=0;st=0;spoken.clear()}setPlay(!playing)}};
+$('narr').onclick=()=>{narr=!narr;try{localStorage.setItem('ai8n',narr?'1':'0')}catch(e){}if(!narr)hush();else{unlock();lastSpokenReset()}narrUI()};
+$('ansBtn').onclick=()=>{const a=$('ans');a.hidden=!a.hidden;$('ansBtn').textContent=a.hidden?'看参考答案':'收起答案'};
+$('toGame').onclick=()=>$('gameSec').scrollIntoView({behavior:'smooth',block:'start'});
+$('back').onclick=goHome;$('prevL').onclick=()=>openLesson(cur-1);$('nextL').onclick=()=>openLesson(cur+1);$('termFilter').onchange=renderHome;
+document.addEventListener('keydown',e=>{if(lessonV.hidden||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;if(e.code==='Space'&&e.target===document.body){e.preventDefault();playB.click()}else if(e.key==='ArrowRight'&&startEl.hidden)jump(si+1);else if(e.key==='ArrowLeft'&&startEl.hidden)jump(st>1.5?si:si-1);else if(e.key==='Escape')goHome()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing)setPlay(false)});
+new ResizeObserver(()=>{resize();draw()}).observe(cv);
+narrUI();renderHome();const hm=/^#l([1-8])$/.exec(location.hash||'');if(hm)openLesson(+hm[1]-1);
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)&&!/claude/.test(location.hostname)){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+requestAnimationFrame(frame);
+</script>
+
+</body></html>
