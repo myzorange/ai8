@@ -24,6 +24,14 @@ const L1X = (() => {
     const G = LAY(S), R = o.R || G.main;
     return PH(S, o.x || S.mid, id, R, Object.assign({ a, p, frame: o.frame ?? SG(p * 8, 0, 1), cred: o.cred === false ? '' : (o.cred || CR[id]) }, o));
   }
+  /* 人物照片的指引线：只连到相框边上，绝不点在人脸上（尊重画面里的人） */
+  function edge(m, L) {
+    const R = m.R, cx = R.x + R.w / 2, cy = R.y + R.h / 2, [lx, ly] = L;
+    const dx = lx < R.x ? R.x - lx : lx > R.x + R.w ? lx - R.x - R.w : 0, dy = ly < R.y ? R.y - ly : ly > R.y + R.h ? ly - R.y - R.h : 0;
+    if (dx > 0 && dx >= dy) return [lx > cx ? R.x + R.w : R.x, clamp(ly, R.y + R.h * .1, R.y + R.h * .9)];
+    return [clamp(lx, R.x + R.w * .12, R.x + R.w * .88), ly > cy ? R.y + R.h : R.y];
+  }
+  function pco(S, x, m, L, p, title, sub, o) { return m && m.R ? CO(S, x, edge(m, L), L, p, title, sub, o) : null; }
   /* 全屏照片（纪录片式空镜） */
   function fullPhoto(S, a, id, p, o = {}) { return PH(S, S.mid, id, full(S), Object.assign({ a, p, r: 0, vig: .7, credY: S.H * (S.P ? .8 : .78), cred: o.cred === false ? '' : (o.cred || CR[id]) }, o)); }
   /* 闪光（相机闪光灯） */
@@ -170,73 +178,191 @@ const L1X = (() => {
     pts.forEach((col_, i) => col_.forEach(([px, py]) => H.node(S, px, py, v * 1.35, { lit: .5 + .5 * clamp(fwd * (cols - 1) - i + 1), c: back > 0 && back < 1 && clamp(back * (cols - 1) - (cols - 1 - i)) > 0 ? C.red : C.pri, a })));
     return pts;
   }
-  return { C, SG, BT, CR, full, photo, fullPhoto, flash, sideB, letter, timeline, nightWindow, phone, wave, calendar, neuron, perceptron, xorPlot, mlp };
+  /* ---- 动效小工具（ai8-motion）：弹出、砸入、镜头冲击 ---- */
+  /* 以 (cx, cy) 为轴心弹出：从 from 倍弹到 1（t0 之前停在 from） */
+  function pop(S, x, t, t0, cx, cy, fn, preset = 'pop', from = .6) { const k = MO.sp(t, t0, preset); return MO.tf(S, x, { x: cx, y: cy, sx: lerp(from, 1, k), sy: lerp(from, 1, k) }, fn); }
+  /* 大字砸入：从 from 倍砸到 1，快的那一下带拖影；fn(w) 里 w 是拖影的透明度系数 */
+  function slam(S, x, t, t0, cx, cy, fn, from = 2.4) {
+    const one = (tt, w) => { const q = MO.slam(tt, t0, from); MO.tf(S, x, { x: cx, y: cy, sx: q.s, sy: q.s }, () => fn(w * q.a)); };
+    if (t > t0 && MO.slam(t, t0, from).k < .96 && t < t0 + .15) MO.smear(t, 2, .014, one); else one(t, 1);
+  }
+  /* 镜头：pu = [[时刻, 推镜量]]，sh = [[时刻, 幅度(×v), 衰减, 种子]] */
+  function cam(t, S, pu, sh = [], z0 = 0) {
+    let z = 1 + z0, cx = 0, cy = 0; for (const [t0, amt] of pu) z += MO.punch(t, t0, amt);
+    for (const [t0, amp, dc, sd] of sh) { const [a1, b1] = MO.shake(t, t0, S.v * amp, dc ?? .15, sd ?? 3); cx += a1; cy += b1; }
+    return { z, x: cx, y: cy };
+  }
+  return { C, SG, BT, CR, full, photo, fullPhoto, edge, pco, flash, sideB, letter, timeline, nightWindow, phone, wave, calendar, neuron, perceptron, xorPlot, mlp, pop, slam, cam };
 })();
 
 const L1S = [];
 /* ===== 序 · 凌晨两点的电话 ===== */
+/* 第 1 课 · 序 · 凌晨两点的电话 —— 动效手感版（第 0 幕，画面元素、配色、位置与原版一致）
+   改了什么（全部卡在你的旁白上）：
+   · 夜窗像百叶窗一样弹开；“02:00” 四个数字逐个落下、落地压扁
+   · 说到“吵醒”：手机连跳三下（挤压拉伸），镜头往前一顶
+   · “76 岁”标签弹出
+   · 说到“诺贝尔”：硬切 + 推镜冲击 + 轻闪 + 镜头震动；版画从下方弹入，声波整排弹起
+   · 问号从天而降，落地压扁再晃几下；引语卡弹入
+   · 说到“他叫杰弗里·辛顿”：甩镜，两个镜头同时横向滑过，带运动拖影
+   · 年份 2024→1958 带滚动拖影，停住时一顶；说到“66 年”：“66 YEARS”砸进来，镜头一震
+   · 片名逐字落下、落地压扁；“AI 八堂课 · 第 1 课”字距收拢落位 */
 L1S.push({
-  tin: { type: 'fade' }, tdur: .7, mood: 'cold', lead: .9, gap: .4, tail: 1.0, sfx: [[.6, 'tick']],
-  camera: (t, S, F) => ({ z: 1 + .012 * E.ioS(clamp(t / F.dur)) }),
+  tin: { type: 'fade' }, tdur: .7, mood: 'cold', lead: .9, gap: .4, tail: 1.0,
+  /* 关键时刻都从旁白算出来（同一套 DURS，跟原版一样） */
+  keys(F) {
+    if (this._k && this._k.F === F) return this._k;
+    return (this._k = {
+      F, tp: F.kw(0, '吵醒') - .2, t76: F.kw(0, '76'), tN: F.kw(1, '诺贝尔') - .35, tPh: F.kw(1, '物理'), tq: F.cue(2) - .1,
+      tPr: F.kw(2, '恶作剧'), tH: F.cue(3) - .2, tr: F.kw(3, '诞生'), t66: F.kw(3, '66'), t4: F.cue(4) - .2,
+    });
+  },
+  /* 音效：时间由旁白决定，第一次画这一幕时算好 */
+  get sfx() {
+    const K = this._k; if (!K) return [[.55, 'tick']];
+    return (this._sfx = this._sfx || [[.55, 'tick'], [K.tp - .05, 'phone', .5, 1.8], [K.tN - .03, 'impact'], [K.tq + .26, 'tick'], [K.tH - .12, 'whoosh'], [K.t66 - .05, 'impact'], [K.t4 + .45, 'tick']]);
+  },
+  camera(t, S, F) {
+    const K = this.keys(F), v = S.v;
+    const z = 1 + .012 * E.ioS(clamp(t / F.dur)) + MO.punch(t, K.tp, .03) + MO.punch(t, K.tN, .07) + MO.punch(t, K.tH + .1, .035) + MO.punch(t, K.t66 - .04, .05);
+    const [a1, b1] = MO.shake(t, K.tN, v * .45, .14, 3), [a2, b2] = MO.shake(t, K.t66 - .04, v * .6, .16, 9);
+    return { z, x: a1 + a2, y: b1 + b2 };
+  },
   draw(t, S, F) {
     const X = L1X, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid; H.bg(S, t, { cold: .7, neb: .5 });
-    const tN = F.kw(1, '诺贝尔') - .35, tH = F.cue(3) - .2;
-    STAMP(S, t, .3, '2024.10.08 · 02:00 AM', '美国 · 加州', { a: 1 - X.SG(t, tH - .4, tH) });
+    const K = this.keys(F);
+    /* 时间地点戳：解码照旧，整块从画面边缘弹进来 */
+    const ks = MO.sp(t, .3, 'bouncy');
+    MO.tf(S, S.hud, { dx: (1 - ks) * v * 9 * (G.stamp.al === 'right' ? 1 : -1) }, () => STAMP(S, t, .3, '2024.10.08 · 02:00 AM', '美国 · 加州', { a: 1 - X.SG(t, K.tH - .4, K.tH) }));
+
+    /* ---------- 镜头 1：凌晨两点 ---------- */
+    const shotA = (a) => {
+      const R = P ? { x: W * .2, y: h * .22, w: W * .6, h: h * .3 } : { x: W * .55, y: h * .2, w: W * .36, h: h * .58 };
+      const wk = MO.sp(t, .12, 'gentle');                                     // 夜窗：百叶窗一样纵向弹开
+      if (wk > .002) MO.tf(S, x, { x: R.x + R.w / 2, y: R.y + R.h / 2, sy: wk }, () => {
+        X.nightWindow(S, x, R, a * clamp(wk * 1.4), t);
+        x.save(); x.beginPath(); x.rect(R.x, R.y, R.w, R.h); x.clip(); ST.neon(S, x, 'MOTEL', R.x + R.w * .7, R.y + R.h * .16, R.w * .085, t, a * clamp(wk * 1.4) * X.SG(t, .7, 1.3)); x.restore();   // 窗外：廉价汽车旅馆的霓虹招牌
+      });
+      /* 情景再现：床上的剪影被电话吵醒，猛地坐起、开灯、把手机贴到耳边 */
+      const rm = a * clamp(wk * 1.4 - .25), wake = Math.min(1.05, E.oB(seg(t, K.tp + .12, K.tp + .62), 1.2)), ear = E.io3(seg(t, K.tp + .64, K.tp + 1.15));
+      const lampOn = t < K.tp + .42 ? 0 : t < K.tp + .52 ? (MO.noise(t * 60, 4) > -.1 ? 1 : .25) : 1;
+      ST.motel(S, x, R, t, { wake, ear, lamp: lampOn, ring: X.SG(t, K.tp, K.tp + .2) }, rm);
+      ST.tag(S, R.x + v * .8, R.y + v * 2.2, rm * X.SG(t, 1, 1.6));
+      const big = P ? v * 7 : v * 11, cx = P ? W / 2 : W * .27, cy = P ? h * .62 : h * .42;
+      const clk = t < 1.6 || Math.floor(t * 2) % 2 ? '02:00' : '02 00';      // 冒号落定后开始闪
+      MO.dropText(S, S.hud, clk, cx, cy, t, .55, { f: 'mono', size: big, w: 500, c: C.priHi, al: 'center', a, sh: { c: C.pri, a: .7 } }, .07);
+      const lit = X.SG(t, K.tp, K.tp + .2), px = P ? W * .5 : W * .27, py0 = P ? h * .74 : h * .66, ph = v * (P ? 10 : 9);
+      const pk = MO.sp(t, 1.0, 'bouncy');                                     // 手机从下方弹上来
+      let hop = 0, sx = 1, sy = 1;
+      for (let k = 0; k < 3; k++) {                                           // 来电：连跳三下，一下比一下低
+        const t0 = K.tp + k * .4, s = seg(t, t0, t0 + .2);
+        if (s > 0 && s < 1) hop += Math.sin(Math.PI * s) * v * (2.4 - k * .7);
+        const q = MO.squash(t, t0 + .2, .8 - k * .22); sx *= q.sx; sy *= q.sy;
+        if (s > 0 && s < 1) { const st = 1 + .18 * Math.abs(Math.cos(Math.PI * s)); sx /= st; sy *= st; }
+      }
+      const py = py0 + (1 - pk) * h * .3 - hop;
+      if (pk > 0) MO.tf(S, x, { x: px, y: py + ph / 2, sx, sy }, () => X.phone(S, x, px, py, ph, lit, t, a * clamp(pk * 1.5)));
+      const k76 = MO.sp(t, K.t76 - .12, 'pop'), tx = P ? W * .5 : W * .27, ty = P ? h * .62 - v * 7.5 : h * .25;
+      if (k76 > 0) MO.tf(S, S.hud, { x: tx, y: ty, sx: k76, sy: k76, r: (1 - k76) * .35 }, () => TAG(S, S.hud, '76 岁', tx, ty, a * clamp(k76 * 3), { al: 'center', size: v * 1.6, c: C.gold, f: 'sans', w: 700 }));
+    };
+
+    /* ---------- 镜头 2：诺贝尔奖的电话 ---------- */
+    const shotB = (a) => {
+      const wy = P ? G.top + v * 1.5 : h * .2, wk = MO.sp(t, K.tN, 'bouncy');  // 声波：切镜那一刻整排弹起
+      if (wk > .01) MO.tf(S, x, { x: W / 2, y: wy, sy: wk }, () => X.wave(S, x, P ? W * .1 : W * .08, wy, P ? W * .8 : W * .84, v * 4, t, a * (1 - X.SG(t, K.tq, K.tq + .5)), 1));
+      const R0 = P ? { x: W * .1, y: h * .27, w: W * .8, h: W * .41 } : { x: W * .14, y: h * .3, w: W * .44, h: W * .225 };
+      const pk = MO.sp(t, K.tN + .05, 'bouncy');                              // 版画：从下方弹入，转一点再回正
+      if (pk > 0) MO.tf(S, x, { x: R0.x + R0.w / 2, y: R0.y + R0.h / 2, dy: (1 - pk) * h * .45, sx: lerp(.86, 1, pk), sy: lerp(.86, 1, pk), r: (1 - pk) * -.07 },
+        () => X.photo(S, a * clamp(pk * 2.5), 'A23', seg(t, K.tN, K.tH + .5), { R: R0, z0: 1, z1: 1.06, scan: seg(t, K.tN + .35, K.tN + 1.6), frame: 1 }));
+      const kP = MO.sp(t, K.tPh - .15, 'pop'), gx = P ? W / 2 : W * .36, gy = P ? h * .27 + W * .41 + v * 3 : h * .3 + W * .225 + v * 3;
+      if (kP > 0) MO.tf(S, S.hud, { x: gx, y: gy, sx: kP, sy: kP }, () => TAG(S, S.hud, 'THE NOBEL PRIZE IN PHYSICS 2024', gx, gy, a * clamp(kP * 3), { al: 'center', c: C.gold, size: v * 1.3 }));
+      if (t > K.tq - .02) {                                                   // 问号：从天而降，落地压扁，再晃几下
+        const qx = P ? W * .84 : W * .8, qy = P ? h * .2 : h * .36, qs = v * (P ? 9 : 14), fq = fsz(qs), tl = K.tq + .26;
+        const drawQ = (tt, w) => {
+          const f = MO.fall(tt, K.tq, qy - h * .55, qy, .26), q = MO.squash(tt, tl, 1.1), st = f.done ? 1 : 1 + .45 * f.v;
+          const wob = tt > tl ? .07 * Math.sin((tt - tl) * 20) * Math.exp(-(tt - tl) * 3.5) : 0;
+          MO.tf(S, S.hud, { x: qx, y: qy + fq * .45, sx: q.sx / st, sy: q.sy * st, r: wob },
+            () => T(S.hud, '?', qx, f.y, { f: 'smiley', size: qs, c: C.acc, al: 'center', a: a * w * clamp((tt - K.tq) / .05), sh: { c: C.acc, a: .7 } }));
+        };
+        if (t < tl + .02) MO.smear(t, 3, .014, drawQ); else drawQ(t, 1);
+        const kQ = MO.sp(t, K.tPr - .45, 'pop');                              // 引语卡：弹入
+        if (kQ > 0) {
+          const RQ = P ? { x: W * .07, y: h * .55, w: W * .86 } : { x: W * .62, y: h * .48, w: W * .33 };
+          MO.tf(S, S.hud, { x: RQ.x + RQ.w / 2, y: RQ.y + v * 4, sx: lerp(.8, 1, kQ), sy: lerp(.8, 1, kQ), dy: (1 - kQ) * v * 3 },
+            () => QUOTE(S, S.hud, RQ, '我的第一个念头是：怎么确定这不是{恶作剧电话}？', '辛顿 · 诺贝尔官网电话采访', a * clamp(kQ * 2.5)));
+        }
+      }
+    };
+
+    /* ---------- 镜头 3：辛顿，66 年 ---------- */
+    const shotC = (a) => {
+      const t4 = K.t4, fo = X.SG(t, t4, t4 + .9);
+      const m = X.photo(S, a * (1 - .85 * fo), 'A22', seg(t, K.tH, F.dur), { R: P ? G.main : { x: W * .055, y: h * .17, w: W * .4, h: h * .65 }, z0: 1.02, z1: 1.14, f0: [.5, .42], depth: .9 });
+      if (m) X.pco(S, x, m, P ? [W * .94, G.main.y + G.main.h + coH(S) * .5 + v * 1.2] : [W * .5, h * .26], X.SG(t, K.tH + .3, K.tH + 1.3) * a * (1 - X.SG(t, t4 - .4, t4)), '杰弗里·辛顿', 'GEOFFREY HINTON · 1947', { side: P ? -1 : 1 });
+      const tr = K.tr, t66 = K.t66, rollP = seg(t, tr - .25, t66 - .12), yr = Math.round(lerp(2024, 1958, E.io3(rollP)));
+      const yP = Math.max(h * .68, G.main.y + G.main.h + coH(S) + v * 9 + fsz(v * 5) * .5);
+      const X1 = lerp(P ? W * .1 : W * .5, W * .14, fo), X2 = lerp(P ? W * .9 : W * .93, W * .86, fo), Yt = lerp(P ? yP : h * .5, P ? h * .62 : h * .66, fo);
+      if (t > tr - .4) {
+        const ta = X.SG(t, tr - .4, tr) * a;
+        X.timeline(S, x, X1, X2, Yt, [[1958, '感知机', C.pri], [2024, '诺贝尔奖', C.acc]], 1, { a: ta });
+        const yy = lerp(Yt - v * (P ? 7 : 9), Yt - v * 8, fo), cxT = (X1 + X2) / 2, ys = v * (P ? 5 : 6.5);
+        const yearA = ta * (1 - X.SG(t, t66 - .05, t66 + .05));               // 年份：滚动时上下拖影，停在 1958 时一顶
+        if (yearA > 0) {
+          const speed = rollP > 0 && rollP < 1 ? Math.sin(Math.PI * rollP) : 0, land = MO.punch(t, t66 - .12, .2, 'bouncy');
+          const draw = (dy, w) => T(S.hud, String(yr), cxT, yy + dy, { f: 'interd', size: ys, w: 900, c: C.ink, al: 'center', a: yearA * w, sh: { c: C.pri, a: .6 } });
+          MO.tf(S, S.hud, { x: cxT, y: yy, sx: 1 + land, sy: 1 + land }, () => { if (speed > .05) { draw(-ys * .5 * speed, .22); draw(ys * .5 * speed, .22); } draw(0, 1); });
+        }
+        const ca = a * (1 - fo);                                              // 66 YEARS：砸进来，镜头一震
+        if (t > t66 - .05 && ca > 0) {
+          const [hx, hy] = MO.shake(t, t66 - .05, v * .55, .14, 5);
+          const drawS = (tt, w) => {
+            const s = MO.slam(tt, t66 - .05, 2.6);
+            MO.tf(S, S.hud, { x: cxT, y: yy, sx: s.s, sy: s.s, dx: hx, dy: hy }, () => {
+              W3.num(S, S.hud, '66', cxT + v * 1.5, yy, v * (P ? 6 : 8), { al: 'right', a: ca * w * s.a });
+              T(S.hud, 'YEARS', cxT + v * 2.5, yy, { f: 'mono', size: v * 1.8, w: 500, c: C.pri, tr: .2, a: ca * w * s.a });
+            });
+          };
+          if (MO.slam(t, t66 - .05).k < .96 && t < t66 + .15) MO.smear(t, 3, .012, drawS); else drawS(t, 1);
+        }
+      }
+      if (t > t4 + .15) {                                                     // 片名：逐字落下、落地压扁
+        const sz = v * (P ? 4.6 : 6.4), yy = P ? h * .42 : h * .4, str = '一个被等了 66 年的想法';
+        MO.dropText(S, S.hud, str, W / 2, yy, t, t4 + .45, { f: 'smiley', size: fit(S.hud, str, W * .86, { f: 'smiley', size: sz }), c: C.ink, al: 'center', a, sh: { c: C.pri, a: .7 } }, .05);
+        const k2 = MO.sp(t, t4 + 1.0, 'gentle');
+        if (k2 > 0) T(S.hud, 'AI 八堂课 · 第 1 课', W / 2, yy + v * (P ? 5 : 6.5), { f: 'sans', size: v * 1.8, w: 500, c: C.pri, al: 'center', tr: lerp(.9, .2, clamp(k2)), a: a * .9 * clamp(k2 * 1.6) });
+      }
+    };
+
+    /* 切镜卡在旁白上：“诺贝尔”硬切；“他叫杰弗里·辛顿”甩镜（两个镜头同时在画面里） */
+    const half = .13, wb = Math.sin(Math.PI * seg(t, K.tH - half, K.tH + half));
+    MO.blur(S, wb * v * 1.1);
     shots(t, [
-      [0, tN, (a, lt) => {
-        const R = P ? { x: W * .2, y: h * .22, w: W * .6, h: h * .3 } : { x: W * .55, y: h * .2, w: W * .36, h: h * .58 };
-        X.nightWindow(S, x, R, a * X.SG(t, .1, 1), t);
-        const big = P ? v * 7 : v * 11, cx = P ? W / 2 : W * .27, cy = P ? h * .62 : h * .42;
-        const clk = t < .8 ? '' : (Math.floor(t * 2) % 2 ? '02:00' : '02 00');
-        T(S.hud, clk, cx, cy, { f: 'mono', size: big, w: 500, c: C.priHi, al: 'center', a: a * X.SG(t, .6, 1.2), sh: { c: C.pri, a: .7 } });
-        const tp = F.kw(0, '吵醒') - .2, lit = X.SG(t, tp, tp + .2);
-        X.phone(S, x, P ? W * .5 : W * .27, P ? h * .74 : h * .66, v * (P ? 10 : 9), lit, t, a * X.SG(t, 1, 1.6));
-        TAG(S, S.hud, '76 岁', P ? W * .5 : W * .27, P ? h * .62 - v * 7.5 : h * .25, X.SG(t, F.kw(0, '76') - .1, F.kw(0, '76') + .4) * a, { al: 'center', size: v * 1.6, c: C.gold, f: 'sans', w: 700 });
+      [0, K.tN, shotA],
+      [K.tN, K.tH + half, (a) => {
+        if (t < K.tH - half) return shotB(a);
+        MO.smear(t, 1, .02, (tt, w) => MO.shift(S, -W * MO.whip(tt, K.tH, half), 0, () => shotB(a * w)));
       }],
-      [tN, tH, (a, lt) => {
-        const tq = F.cue(2) - .1, R = P ? G.main : G.main;
-        X.wave(S, x, P ? W * .1 : W * .08, P ? G.top + v * 1.5 : h * .2, P ? W * .8 : W * .84, v * 4, t, a * (1 - X.SG(t, tq, tq + .5)), 1);
-        const m = X.photo(S, a * X.SG(t, tN + .2, tN + .9), 'A23', seg(t, tN, tH + .5), { R: P ? { x: W * .1, y: h * .27, w: W * .8, h: W * .41 } : { x: W * .14, y: h * .3, w: W * .44, h: W * .225 }, z0: 1, z1: 1.06, scan: seg(t, tN + .3, tN + 1.6), frame: 1 });
-        TAG(S, S.hud, 'THE NOBEL PRIZE IN PHYSICS 2024', P ? W / 2 : W * .36, P ? h * .27 + W * .41 + v * 3 : h * .3 + W * .225 + v * 3, X.SG(t, F.kw(1, '物理') - .2, F.kw(1, '物理') + .4) * a, { al: 'center', c: C.gold, size: v * 1.3 });
-        const qa = X.SG(t, tq, tq + .4) * a;
-        if (qa > 0) {
-          const sh = t < tq + .5 ? (Math.random() - .5) * v * 1.2 * (1 - seg(t, tq, tq + .5)) : 0;
-          T(S.hud, '?', (P ? W * .84 : W * .8) + sh, P ? h * .2 : h * .36, { f: 'smiley', size: v * (P ? 9 : 14), c: C.acc, al: 'center', a: qa, sh: { c: C.acc, a: .7 } });
-          QUOTE(S, S.hud, P ? { x: W * .07, y: h * .55, w: W * .86 } : { x: W * .62, y: h * .48, w: W * .33 }, '我的第一个念头是：怎么确定这不是{恶作剧电话}？', '辛顿 · 诺贝尔官网电话采访', X.SG(t, F.kw(2, '恶作剧') - .4, F.kw(2, '恶作剧') + .2) * a);
-        }
+      [K.tH - half, F.dur, (a) => {
+        if (t > K.tH + half) return shotC(a);
+        MO.smear(t, 1, .02, (tt, w) => MO.shift(S, W * (1 - MO.whip(tt, K.tH, half)), 0, () => shotC(a * w)));
       }],
-      [tH, F.dur, (a, lt) => {
-        const t4 = F.cue(4) - .2, fo = X.SG(t, t4, t4 + .9);
-        const m = X.photo(S, a * (1 - .85 * fo), 'A22', seg(t, tH, F.dur), { R: P ? G.main : { x: W * .055, y: h * .17, w: W * .4, h: h * .65 }, z0: 1.02, z1: 1.14, f0: [.5, .42], depth: .9 });
-        if (m) CO(S, x, m.map(.5, .3), P ? [W * .94, G.main.y + G.main.h + coH(S) * .5 + v * 1.2] : [W * .5, h * .26], X.SG(t, tH + .3, tH + 1.3) * a * (1 - X.SG(t, t4 - .4, t4)), '杰弗里·辛顿', 'GEOFFREY HINTON · 1947', { side: P ? -1 : 1 });
-        const tr = F.kw(3, '诞生'), p66 = seg(t, tr - .2, tr + 1.4), yr = Math.round(lerp(2024, 1958, E.io3(p66)));
-        const yP = Math.max(h * .68, G.main.y + G.main.h + coH(S) + v * 9 + fsz(v * 5) * .5);   /* 矮竖屏：大年份压在人名标签下面，整体往下让 */
-        const X1 = lerp(P ? W * .1 : W * .5, W * .14, fo), X2 = lerp(P ? W * .9 : W * .93, W * .86, fo), Yt = lerp(P ? yP : h * .5, P ? h * .62 : h * .66, fo);
-        if (t > tr - .4) {
-          const ta = X.SG(t, tr - .4, tr) * a;
-          X.timeline(S, x, X1, X2, Yt, [[1958, '感知机', C.pri], [2024, '诺贝尔奖', C.acc]], 1, { a: ta });
-          const yy = lerp(Yt - v * (P ? 7 : 9), Yt - v * 8, fo);
-          T(S.hud, String(yr), (X1 + X2) / 2, yy, { f: 'interd', size: v * (P ? 5 : 6.5), w: 900, c: C.ink, al: 'center', a: ta * (1 - X.SG(t, tr + 1.4, tr + 1.8)), sh: { c: C.pri, a: .6 } });
-          const ca = X.SG(t, tr + 1.4, tr + 1.8) * a * (1 - fo);
-          if (ca > 0) { W3.num(S, S.hud, '66', (X1 + X2) / 2 + v * 1.5, yy, v * (P ? 6 : 8), { al: 'right', a: ca }); T(S.hud, 'YEARS', (X1 + X2) / 2 + v * 2.5, yy, { f: 'mono', size: v * 1.8, w: 500, c: C.pri, tr: .2, a: ca }); }
-        }
-        const ta2 = X.SG(t, t4 + .5, t4 + 1.3) * a;
-        if (ta2 > 0) {
-          const sz = v * (P ? 4.6 : 6.4), yy = P ? h * .42 : h * .4;
-          T(S.hud, '一个被等了 66 年的想法', W / 2, yy, { f: 'smiley', size: fit(S.hud, '一个被等了 66 年的想法', W * .86, { f: 'smiley', size: sz }), c: C.ink, al: 'center', a: ta2, sh: { c: C.pri, a: .7 } });
-          T(S.hud, 'AI 八堂课 · 第 1 课', W / 2, yy + v * (P ? 5 : 6.5), { f: 'sans', size: v * 1.8, w: 500, c: C.pri, al: 'center', tr: .2, a: ta2 * .9 });
-        }
-      }],
-    ]);
+    ], .04, .04);
+    X.flash(S, t, K.tN, .3);
   },
 });
 
 /* ===== 第一幕 · 两个少年 ===== */
+/* 动效（重音：布朗克斯 / 明斯基 / 只差一届 / 世纪之争） */
 L1S.push({
   tin: { type: 'iris', x: .5, y: .5 }, tdur: .8, mood: 'main', lead: .5, gap: .35, tail: .8,
-  camera: () => ({ z: 1 }),
+  keys(F) {
+    if (this._k && this._k.F === F) return this._k;
+    return (this._k = { F, tB: F.kw(0, '布朗克斯') - .25, t1: L1X.BT(F, 0, 1, 3), tC: F.cue(1) - .2, tM: F.kw(1, '明斯基') - .5, tD: Math.max(F.kw(1, '只差'), F.kw(1, '明斯基') + .1), tK: F.kw(2, '康奈尔') - .4, tI: F.kw(2, '人工智能') - .5, tS: F.cue(3) - .2, tW: F.kw(3, '世纪') - .3 });
+  },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[K.tB, 'tick'], [K.t1 - .08, 'whoosh', .5], [K.tC + .05, 'blip', .55], [K.tM, 'blip', .55], [K.tD, 'tick', .7], [K.tK, 'tick', .55], [K.tI, 'tick', .55], [K.tS, 'whoosh', .45], [K.tW, 'impact', .75]]) : []; },
+  camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.t1, .03], [K.tS + .1, .025], [K.tW, .05]], [[K.tW, .5, .15, 4]]); },
   draw(t, S, F) {
-    const X = L1X, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid; H.bg(S, t, {});
+    const X = L1X, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, K = this.keys(F); H.bg(S, t, {});
     STAMP(S, t, .2, '1940s · NEW YORK', '纽约 · 布朗克斯');
     const t1 = X.BT(F, 0, 1, 3), tC = F.cue(1) - .2, tS = F.cue(3) - .2;
     shots(t, [
@@ -247,36 +373,58 @@ L1S.push({
         x.save(); x.globalAlpha = a; x.strokeStyle = col(C.pri, .6); x.beginPath(); x.moveTo(cx - R0 * 2, cy); x.lineTo(cx + R0 * 2, cy); x.moveTo(cx, cy - R0 * 2); x.lineTo(cx, cy + R0 * 2); x.stroke(); x.restore();
         H.node(S, cx, cy, v * 1.2, { lit: 1, c: C.acc, a });
         T(S.hud, decode('40.878°N  73.891°W', seg(t, .3, 1.4), 3), cx, cy + R0 * 1.4, { f: 'mono', size: v * 1.5, w: 500, c: C.pri, al: 'center', tr: .1, a });
-        T(S.hud, '布朗克斯科学高中', cx, cy - R0 * 1.4, { f: 'sans', size: v * 2.6, w: 700, c: C.ink, al: 'center', a: a * X.SG(t, F.kw(0, '布朗克斯') - .2, F.kw(0, '布朗克斯') + .4), sh: { c: C.pri, a: .4 } });
+        X.pop(S, S.hud, t, K.tB, cx, cy - R0 * 1.4, () => T(S.hud, '布朗克斯科学高中', cx, cy - R0 * 1.4, { f: 'sans', size: v * 2.6, w: 700, c: C.ink, al: 'center', a: a * X.SG(t, K.tB, K.tB + .2), sh: { c: C.pri, a: .4 } }));
       }],
       [t1, tC, (a) => {
         const m = X.photo(S, a, 'A09', seg(t, t1, tC + .5), { R: P ? G.main : G.wide, z0: 1.04, z1: 1.14, f0: [.4, .5], f1: [.62, .5] });
         if (m) CO(S, x, m.map(.72, .6), P ? [W * .1, G.main.y + G.main.h + coH(S) * .5 + v * 1.2] : [W * .62, h * .3], X.SG(t, t1 + .4, t1 + 1.3) * a, '布朗克斯科学高中', 'BRONX HIGH SCHOOL OF SCIENCE · 今日校舍', { side: P ? 1 : 1 });
       }],
       [tC, F.dur, (a) => {
-        const sep = X.SG(t, tS, tS + .9), k2 = F.cue(2) - .2;
-        const cw = P ? W * .86 : W * .41, chh = P ? h * .2 : h * .3;
-        const R1 = P ? { x: W * .07, y: h * .2, w: cw, h: chh } : { x: lerp(W * .065, W * .02, sep), y: h * .26, w: cw, h: chh };
-        const R2 = P ? { x: W * .07, y: h * .2 + chh + v * 9, w: cw, h: chh } : { x: lerp(W * .525, W * .57, sep), y: h * .26, w: cw, h: chh };
+        const sep = X.SG(t, tS, tS + .9), k2 = F.cue(2) - .2, shr = P ? X.SG(t, tC, tC + .7) : 0;   /* 竖屏：卡片一开始就收窄，给下面走路的两个少年留出地方 */
+        const cw = P ? W * .86 : W * .41, chh = P ? h * lerp(.2, .15, shr) : h * .28;
+        const R1 = P ? { x: W * .07, y: h * .2, w: cw, h: chh } : { x: lerp(W * .065, W * .02, sep), y: h * .24, w: cw, h: chh };
+        const R2 = P ? { x: W * .07, y: h * .2 + chh + v * 9, w: cw, h: chh } : { x: lerp(W * .525, W * .57, sep), y: h * .24, w: cw, h: chh };
         const l1 = t > k2 ? ['康奈尔 · 学士 1950 · 博士 1956', '心理学家'] : ['1928 年生 · 1946 届'], l2 = t > k2 ? ['MIT · 1956 年达特茅斯会议发起人之一', '人工智能奠基人'] : ['1927 年生'];
         const pa = X.SG(t, tC, tC + .7) * a, pb = X.SG(t, F.kw(1, '明斯基') - .5, F.kw(1, '明斯基') + .2) * a;
-        IDC(S, x, R1, { img: 'A01', name: '弗兰克·罗森布拉特', en: 'FRANK ROSENBLATT', lines: l1, f: [.5, .35] }, pa * (1 - sep * .4));
-        IDC(S, x, R2, { img: 'A07', name: '马文·明斯基', en: 'MARVIN MINSKY', lines: l2, f: [.6, .4], c: C.acc }, pb * (1 - sep * .4));
+        X.pop(S, x, t, K.tC, R1.x + R1.w / 2, R1.y + R1.h / 2, () => IDC(S, x, R1, { img: 'A01', name: '弗兰克·罗森布拉特', en: 'FRANK ROSENBLATT', lines: l1, f: [.5, .35] }, pa * (1 - sep * .4)), 'bouncy', .88);
+        X.pop(S, x, t, K.tM, R2.x + R2.w / 2, R2.y + R2.h / 2, () => IDC(S, x, R2, { img: 'A07', name: '马文·明斯基', en: 'MARVIN MINSKY', lines: l2, f: [.6, .4], c: C.acc }, pb * (1 - sep * .4)), 'bouncy', .88);
         if (pb > 0) TAG(S, S.hud, '照片摄于 2012', R2.x + R2.w - v, R2.y + R2.h + v * 1.8, pb, { al: 'right', size: v * 1, c: C.mute });
         const la = X.SG(t, Math.max(F.kw(1, '只差'), F.kw(1, '明斯基') + .1), Math.max(F.kw(1, '只差'), F.kw(1, '明斯基') + .1) + .5) * a * (1 - sep);
         if (la > 0) {
           const ax = P ? W / 2 : R1.x + R1.w, ay = P ? R1.y + R1.h : R1.y + R1.h / 2, bx = P ? W / 2 : R2.x, by = P ? R2.y : ay;
           x.save(); x.globalAlpha = la; x.setLineDash([4, 4]); x.strokeStyle = col(C.gold, .9); x.lineWidth = 1.5; x.beginPath(); x.moveTo(ax, ay); x.lineTo(bx, by); x.stroke(); x.setLineDash([]); x.restore();
-          TAG(S, S.hud, '只差一届', (ax + bx) / 2, (ay + by) / 2, la, { al: 'center', c: C.gold, f: 'sans', w: 700, size: v * 1.5 });
+          X.pop(S, S.hud, t, K.tD, (ax + bx) / 2, (ay + by) / 2, () => TAG(S, S.hud, '只差一届', (ax + bx) / 2, (ay + by) / 2, la, { al: 'center', c: C.gold, f: 'sans', w: 700, size: v * 1.5 }));
+        }
+        /* 情景再现：两个少年并肩走 → 一个往康奈尔、一个往 MIT → 停在两端，转身对望 */
+        const gY = P ? G.bot - v * .6 : h * .8, fh = P ? Math.min(h * .13, gY - (R2.y + R2.h) - v * 4.5) : Math.min(h * .3, gY - (R1.y + R1.h) - v * 7);
+        const ta = X.SG(t, tC + .3, tC + 1) * a;
+        if (ta > 0 && fh > 10) {
+          const xs = W * .12, xm = W * .4, xa = W * (P ? .36 : .2), xb = W * (P ? .64 : .8), gap = fh * .5;
+          const pA = tt => tt < k2 ? lerp(xs, xm, E.ioS(seg(tt, tC + .2, k2))) : lerp(xm, xa, E.ioS(seg(tt, k2 + .15, tS + .1)));
+          const pB = tt => tt < k2 ? lerp(xs, xm, E.ioS(seg(tt, tC + .2, k2))) + gap : lerp(xm + gap, xb, E.ioS(seg(tt, k2 + .15, tS + .1)));
+          const walker = (pf, i, c, label) => {
+            const x0 = pf(t), vel = (pf(t + .04) - pf(t - .04)) / .08, spd = Math.abs(vel), amt = clamp(spd / (fh * .5)), dist = Math.abs(pf(t) - pf(tC)) + Math.abs(pf(t) - pf(k2)) * (t > k2 ? 1 : 0);
+            const f = t > tS + .2 ? (i ? -1 : 1) : (vel < -1 ? -1 : vel > 1 ? 1 : (t < k2 + .2 ? 1 : (i ? 1 : -1)));
+            const ph = (t < k2 ? pf(t) - xs : xm - xs + Math.abs(pf(t) - (i ? xm + gap : xm))) / (ST.STRIDE * fh) * TAU + i * 1.3;
+            const pose = ST.mixP({ tr: .02, hd: .05, sh1: .05, el1: .5, sh2: -.05, el2: .15 }, ST.walk(ph, 1, { lean: .07 }), amt);
+            ST.fig(S, x, { x: x0, y: gY, h: fh, f, pose, mode: 'holo', c, a: ta, hold: (g, R) => { const w = R.w1; g.save(); g.translate(w[0], w[1]); g.rotate(R.fa1); g.fillStyle = '#0b1424'; g.strokeStyle = col(c, .8); g.lineWidth = 1; rrect(g, -fh * .02, -fh * .06, fh * .05, fh * .11, fh * .008); g.fill(); g.stroke(); g.restore(); } });
+            if (label && !P) H.chip(S, S.hud, label, x0, gY - fh * 1.15, { size: v * 1.5, al: 'center', a: sep * a, hot: i === 1, c });
+          };
+          ST.floor(S, x, W * .04, W * .96, gY + 1, ta * .8);
+          walker(pA, 0, C.pri, '神经网络'); walker(pB, 1, C.acc, '符号主义');
+          const sa1 = X.SG(t, F.kw(2, '康奈尔') - .4, F.kw(2, '康奈尔') + .2) * a, sa2 = X.SG(t, F.kw(2, '人工智能') - .5, F.kw(2, '人工智能') + .1) * a;
+          ST.sign(S, x, W * .07, gY, fh * .95 * Math.max(.05, MO.sp(t, K.tK, 'bouncy')), '康奈尔', 'CORNELL', sa1, C.pri, 1); ST.sign(S, x, W * .93, gY, fh * .95 * Math.max(.05, MO.sp(t, K.tI, 'bouncy')), 'MIT', 'M.I.T.', sa2, C.acc, -1);   /* 路牌从地面弹起 */
+          ST.tag(S, R1.x, (P ? R2.y + R2.h : R1.y + R1.h) + Math.max(v * 2.4, fsz(v * 1.15) * 1.1), ta * (1 - sep));   /* 标签放在卡片下面，不进字幕区 */
         }
         if (sep > 0) {
           const cx = W / 2, top = P ? h * .2 : h * .2, bot = P ? h * .78 : h * .82, ga = sep * a;
           x.save(); x.globalAlpha = ga; const g = x.createLinearGradient(0, top, 0, bot); g.addColorStop(0, col(C.pri, 0)); g.addColorStop(.5, col(C.priHi, 1)); g.addColorStop(1, col(C.acc, 0)); x.strokeStyle = g; x.lineWidth = v * .35;
           x.beginPath(); const n = 18; for (let i = 0; i <= n; i++) { const yy = lerp(top, bot, i / n), xx = cx + (i % 2 ? 1 : -1) * v * .9 * Math.sin(t * 3 + i); i ? x.lineTo(xx, yy) : x.moveTo(xx, yy); } x.stroke(); x.restore();
           haze(S.glow, cx, (top + bot) / 2, v * 14, C.pri, .5 * ga);
-          if (!P) { T(S.hud, '神经网络', W * .25, h * .72, { f: 'smiley', size: v * 4, c: C.priHi, al: 'center', a: ga, sh: { c: C.pri, a: .6 } }); T(S.hud, '符号主义', W * .75, h * .72, { f: 'smiley', size: v * 4, c: C.accHi, al: 'center', a: ga, sh: { c: C.acc, a: .6 } }); T(S.hud, 'VS', cx, h * .72, { f: 'interd', size: v * 3, w: 900, c: C.ink, al: 'center', a: ga }); }
+          if (!P) T(S.hud, 'VS', cx, h * .8 - h * .3 * .55, { f: 'interd', size: v * 3, w: 900, c: C.ink, al: 'center', a: ga, sh: { c: C.pri, a: .6 } });
           else { TAG(S, S.hud, '神经网络  VS  符号主义', W / 2, h * .2 + chh + v * 4.5, ga, { al: 'center', f: 'sans', w: 700, size: v * 1.6 }); }
-          T(S.hud, '世纪之争', cx, P ? h * .77 : h * .22, { f: 'sans', size: v * 2.2, w: 700, c: C.gold, al: 'center', tr: .3, a: X.SG(t, F.kw(3, '世纪') - .3, F.kw(3, '世纪') + .3) * a });
+          const wy = P ? R2.y + R2.h + v * 2.6 : h * .2;
+          if (t > K.tW) X.slam(S, S.hud, t, K.tW, cx, wy, w => T(S.hud, '世纪之争', cx, wy, { f: 'sans', size: v * 2.2, w: 700, c: C.gold, al: 'center', tr: .3, a: a * w, sh: { c: C.gold, a: .5 } }), 2.4);
         }
       }],
     ]);
@@ -284,21 +432,43 @@ L1S.push({
 });
 
 /* ===== 第二幕 · 华盛顿，1958 ===== */
+/* 动效（重音：徽章落地 / 记者闪光 / IBM 704 / 它自己学会了 / 30 岁生日） */
 L1S.push({
-  tin: { type: 'wipe', ang: -.35 }, tdur: .7, mood: 'main', lead: .5, gap: .35, tail: .8, sfx: [[.9, 'impact']],
-  camera: () => ({ z: 1 }),
+  tin: { type: 'wipe', ang: -.35 }, tdur: .7, mood: 'main', lead: .5, gap: .35, tail: .8,
+  keys(F) {
+    if (this._k && this._k.F === F) return this._k;
+    const pA = F.kw(0, '记者') - .1, tk = F.kw(4, '还差');
+    return (this._k = { F, pA, pB: pA + .45, pC: F.kw(0, '演示'), t1: F.cue(1) - .2, t1b: L1X.BT(F, 1, 1, 3), t2: F.cue(2) - .2, t3: F.cue(3) - .2, t4: F.cue(4) - .2, tR: F.kw(2, '规则') - .3, tL: F.kw(3, '自己学会') - .2, tk });
+  },
+  get sfx() {
+    const K = this._k; if (!K) return [];
+    return (K.sx = K.sx || [[.88, 'impact', .65], [K.pA - 1.1, 'snappers', .3, 3.8], [K.pA, 'flash', .7], [K.pA + .2, 'shutter', .4], [K.pB, 'flash', .55], [K.pB + .28, 'shutter', .4], [K.pC - .45, 'shutter', .35], [K.pC, 'flash', .7], [K.pC + .32, 'shutter', .4],
+      [K.t1 - .08, 'whoosh', .5], [K.t1b + .2, 'tick', .5], [K.t2 + .25, 'cards', .45, K.t3 - K.t2 - .1], [K.tR, 'tick', .55], [K.tL, 'correct', .55], [K.tk - .5, 'paper', .45], [K.tk + .28, 'tick', .4], [K.tk + .56, 'tick', .4], [K.tk + .84, 'tick', .4], [K.tk + 1.12, 'ding', .55]]);
+  },
+  camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[.9, .05], [K.t1, .03], [K.tL, .04], [K.tk + 1.12, .02]], [[.9, .45, .14, 6]]); },
   draw(t, S, F) {
-    const X = L1X, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid; H.bg(S, t, {});
+    const X = L1X, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, K = this.keys(F); H.bg(S, t, {});
     STAMP(S, t, .2, '1958.07.07 · WASHINGTON D.C.', '华盛顿 · 美国气象局');
     const t1 = F.cue(1) - .2, t1b = X.BT(F, 1, 1, 3), t2 = F.cue(2) - .2, t3 = F.cue(3) - .2, t4 = F.cue(4) - .2;
     shots(t, [
       [0, t1, (a) => {
-        const r = P ? W * .32 : h * .26, cx = W / 2, cy = P ? h * .45 : h * .48, k = E.oB(seg(t, .5, 1.1), 2), sc = lerp(1.7, 1, Math.min(1, k));
+        const r = P ? W * .3 : h * .26, cx = W / 2, cy = P ? h * .42 : h * .48, k = E.oB(seg(t, .5, 1.1), 2), sc = lerp(1.7, 1, Math.min(1, k));
         x.save(); x.globalAlpha = a * clamp((t - .5) * 4); x.translate(cx, cy); x.rotate(-.06 * (1 - seg(t, .5, 1))); x.scale(sc, sc); const im = IMG.get('A26');
         if (im) x.drawImage(im.im, -r, -r, r * 2, r * 2); x.restore();
         haze(S.glow, cx, cy, r * 1.2, C.pri, .35 * a * clamp((t - .5) * 3));
         TAG(S, S.hud, 'OFFICE OF NAVAL RESEARCH · 美国海军研究办公室', cx, cy + r + v * 3, X.SG(t, 1.1, 1.6) * a, { al: 'center', size: v * 1.2 });
-        X.flash(S, t, F.kw(0, '记者') - .1); X.flash(S, t, F.kw(0, '记者') + .35, .5); X.flash(S, t, F.kw(0, '演示'), .6);
+        /* 情景再现：记者们举着闪光灯相机，对着台上一阵猛拍 */
+        const pA = F.kw(0, '记者') - .1, pB = F.kw(0, '记者') + .35, pC = F.kw(0, '演示'), ra = a * X.SG(t, pA - 1.1, pA - .5), rise = (1 - MO.sp(t, pA - 1.1, 'gentle')) * v * 6;
+        if (ra > 0) {
+          if (P) ST.reporters(S, x, W * .1, W * .9, h * .8 + rise, h * .15, t, [[pA, 1], [pA + .2, 3], [pB, 4], [pB + .28, 0], [pC, 2], [pC + .32, 3], [pC - .45, 4]], ra, { n: 5, kneel: 2 });
+          else {
+            const Y = (shortLand(S) ? h * .9 : h * .86) + rise, hh = h * (shortLand(S) ? .46 : .42);
+            ST.reporters(S, x, W * .06, W * .27, Y, hh, t, [[pA, 1], [pB + .28, 0], [pC, 2]], ra, { n: 3, mid: W / 2, kneel: 2, seed: 3 });
+            ST.reporters(S, x, W * .73, W * .94, Y, hh, t, [[pA + .2, 0], [pB, 1], [pC + .32, 2], [pC - .45, 1]], ra, { n: 3, mid: W / 2, seed: 11 });
+          }
+          if (P) ST.tag(S, W * .94, cy - r - v * 2.4, ra, 'right'); else ST.tag(S, W * .06, (shortLand(S) ? h * .9 : h * .86) - h * (shortLand(S) ? .46 : .42) - v * 3.4, ra);   /* 竖屏：标签放在徽章右上方，不和下面的机构名重叠 */
+        }
+        X.flash(S, t, pA); X.flash(S, t, pB, .5); X.flash(S, t, pC, .6);
       }],
       [t1, t1b, (a) => { X.photo(S, a, 'A06', seg(t, t1, t1b + .3), { R: P ? G.main : G.wide, z0: 1.05, z1: 1.12, f0: [.3, .5], f1: [.7, .5] }); TAG(S, S.hud, 'IBM 704 · 同型机', P ? W * .08 : W * .075, P ? G.main.y + G.main.h + v * 3 : G.wide.y + fsz(v * 1.25) * .95 + v * 1.4, a, { size: v * 1.25 }); }],
       [t1b, t2, (a) => {
@@ -327,7 +497,7 @@ L1S.push({
       [t3, t4, (a) => {
         const lt = t - t3, R = G.P ? G.wide : G.wide, n = 60, cols = P ? 10 : 20, cell = P ? R.w / 12 : Math.min(R.w / 24, R.h * .105), X0 = R.x + (R.w - cols * cell) / 2, Y0 = P ? R.y + v * 2 : R.y + v * 3;
         const tl = F.kw(3, '50 次之后'), k = Math.floor(clamp((t - t3) / Math.max(.5, tl - t3 + .9)) * n), r = rng(58);
-        for (let i = 0; i < n; i++) { const ok = i < 50 ? r() < .5 : r() < .95; if (i >= k) continue; const cx = X0 + (i % cols + .5) * cell, cy = Y0 + Math.floor(i / cols) * cell * 1.05 + cell / 2; H.node(S, cx, cy, cell * .3, { lit: 1, c: ok ? C.ok : C.red, a: a * (i >= 50 ? 1 : .85) }); }
+        for (let i = 0; i < n; i++) { const ok = i < 50 ? r() < .5 : r() < .95; if (i >= k) continue; const cx = X0 + (i % cols + .5) * cell, cy = Y0 + Math.floor(i / cols) * cell * 1.05 + cell / 2; H.node(S, cx, cy, cell * (ok ? .3 : .2), { lit: ok ? 1 : .08, c: ok ? C.ok : C.red, a: a * (i >= 50 ? 1 : .85) }); }   /* 对错不只靠红绿：分对的大而亮，分错的小而暗（照顾色弱） */
         T(S.hud, '第 ' + Math.max(1, k) + ' 次', X0, Y0 - v * 2.2, { f: 'sans', size: v * 1.8, w: 700, c: C.ink, a });
         const CR2 = P ? { x: R.x + v * 3, y: R.y + R.h * .5, w: R.w - v * 5, h: R.h * .36 } : { x: R.x + R.w * .12, y: R.y + R.h * .46, w: R.w * .76, h: R.h * .4 };
         W3.axes(S, x, CR2, a, '尝试次数', '分对的比例（示意）');
@@ -336,30 +506,38 @@ L1S.push({
         const x50 = CR2.x + CR2.w * .82; x.save(); x.globalAlpha = a * .7; x.setLineDash([3, 4]); x.strokeStyle = col(C.gold, .8); x.beginPath(); x.moveTo(x50, CR2.y); x.lineTo(x50, CR2.y + CR2.h); x.stroke(); x.setLineDash([]); x.restore();
         T(x, '50', x50, P ? CR2.y - v * 1.4 : CR2.y + CR2.h + v * 1.8, { f: 'mono', size: v * 1.25, c: C.gold, al: 'center', a });   /* 竖屏：放到虚线顶上，免得和横轴标签挤在一起 */
         const ka = X.SG(t, F.kw(3, '自己学会') - .2, F.kw(3, '自己学会') + .4) * a;
-        if (ka > 0) H.chip(S, S.hud, '它自己学会了', P ? W / 2 : CR2.x + CR2.w * .55, CR2.y + v * 2, { size: v * 2.2, hot: true, a: ka, al: 'center' });
+        if (ka > 0) { const kx = P ? W / 2 : CR2.x + CR2.w * .55, ky = CR2.y + v * 2; X.slam(S, S.hud, t, K.tL, kx, ky, w => H.chip(S, S.hud, '它自己学会了', kx, ky, { size: v * 2.2, hot: true, a: ka * w, al: 'center' }), 2.2); }
       }],
       [t4, F.dur, (a) => {
         const m = X.photo(S, a, 'A01', seg(t, t4, F.dur), { R: P ? G.main : { x: W * .1, y: h * .19, w: W * .3, h: h * .6 }, z0: 1.02, z1: 1.12, f0: [.5, .4], depth: .8 });
-        if (m) CO(S, x, m.map(.55, .35), P ? [W * .08, G.main.y + G.main.h + coH(S) * .5 + v * 1.2] : [W * .45, h * .27], X.SG(t, t4 + .3, t4 + 1.1) * a, '罗森布拉特 · 29 岁', '康奈尔航空实验室 · 研究心理学家', { side: 1 });
+        if (m) X.pco(S, x, m, P ? [W * .08, G.main.y + G.main.h + coH(S) * .5 + v * 1.2] : [W * .45, h * .27], X.SG(t, t4 + .3, t4 + 1.1) * a, '罗森布拉特 · 29 岁', '康奈尔航空实验室 · 研究心理学家', { side: 1 });
         const tk = F.kw(4, '还差'), day = 7 + Math.min(4, Math.floor(clamp((t - tk) / 1.4) * 4.999)), hot = day === 11;
-        X.calendar(S, S.hud, P ? W * .72 : W * .74, P ? G.side.y + G.side.h * .55 : h * .52, v * (P ? 11 : 16), day, X.SG(t, tk - .5, tk) * a, { hot, sub: hot ? '30 岁生日' : '演示当天', top: 'JULY 1958' });
+        const clx = P ? W * .72 : W * .74, cly = P ? G.side.y + G.side.h * .55 : h * .52, flip = MO.punch(t, tk + .28 * Math.max(0, day - 7), .06, 'bouncy');   /* 每翻一页轻轻一顶 */
+        X.pop(S, S.hud, t, tk - .5, clx, cly, () => MO.tf(S, S.hud, { x: clx, y: cly, sx: 1 + flip, sy: 1 + flip }, () => X.calendar(S, S.hud, clx, cly, v * (P ? 11 : 16), day, X.SG(t, tk - .5, tk) * a, { hot, sub: hot ? '30 岁生日' : '演示当天', top: 'JULY 1958' })), 'bouncy', .7);
       }],
     ]);
   },
 });
 
 /* ===== 第三幕 · 感知机 ===== */
+/* 动效（重音：感知机 / 亮灯 / 再猜再调 / 从错误里学习） */
 L1S.push({
   tin: { type: 'fade' }, tdur: .6, mood: 'main', lead: .5, gap: .35, tail: .9,
-  camera: () => ({ z: 1 }),
+  keys(F) {
+    if (this._k && this._k.F === F) return this._k;
+    const k2 = F.cue(2), e2 = F.end(2);
+    return (this._k = { F, tk: F.kw(0, '感知机') - .2, tn: F.kw(0, '神经元') + .3, tw: F.kw(1, '权重') - .2, tl: F.kw(1, '亮灯') - .3, xs: [0, 1, 2].map(i => k2 + .3 + i * (e2 - k2) * .3), tE: F.kw(3, '错误') - .3 });
+  },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[K.tk, 'impact', .65], [K.tn, 'blip', .45], [K.tw, 'tick', .45], [K.tl, 'ding', .5], [K.xs[0], 'wrong', .3], [K.xs[1], 'wrong', .3], [K.xs[2], 'correct', .5], [K.tE, 'hit', .6]]) : []; },
+  camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.tk, .05], [K.tl, .02], [K.xs[2], .02], [K.tE, .04]], [[K.tk, .4, .14, 2]]); },
   draw(t, S, F) {
-    const X = L1X, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid; H.bg(S, t, {});
+    const X = L1X, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, K = this.keys(F); H.bg(S, t, {});
     const t1 = F.cue(1) - .2;
     shots(t, [
       [0, t1, (a) => {
         const tk = F.kw(0, '感知机'), tb = F.kw(0, '大脑') - .2, tn = F.kw(0, '神经元');
         const fig = IMG.get('A04'); if (fig) { const fw = P ? W * .86 : W * .5, fh = fw * fig.h / fig.w, fx = P ? W * .07 : W * .45, fy = P ? h * .52 : h * .22; x.save(); x.globalAlpha = a * .55 * X.SG(t, tk - .3, tk + .4) * (1 - .6 * X.SG(t, tb, tb + .6)); x.drawImage(fig.im, fx, fy, fw, fh); x.restore(); T(S.hud, X.CR.A04, fx + fw, fy + fh + v * 1.6, { f: 'mono', size: v * .95, c: C.mute, al: 'right', a: a * .7 * X.SG(t, tk, tk + .5) * (1 - X.SG(t, tb, tb + .6)) }); }
-        T(S.hud, 'PERCEPTRON', P ? W / 2 : W * .27, P ? h * .3 : h * .4, { f: 'interd', size: v * (P ? 4.6 : 6), w: 900, c: C.ink, al: 'center', tr: .06, a: a * X.SG(t, tk - .2, tk + .4), sh: { c: C.pri, a: .7 } });
+        if (t > K.tk) X.slam(S, S.hud, t, K.tk, P ? W / 2 : W * .27, P ? h * .3 : h * .4, w => T(S.hud, 'PERCEPTRON', P ? W / 2 : W * .27, P ? h * .3 : h * .4, { f: 'interd', size: v * (P ? 4.6 : 6), w: 900, c: C.ink, al: 'center', tr: .06, a: a * w, sh: { c: C.pri, a: .7 } }), 2.3);
         T(S.hud, '感知机', P ? W / 2 : W * .27, P ? h * .3 + v * 5 : h * .4 + v * 7, { f: 'smiley', size: v * (P ? 3.4 : 4.4), c: C.priHi, al: 'center', a: a * X.SG(t, tk, tk + .5) });
         const na = X.SG(t, tb, tb + .7) * a, sim = X.SG(t, tn + .3, tn + 1.2);
         if (na > 0) { X.neuron(S, x, P ? W * .3 : W * .55, P ? h * .62 : h * .52, v * (P ? 9 : 11), t, na * (1 - sim * .7), 1); T(S.hud, '大脑里的神经元', P ? W / 2 : W * .7, P ? h * .76 : h * .74, { f: 'sans', size: v * 1.8, w: 500, c: C.mute, al: 'center', a: na }); }
@@ -376,7 +554,7 @@ L1S.push({
         const errA = t > k2 - .2 && t < F.kw(2, '再调') ? X.SG(t, k2 - .2, k2 + .2) * (1 - adj) : 0;
         X.perceptron(S, x, R, { wts, lp: X.SG(t, k1 - .2, k1 + .6), flow: t > F.kw(1, '信号'), wa: X.SG(t, tw - .2, tw + .4), hot: adj > 0 && adj < 1, sum: sumP * clamp(sumv), sumv: sumv * sumP, sa: sumP, ta: X.SG(t, tl - .8, tl - .3), lit: t < k2 - .2 ? (sumv > .5 ? X.SG(t, tl - .3, tl + .1) : 0) : litP, err: errA, ok: adj > .95 && t < k3 ? X.SG(t, F.kw(2, '再调'), F.kw(2, '再调') + .3) : 0, x: xin.map(q => q ? 1 : .15) }, a * (1 - X.SG(t, k3 - .3, k3 + .3)), t);
         const ra = X.SG(t, k2, k2 + .4) * a * (1 - X.SG(t, k3 - .3, k3 + .2));
-        if (ra > 0) { const row = P ? [W * .5, h * .64] : [W * .84, h * .3]; ['✗', '✗', '✓'].forEach((s, i) => { const on = X.SG(t, k2 + .3 + i * (F.end(2) - k2) * .3, k2 + .6 + i * (F.end(2) - k2) * .3); T(S.hud, s, row[0] + (i - 1) * v * 4.5, row[1], { f: 'sans', size: v * 3, w: 900, c: s === '✓' ? C.ok : C.red, al: 'center', a: ra * on }); }); T(S.hud, '再猜 · 再调', row[0], row[1] + v * 4, { f: 'sans', size: v * 1.6, w: 500, c: C.mute, al: 'center', a: ra }); }
+        if (ra > 0) { const row = P ? [W * .5, h * .64] : [W * .84, h * .3]; ['✗', '✗', '✓'].forEach((s, i) => { const t0 = K.xs[i], on = X.SG(t, t0, t0 + .3), q = MO.squash(t, t0 + .12, .9), sk = MO.sp(t, t0, 'pop'), cx = row[0] + (i - 1) * v * 4.5; if (on <= 0) return; MO.tf(S, S.hud, { x: cx, y: row[1] + v * 1.2, sx: q.sx * lerp(.4, 1, sk), sy: q.sy * lerp(.4, 1, sk) }, () => T(S.hud, s, cx, row[1], { f: 'sans', size: v * 3, w: 900, c: s === '✓' ? C.ok : C.red, al: 'center', a: ra * on })); }); T(S.hud, '再猜 · 再调', row[0], row[1] + v * 4, { f: 'sans', size: v * 1.6, w: 500, c: C.mute, al: 'center', a: ra }); }
         const ca = X.SG(t, k3 - .2, k3 + .5) * a;
         if (ca > 0) {
           const LR = P ? { x: W * .07, y: h * .6, w: W * .4, h: h * .16 } : { x: W * .1, y: h * .3, w: W * .36, h: h * .42 }, RR = P ? { x: W * .53, y: h * .6, w: W * .4, h: h * .16 } : { x: W * .56, y: h * .3, w: W * .36, h: h * .42 };
@@ -385,7 +563,7 @@ L1S.push({
           const cr = X.SG(t, k3 + .3, k3 + 1); x.save(); x.globalAlpha = ca * cr; x.strokeStyle = col(C.red, .9); x.lineWidth = v * .35; x.beginPath(); x.moveTo(LR.x + v, LR.y + v); x.lineTo(LR.x + LR.w - v, LR.y + LR.h - v); x.moveTo(LR.x + LR.w - v, LR.y + v); x.lineTo(LR.x + v, LR.y + LR.h - v); x.stroke(); x.restore();
           H.panel(S, x, RR.x, RR.y, RR.w, RR.h, { a: ca, head: 'LEARNING', c: C.ok });
           W3.curve(S, x, { x: RR.x + v * 2, y: RR.y + v * 4, w: RR.w - v * 4, h: RR.h - v * 6 }, q => .1 + .8 * (1 - Math.exp(-q * 3.2)) + .04 * Math.sin(q * 22) * (1 - q), X.SG(t, k3 + .4, k3 + 2.2), C.ok, { a: ca });
-          H.chip(S, S.hud, '从错误里学习', W / 2, P ? h * .55 : h * .8, { size: v * 2.3, hot: true, a: X.SG(t, F.kw(3, '错误') - .3, F.kw(3, '错误') + .3) * a, al: 'center' });
+          if (t > K.tE) X.slam(S, S.hud, t, K.tE, W / 2, P ? h * .55 : h * .8, w => H.chip(S, S.hud, '从错误里学习', W / 2, P ? h * .55 : h * .8, { size: v * 2.3, hot: true, a: a * w, al: 'center' }), 2.2);
         }
       }],
     ]);
@@ -393,11 +571,20 @@ L1S.push({
 });
 
 /* ===== 第四幕 · 报纸沸腾 ===== */
+/* 动效（重音：标题 / 走路说话看写字自我复制 / 意识 / 会思考） */
 L1S.push({
-  tin: { type: 'wipe', ang: .4 }, tdur: .7, mood: 'main', lead: .5, gap: .35, tail: .9, sfx: [[.4, 'whoosh']],
-  camera: () => ({ z: 1 }),
+  tin: { type: 'wipe', ang: .4 }, tdur: .7, mood: 'main', lead: .5, gap: .35, tail: .9,
+  keys(F) {
+    if (this._k && this._k.F === F) return this._k; const kw = w => F.kw(1, w);
+    return (this._k = { F, tH: F.kw(0, '标题') - .3, tw: kw('走路'), tt: kw('说话'), tl: kw('看'), twr: kw('写字'), tc: kw('自我复制'), tA: kw('意识'), tG: F.kw(2, '会思考') - .4, k2: F.cue(2) });
+  },
+  get sfx() {
+    const K = this._k; if (!K) return [];
+    return (K.sx = K.sx || [[0, 'press', .4, 2.3], [.3, 'paper', .55], [.4, 'whoosh', .45], [K.tH, 'tick', .55], [K.tw - .5, 'blip', .45], [K.tw, 'tick', .35], [K.tw + .22, 'tick', .35], [K.tt - .1, 'blip', .45], [K.tl - .05, 'scan', .4], [K.twr - .05, 'pencil', .45, .9], [K.tc - .1, 'scan', .5], [K.tA - .25, 'ding', .5], [K.tG, 'rise', .45]]);
+  },
+  camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[.95, .03], [K.tH, .03], [K.tc, .02], [K.tA, .03], [K.k2, .02]]); },
   draw(t, S, F) {
-    const X = L1X, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid; H.bg(S, t, { hue: 'gold', neb: .8 });
+    const X = L1X, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, K = this.keys(F); H.bg(S, t, { hue: 'gold', neb: .8 });
     STAMP(S, t, .4, '1958.07.08 · THE NEW YORK TIMES', '《纽约时报》第二天的报道');
     const fly = E.o3(seg(t, .15, 1.1)), k1 = F.cue(1), k2 = F.cue(2);
     /* 竖屏：时间戳 → 复原示意标签 → 报纸 → 下方标注，自上而下排开，矮屏时报纸自动缩小 */
@@ -412,16 +599,26 @@ L1S.push({
     if (hb) CO(S, x, hb.r, P ? [W * .52, G.side.y + v * 1] : [W * .55, h * .3], X.SG(t, F.kw(0, '标题'), F.kw(0, '标题') + 1) * (1 - X.SG(t, k1 - .2, k1 + .3)), '海军新装置，边做边学', 'NEW NAVY DEVICE LEARNS BY DOING', { side: P ? -1 : 1, size: v * (P ? 1.9 : 2.5) });
     const qb = D.box('q'), q1 = X.SG(t, k1 - .1, k1 + .6) * (1 - X.SG(t, k2 - .2, k2 + .3));
     if (qb && q1 > 0) {
-      CO(S, x, qb.r, P ? [W * .94, G.side.y + v * 1] : [W * .55, h * .27], q1, '能走路、说话、看、写字、自我复制', 'WALK · TALK · SEE · WRITE · REPRODUCE', { side: P ? -1 : 1 });
-      const icons = [['走路', 'person'], ['说话', 'chat'], ['看', 'globe'], ['写字', 'paper'], ['自我复制', 'tree'], ['意识', 'medal']];
-      icons.forEach(([w, ic], i) => {
-        const tt = F.kw(1, w), ia = X.SG(t, tt - .15, tt + .3) * q1, R0 = P ? [W * .12 + i * W * .152, G.side.y + v * 9] : [W * .56 + i * W * .064, h * .45], s = v * (P ? 3.8 : 4.2), big = i === 5 ? X.SG(t, tt, tt + .5) : 0;
-        if (ia <= 0) return; x.save(); x.globalAlpha = ia; x.beginPath(); x.arc(R0[0], R0[1], s * .62, 0, TAU); x.fillStyle = 'rgba(6,14,30,.85)'; x.fill(); x.strokeStyle = col(i === 5 ? C.acc : C.pri, .7); x.lineWidth = 1.2; x.stroke(); x.restore();
-        H.icon(x, ic, R0[0] - s * .32, R0[1] - s * .32, s * .64, i === 5 ? C.accHi : C.priHi, ia);
-        T(S.hud, w, R0[0], R0[1] + s * .95, { f: 'sans', size: v * 1.3, w: 500, c: C.mute, al: 'center', a: ia });
-      });
+      CO(S, x, qb.r, P ? [W * .94, G.side.y + v * 1] : [W * .55, h * .22], q1, '能走路、说话、看、写字、自我复制', 'WALK · TALK · SEE · WRITE · REPRODUCE', { side: P ? -1 : 1 });
+      /* 示意：报道里想象的“会思考的机器”，念到哪个能力就演哪个 */
+      const kw = w => F.kw(1, w), tw = kw('走路'), tt = kw('说话'), tl = kw('看'), twr = kw('写字'), tc = kw('自我复制'), tA = kw('意识');
+      const RX = P ? W * .4 : W * .7, RY = P ? G.side.y + v * 21 : h * .7, RH = P ? v * 11.5 : h * .32, cp = X.SG(t, tc - .1, tc + .9);
+      const A = { walk: seg(t, tw - .15, tt - .1), talk: seg(t, tt - .1, tl - .05), look: seg(t, tl - .05, twr - .05), write: seg(t, twr - .05, tc - .1), copy: cp, aware: seg(t, tA - .25, tA + 1.4) };
+      const ra = X.SG(t, tw - .5, tw - .1) * q1, pop = MO.sp(t, tw - .5, 'pop');
+      if (ra > 0) {
+        MO.tf(S, x, { x: RX, y: RY, sx: lerp(.6, 1, pop), sy: lerp(.6, 1, pop) }, () => ST.robot(S, x, RX, RY, RH, t, A, ra, C.pri, { bubbleSide: -1 }));
+        if (cp > 0) {   /* 自我复制：旁边一台从下往上扫描成形 */
+          const X2 = RX + RH * .62, top = RY - RH * 1.05, yb = lerp(RY + 2, top, E.io3(cp));
+          x.save(); x.beginPath(); x.rect(X2 - RH * .5, yb, RH, RY - yb + 4); x.clip(); ST.robot(S, x, X2, RY, RH, t + 1.3, { aware: A.aware * .5 }, ra * .85, C.acc, { noBubble: true }); x.restore();
+          if (cp < 1) { x.save(); x.globalAlpha = ra; x.fillStyle = col(C.accHi, .9); x.fillRect(X2 - RH * .3, yb - 1, RH * .6, 2); x.restore(); haze(S.glow, X2, yb, RH * .3, C.acc, .8 * ra); }
+        }
+        const words = ['走路', '说话', '看', '写字', '自我复制', '意识'], wt = [tw, tt, tl, twr, tc, tA], wy = RY + Math.max(v * 2.4, fsz(v * 1.3) * 1.1), ws = words.map(w => TW(S.hud, w, { f: 'sans', size: v * 1.3, w: 700 }) + v * 1.6), tot = ws.reduce((p, q) => p + q, 0);
+        let wx = (P ? W * .5 : RX + RH * .3) - tot / 2;
+        words.forEach((w, i) => { const on = X.SG(t, wt[i] - .15, wt[i] + .15), cur = t > wt[i] - .15 && (i === 5 || t < wt[i + 1] - .15); T(S.hud, w, wx + ws[i] / 2, wy, { f: 'sans', size: v * 1.3, w: 700, c: cur ? (i === 5 ? C.accHi : C.priHi) : C.mute, al: 'center', a: ra * (.25 + .75 * on) }); wx += ws[i]; });
+        RECON(S, S.hud, P ? W * .07 : RX - RH * .55, P ? RY - RH * 1.12 : RY - RH * 1.22, ra, '示意 · 1958 年的想象');
+      }
       const ba = X.SG(t, F.kw(1, '意识') - .1, F.kw(1, '意识') + .5) * q1;
-      if (ba > 0) T(S.hud, '意识到自己的存在', P ? W / 2 : W * .73, P ? G.side.y + v * 17 : h * .6, { f: 'smiley', size: v * (P ? 3.4 : 4.4), c: C.accHi, al: 'center', a: ba, sh: { c: C.acc, a: .7 } });
+      if (ba > 0) { const bx = P ? W / 2 : RX + RH * .3, by = P ? RY + v * 6.4 : RY + Math.max(v * 6.5, fsz(v * 1.3) * 1.1 + fsz(v * 3.6) * .9); X.pop(S, S.hud, t, F.kw(1, '意识') - .1, bx, by, () => T(S.hud, '意识到自己的存在', bx, by, { f: 'smiley', size: v * (P ? 3.2 : 3.6), c: C.accHi, al: 'center', a: ba, sh: { c: C.acc, a: .7 } }), 'pop', .5); }
     }
     const q2 = X.SG(t, k2, k2 + .6);
     if (q2 > 0) {
@@ -438,11 +635,18 @@ L1S.push({
 });
 
 /* ===== 第五幕 · Mark I ===== */
+/* 动效（重音：Mark I / 400 个光电管 / 随机相连 / 小电机 / 认字母） */
 L1S.push({
-  tin: { type: 'iris', x: .35, y: .5 }, tdur: .8, mood: 'main', lead: .5, gap: .35, tail: .9, sfx: [[.5, 'rise']],
-  camera: () => ({ z: 1 }),
+  tin: { type: 'iris', x: .35, y: .5 }, tdur: .8, mood: 'main', lead: .5, gap: .35, tail: .9,
+  keys(F) {
+    if (this._k && this._k.F === F) return this._k;
+    const tL = F.kw(4, '认字母');
+    return (this._k = { F, tM: F.kw(0, 'Mark') - .2, t400: F.kw(1, '400') - .3, tR: F.kw(2, '随机') - .3, k2: F.cue(2) - .2, k3: F.cue(3), k4: F.cue(4) - .2, tL, lt: [0, 1, 2].map(i => tL - .3 + 1.1 / 3 * i) });
+  },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[.5, 'rise', .5], [K.tM, 'hit', .55], [K.t400, 'data', .4, 1.5], [K.tR, 'relay', .4, 1.7], [K.k3, 'motor', .38, 2.2], ...K.lt.map(q => [q, 'tick', .5]), [K.k4 + 1.2, 'blip', .45]]) : []; },
+  camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.tM, .04], [K.k2, .02], [K.k4, .03], ...K.lt.map(q => [q, .012])]); },
   draw(t, S, F) {
-    const X = L1X, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid; H.bg(S, t, {});
+    const X = L1X, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, K = this.keys(F); H.bg(S, t, {});
     const k1 = F.cue(1), k2 = F.cue(2) - .2, k3 = F.cue(3), k4 = F.cue(4) - .2;
     STAMP(S, t, .3, t < k4 + .3 ? '1960 · BUFFALO, NY' : '1960.06.23 · BUFFALO, NY', t < k4 + .3 ? '布法罗 · 康奈尔航空实验室' : '首次公开演示');
     const C_SHAPE = X.letter('C');
