@@ -67,7 +67,7 @@ a{color:inherit}
 .film .p-vig{background:radial-gradient(ellipse at center,rgba(0,0,12,0) 46%,rgba(0,0,12,.28) 72%,rgba(0,0,12,.62) 100%)}
 .film .p-grain{background-size:205px 205px;mix-blend-mode:overlay}
 .subs{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(10% + var(--safeB));width:min(88%,980px);text-align:center;pointer-events:none;transition:bottom .25s}
-.subs .ln{display:inline;font-size:clamp(16px,2.35vw + .4vh,30px);line-height:1.65;font-weight:500;color:#f2f9ff;text-shadow:0 2px 10px rgba(0,0,10,.9),0 0 2px rgba(0,0,0,.9);opacity:0;transition:opacity .25s}
+.subs .ln{display:inline;text-wrap:balance;font-size:clamp(16px,2.35vw + .4vh,30px);line-height:1.65;font-weight:500;color:#f2f9ff;text-shadow:0 2px 10px rgba(0,0,10,.9),0 0 2px rgba(0,0,0,.9);opacity:0;transition:opacity .25s}
 .subs.show .ln{opacity:1}
 .subs .kw{color:#f2f9ff;transition:color .25s,text-shadow .25s}
 .subs .kw.on{color:var(--priHi);text-shadow:0 0 14px rgba(69,227,255,.85),0 2px 10px rgba(0,0,10,.9)}
@@ -215,3 +215,5 @@ details.cred li b{font-weight:500;font-size:13px;color:#dfeaf6}
 details.cred li small{font-size:11.5px;color:var(--mute,#8597b4)}
 /* 自检截图模式（?shot=秒&clean）：只留画面 */
 .clean .poster{background:none}.clean .poster>*,.clean .bar,.clean .hint,.clean .toast,.clean .scrim{visibility:hidden!important}
+
+.subs .meas{position:absolute;left:0;top:0;visibility:hidden;white-space:nowrap;opacity:1!important}

@@ -45,6 +45,14 @@ class Film {
         let wl = 0; for (let i = idx; i < Math.min(W.length, idx + word.length); i++) wl += W[i][1];
         return c.start + .12 + (c.dur - .3) * ((acc + wl * frac) / tot);
       },
+      /* 字幕第 j 个字大约什么时候被念到：先在配音稿里找它后面那几个汉字，找不到再按比例估 */
+      at: (k, j) => {
+        const c = cues[k]; if (!c) return sc.dur; const src = c.tts, plain = c.text.replace(/[{}]/g, ''); let idx = Math.round(j / Math.max(1, plain.length) * src.length);
+        const m = /[\u4e00-\u9fff]{2,4}/.exec(plain.slice(j));
+        if (m) { let at = -1, best = -1, bd = 1e9; while ((at = src.indexOf(m[0], at + 1)) >= 0) { const d = Math.abs(at - m.index - idx); if (d < bd) { bd = d; best = at; } } if (best >= 0) idx = Math.max(0, best - m.index); }
+        const W = spokenWeights(src), tot = W.reduce((a, b) => a + b[1], 0); let acc = 0; for (let i = 0; i < Math.min(idx, W.length); i++) acc += W[i][1];
+        return c.start + .12 + (c.dur - .3) * (acc / tot);
+      },
     };
     return (sc._F = F);
   }

@@ -78,7 +78,7 @@ const AudioCtl = {
 
 /* ---------- 播放器 ---------- */
 const Player = {
-  st: null, film: null, id: 0, g: 0, pg: 0, playing: false, last: 0, cueI: -1, hold: 0, quiz: null, raf: 0, ended: false, dq: 1, perf: { n: 0, s: 0 }, kws: [], subOn: false, curScene: -1, warm: {},
+  st: null, film: null, id: 0, g: 0, pg: 0, playing: false, last: 0, cueI: -1, hold: 0, quiz: null, raf: 0, ended: false, dq: 1, perf: { n: 0, s: 0 }, kws: [], subPages: null, subPg: -1, subOn: false, curScene: -1, warm: {},
   init() {
     this.st = new Stage($('film')); const st = $('stage');
     window.addEventListener('resize', () => this.resize());
@@ -142,6 +142,8 @@ const Player = {
   resize() {
     if (Router.cur !== 'lesson') return; const el = $('stage'), w = el.clientWidth, h = el.clientHeight; if (!w || !h) return;
     const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1) * this.dq); this.st.q = this.dq; this.st.resize(w, h, dpr); this.render();
+    /* 转屏后字幕按新宽度重新分屏 */
+    clearTimeout(this.subRT); this.subRT = setTimeout(() => { const c = this.film && this.film.cues[this.cueI]; if (c && $('subs').classList.contains('show')) this.setSub(c); }, 120);
   },
   render() { if (!this.film) return; const t0 = performance.now(); const g = !$('poster').hidden ? (this.resumeAt || this.posterG || 3.9) : this.g; this.film.draw(this.st, Math.min(g, this.film.total - .001)); return performance.now() - t0; },
   start(at) {
@@ -164,11 +166,37 @@ const Player = {
   sceneMood() { const sc = this.film.scenes[this.film.sceneAt(this.g)]; return sc ? sc.mood || 'main' : 'main'; },
   tip(g) { const s = this.film.scenes[this.film.sceneAt(g)], tp = $('pTip'); tp.textContent = fmtT(g) + ' · ' + (s ? s.name : ''); tp.style.left = (g / this.film.total * 100) + '%'; },
   setSub(cue) {
-    const ln = $('subLn'), box = $('subs'); this.kws = [];
+    const ln = $('subLn'), box = $('subs'); this.kws = []; this.subPages = null; this.subPg = -1;
     if (!cue) { box.classList.remove('show'); return; }
-    const sc = this.film.scenes[cue.n], F = this.film.F(sc); let html = '', kwI = 0;
-    cue.text.split(/(\{[^}]*\})/).forEach(p => { if (/^\{.*\}$/.test(p)) { const w = p.slice(1, -1); html += `<span class="kw" data-k="${kwI}">${esc(w)}</span>`; this.kws.push(sc.start + F.kw(cue.k, w, .2)); kwI++; } else html += esc(p); });
-    ln.innerHTML = html; box.classList.add('show');
+    const sc = this.film.scenes[cue.n], F = this.film.F(sc); let kwI = 0;
+    /* 按标点切成短语，每段记下 html 和纯文字 */
+    const ph = []; let cur = { h: '', s: '' };
+    cue.text.split(/(\{[^}]*\})/).forEach(p => {
+      if (/^\{.*\}$/.test(p)) { const w = p.slice(1, -1); cur.h += `<span class="kw" data-k="${kwI}">${esc(w)}</span>`; cur.s += w; this.kws.push(sc.start + F.kw(cue.k, w, .2)); kwI++; }
+      else for (const ch of p) { cur.h += esc(ch); cur.s += ch; if ('，。：；！？'.includes(ch)) { ph.push(cur); cur = { h: '', s: '' }; } }
+    });
+    if (cur.s.trim()) ph.push(cur);
+    /* 一句太长就分几屏显示，每屏换到下一段被念到的时候 */
+    let j = 0; this.subPages = this.subPaginate(ph, box).map((pg, i) => { const r = { h: pg.map(p => p.h).join(''), t: i ? sc.start + F.at(cue.k, j) - .08 : -1 }; j += pg.reduce((a, p) => a + p.s.length, 0); return r; });
+    this.subPg = 0; ln.innerHTML = this.subPages[0].h; box.classList.add('show');
+  },
+  /* 横屏矮屏幕每屏只放一行（不压画面），其它屏幕最多两行；挑一种让最长一屏最短的切法 */
+  subPaginate(ph, box) {
+    if (ph.length < 2) return [ph];
+    let m = this.subMeas; if (!m || m.parentNode !== box) { m = this.subMeas = document.createElement('span'); m.className = 'ln meas'; m.setAttribute('aria-hidden', 'true'); box.appendChild(m); }
+    const ws = ph.map(p => { m.textContent = p.s; return m.getBoundingClientRect().width; }), cap = box.clientWidth * .96;
+    const one = innerWidth > innerHeight && innerHeight < 560, lim = cap * (one ? 1 : 1.9), L = ph.length, pre = [0];
+    ws.forEach(w => pre.push(pre[pre.length - 1] + w)); if (!cap || pre[L] <= lim) return [ph];
+    for (let n = 2; n <= L; n++) {
+      let best = null, bw = 1e9;
+      const go = (s, k, cuts) => {
+        if (k === n - 1) { const b = [0, ...cuts, L]; let mx = 0; for (let i = 0; i < n; i++) mx = Math.max(mx, pre[b[i + 1]] - pre[b[i]]); if (mx < bw) { bw = mx; best = b; } return; }
+        for (let c = s; c <= L - (n - 1 - k); c++) go(c + 1, k + 1, [...cuts, c]);
+      };
+      go(1, 0, []);
+      if (bw <= lim || n === L) return best.slice(0, -1).map((a, i) => ph.slice(a, best[i + 1]));
+    }
+    return [ph];
   },
   loop(ts) {
     this.raf = requestAnimationFrame(t => this.loop(t));
@@ -181,8 +209,8 @@ const Player = {
       if (c && Store.d.set.voice && !vo.paused && !vo.ended && this.g >= c.g + c.dur - .02 && vo.currentTime < (vo.duration || 99) - .05 && ts - (this.voProg || 0) < 400) { this.hold += dt; if (this.hold < 2) adv = 0; } else this.hold = 0;
       /* 声画同步：旁白真正在走时，画面时间轻轻追着声音走（只放慢或加快，从不倒退） */
       if (c && Store.d.set.voice && !vo.paused && !vo.ended && !this.hold && ts - (this.voProg || 0) < 300 && this.g >= c.g && this.g < c.g + c.dur - .15) {
-        const drift = vo.currentTime + (ts - this.voProg) / 1000 * Store.d.set.speed - (this.g - c.g);   /* currentTime 有的浏览器更新得慢，按上次变化的时刻外推 */
-        if (Math.abs(drift) > .05 && Math.abs(drift) < .6) adv = Math.max(0, adv + drift * Math.min(1, dt * 3));   /* 差太多（比如声音没能跳到位）就不追，免得画面停住 */
+        const drift = vo.currentTime + (ts - this.voProg) / 1000 * Store.d.set.speed - (this.g + adv - c.g);   /* 和这一帧要画出的画面时间比；currentTime 有的浏览器更新得慢，按上次变化的时刻外推 */
+        if (Math.abs(drift) > .02 && Math.abs(drift) < .6) adv = Math.max(0, adv + drift * Math.min(1, dt * 3));   /* 每句开头声音起播慢几十毫秒，画面慢慢等它，追到 20ms 以内 */   /* 差太多（比如声音没能跳到位）就不追，免得画面停住 */
       }
       this.pg = this.g; this.g += adv;
       for (const q of this.quizzes) if (!q.shown && this.pg < q.at && this.g >= q.at) { this.g = q.at; this.showQuiz(q); break; }
@@ -207,7 +235,8 @@ const Player = {
       } else this.setSub(null);
     }
     if (cue) { const end = cue.g + cue.dur + .5; if (this.g > end && $('subs').classList.contains('show') && !(Store.d.set.voice && !vo.paused)) $('subs').classList.remove('show'); }
-    const spans = $('subLn').querySelectorAll('.kw'); spans.forEach((sp, i) => sp.classList.toggle('on', this.g >= (this.kws[i] || 1e9)));
+    if (this.subPages) { let p = 0; for (let i = 1; i < this.subPages.length; i++) if (this.g >= this.subPages[i].t) p = i; if (p !== this.subPg) { this.subPg = p; $('subLn').innerHTML = this.subPages[p].h; } }
+    const spans = $('subLn').querySelectorAll('.kw'); spans.forEach(sp => sp.classList.toggle('on', this.g >= (this.kws[+sp.dataset.k] ?? 1e9)));
     AudioCtl.tick();
     const ms = this.render();
     if (this.playing && ms !== undefined) { const p = this.perf; p.n++; p.s += ms; if (p.n >= 90) { const avg = p.s / p.n; p.n = 0; p.s = 0; if (avg > 22 && this.dq > .55) { this.dq = Math.max(.55, this.dq - .15); this.resize(); } else if (avg < 8 && this.dq < 1) { this.dq = Math.min(1, this.dq + .1); this.resize(); } } }
@@ -419,9 +448,13 @@ const Router = {
   await loadFonts(); Router.route();
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('sw.js').then(reg => {
-      const ask = w => toast('有新版本了', '点此更新', () => { window.__wantReload = true; w.postMessage('skip'); }, true);
-      if (reg.waiting && navigator.serviceWorker.controller) ask(reg.waiting);
-      reg.addEventListener('updatefound', () => { const w = reg.installing; w && w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) ask(w); }); });
+      /* 点更新时如果更新的版本还在下载，就等它下完再切换（不切到中间版本，也免得点两次） */
+      const ask = () => toast('有新版本了', '点此更新', () => {
+        window.__wantReload = true; const go = () => { const w = reg.waiting; if (w) w.postMessage('skip'); }, n = reg.installing;
+        if (n) { toast('正在下载新版本…', null, null, true); n.addEventListener('statechange', () => { if (n.state === 'installed' || n.state === 'redundant') go(); }); } else go();
+      }, true);
+      if (reg.waiting && navigator.serviceWorker.controller) ask();
+      reg.addEventListener('updatefound', () => { const w = reg.installing; w && w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) ask(); }); });
       setInterval(() => reg.update().catch(() => { }), 30 * 60 * 1000);
     }).catch(() => { });
     let reloaded = false; navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloaded || !window.__wantReload) return; reloaded = true; location.reload(); });
