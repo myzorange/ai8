@@ -76,7 +76,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install selenium==4.25.0 pillow==10.4.0 rangehttpserver==1.4.0
+      - run: pip install selenium==4.25.0 pillow==10.4.0
       - run: sudo safaridriver --enable
       - run: |
           git fetch -q --depth=3 origin main
@@ -84,11 +84,13 @@ jobs:
           git archive "$(cat ci/AB_A)" next | tar -x -C ab/a
           git archive "$(cat ci/AB_B)" next | tar -x -C ab/b
           grep -o 'VER="[^"]*"' ab/a/next/data.js ab/b/next/data.js
-          (cd ab/a/next && python -m RangeHTTPServer 8801 >/dev/null 2>&1 &)
-          (cd ab/b/next && python -m RangeHTTPServer 8802 >/dev/null 2>&1 &)
-          sleep 2; curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8801/index.html
+          nohup python ci/srv.py ab/a/next 8801 > srv_a.log 2>&1 &
+          nohup python ci/srv.py ab/b/next 8802 > srv_b.log 2>&1 &
+          for i in $(seq 1 20); do curl -s -m 2 -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8801/index.html | grep -q 200 && break; sleep 1; done
+          curl -s -m 2 -o /dev/null -w 'a %{http_code}\n' http://127.0.0.1:8801/index.html; curl -s -m 2 -o /dev/null -w 'b %{http_code}\n' http://127.0.0.1:8802/index.html
+          curl -s -m 2 -H 'Range: bytes=0-1' -o /dev/null -w 'range %{http_code}\n' http://127.0.0.1:8801/vo/1_0_0.mp3
           mkdir -p out/abperf && (sysctl -n machdep.cpu.brand_string; sysctl -n hw.ncpu) > out/abperf/runner.txt
-          python ci/ab_perf.py A=http://localhost:8801/ B=http://localhost:8802/
+          python ci/ab_perf.py A=http://127.0.0.1:8801/ B=http://127.0.0.1:8802/
       - if: always()
         uses: actions/upload-artifact@v4
         with:
