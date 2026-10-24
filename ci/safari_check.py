@@ -12,11 +12,30 @@ d = webdriver.Safari()
 d.set_script_timeout(30)
 
 
-def ev(js): return d.execute_script('return ' + js)
+def retry(fn, *a):
+    """safaridriver drops idle keep-alive connections; retry the call once the socket is reset."""
+    for k in range(4):
+        try: return fn(*a)
+        except Exception as e:
+            m = str(e)
+            if k < 3 and any(w in m for w in ('Connection reset', 'Connection aborted', 'RemoteDisconnected', 'Broken pipe', 'BrokenPipe')): time.sleep(.6); continue
+            raise
+
+
+def ev(js): return retry(d.execute_script, 'return ' + js)
+
+
+def nap(sec):
+    """sleep but keep the WebDriver connection warm (no idle gap longer than ~4 s)"""
+    end = time.time() + sec
+    while time.time() < end:
+        time.sleep(min(4, max(0, end - time.time())))
+        try: retry(d.execute_script, 'return 1')
+        except Exception: pass
 
 
 def sw_active():
-    return d.execute_async_script("const cb = arguments[arguments.length - 1]; if (!navigator.serviceWorker) return cb('no-sw'); navigator.serviceWorker.getRegistration().then(r => cb(!!(r && r.active && r.active.state === 'activated'))).catch(e => cb('err ' + e));")
+    return retry(d.execute_async_script, "const cb = arguments[arguments.length - 1]; if (!navigator.serviceWorker) return cb('no-sw'); navigator.serviceWorker.getRegistration().then(r => cb(!!(r && r.active && r.active.state === 'activated'))).catch(e => cb('err ' + e));")
 
 
 def wait_js(js, timeout):
@@ -30,10 +49,10 @@ def wait_js(js, timeout):
 
 
 def shot(name, tag, full_res=False):
-    p = f'{OUT}/{name}_{tag}.jpg'; save_img(d.get_screenshot_as_png(), p, None if full_res else 1600, 88 if full_res else 80); return p
+    p = f'{OUT}/{name}_{tag}.jpg'; save_img(retry(d.get_screenshot_as_png), p, None if full_res else 1600, 88 if full_res else 80); return p
 
 
-def click(sel): d.find_element(By.CSS_SELECTOR, sel).click()
+def click(sel): retry(lambda: d.find_element(By.CSS_SELECTOR, sel).click())
 
 
 def scenes_pass(name, R):
@@ -64,8 +83,8 @@ def land():
     R['imgReadyS'] = wait_js("typeof Player !== 'undefined' && Player.imgReady === true", 150)
     time.sleep(.8); shot(name, 'poster', True); R['poster'] = ev(POSTER)
     R['hook'] = ev(HOOK)
-    click('#bBig'); time.sleep(9); shot(name, 'play9s', True); R['play9s'] = ev(STATE)
-    time.sleep(30)
+    click('#bBig'); nap(9); shot(name, 'play9s', True); R['play9s'] = ev(STATE)
+    nap(30)
     R['perf_0_40s'] = ev(STATS); R['av_0_40s'] = ev(AV); R['state40s'] = ev(STATE)
     scenes_pass(name, R)
     ev("(Player.quizzes.forEach(q => q.shown = false), 1)"); R['quiz'] = []

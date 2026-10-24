@@ -27,18 +27,6 @@ jobs:
           name: safari
           path: out/
           if-no-files-found: ignore
-  ios:
-    runs-on: macos-15
-    timeout-minutes: 35
-    steps:
-      - uses: actions/checkout@v4
-      - run: bash ci/ios_sim.sh
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios
-          path: out/
-          if-no-files-found: ignore
   webkit:
     runs-on: ubuntu-24.04
     timeout-minutes: 35
@@ -51,14 +39,32 @@ jobs:
       - run: python -m playwright install --with-deps webkit
       - run: sudo apt-get install -y fonts-noto-cjk
       - run: python ci/webkit_check.py
+        env:
+          ONLY: iphone_port
       - if: always()
         uses: actions/upload-artifact@v4
         with:
           name: webkit
           path: out/
           if-no-files-found: ignore
+  asr:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install faster-whisper==1.1.1
+      - run: python ci/asr.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: asr
+          path: out/
+          if-no-files-found: ignore
   publish:
-    needs: [safari, ios, webkit]
+    needs: [safari, webkit, asr]
     if: always()
     runs-on: ubuntu-24.04
     steps:
