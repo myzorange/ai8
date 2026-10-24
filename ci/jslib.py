@@ -16,6 +16,13 @@ HOOK = r"""(() => { if (window.__hooked) return 'already'; window.__hooked = 1;
  window.__subL = []; setInterval(() => { const ln = document.getElementById('subLn'), b = document.getElementById('subs'); if (Player.playing && b.classList.contains('show') && ln.textContent) __subL.push(ln.getClientRects().length); }, 500);
  return 'ok'; })()"""
 
+HOOKX = r"""(() => { if (window.__hx) return 'already'; window.__hx = 1; window.__pass = window.__pass || 'land0'; window.__avx = []; window.__evx = [];
+ const vo = document.getElementById('vo');
+ const tag = () => { const F = Player.film, c = F && F.cues[Player.cueI]; return { t: +(performance.now() / 1000).toFixed(3), p: __pass, g: +Player.g.toFixed(3), ci: Player.cueI, cg: c ? +c.g.toFixed(3) : null, cd: c ? +c.dur.toFixed(2) : null, vt: +vo.currentTime.toFixed(3), rs: vo.readyState, pa: vo.paused, pl: Player.playing, src: (vo.currentSrc || '').split('/').pop() }; };
+ ['loadstart', 'loadedmetadata', 'canplay', 'playing', 'seeking', 'seeked', 'waiting', 'stalled', 'pause', 'ended', 'abort', 'emptied', 'error'].forEach(n => vo.addEventListener(n, () => { if (__evx.length < 5000) __evx.push({ e: n, ...tag() }); }));
+ let last = 0; const f = t => { requestAnimationFrame(f); if (t - last < 240) return; const F = Player.film, c = F && F.cues[Player.cueI]; if (!c || vo.paused || !Player.playing || Player.g < c.g + .4 || Player.g > c.g + c.dur - .3) return; last = t; if (__avx.length < 4000) __avx.push({ v: +(vo.currentTime - (Player.g - c.g) * Store.d.set.speed).toFixed(3), ...tag() }); }; requestAnimationFrame(f);
+ return 'ok'; })()"""
+
 STATS = r"""(() => { const q = (a, p) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); return +s[Math.min(s.length - 1, Math.floor(p * s.length))].toFixed(2); };
  const r = { frames: __gap.length, gap50: q(__gap, .5), gap95: q(__gap, .95), gapMax: q(__gap, 1), over50: __gap.filter(x => x > 50).length, ms50: q(__dt, .5), ms95: q(__dt, .95), msMax: q(__dt, 1), dq: Player.dq };
  __gap.length = 0; __dt.length = 0; return r; })()"""
