@@ -78,7 +78,7 @@ const AudioCtl = {
 
 /* ---------- 播放器 ---------- */
 const Player = {
-  st: null, film: null, id: 0, g: 0, pg: 0, playing: false, last: 0, cueI: -1, hold: 0, quiz: null, raf: 0, ended: false, dq: 1, perf: { n: 0, s: 0 }, kws: [], subOn: false, curScene: -1,
+  st: null, film: null, id: 0, g: 0, pg: 0, playing: false, last: 0, cueI: -1, hold: 0, quiz: null, raf: 0, ended: false, dq: 1, perf: { n: 0, s: 0 }, kws: [], subOn: false, curScene: -1, warm: {},
   init() {
     this.st = new Stage($('film')); const st = $('stage');
     window.addEventListener('resize', () => this.resize());
@@ -121,7 +121,7 @@ const Player = {
   async open(id) {
     this.id = id; const LD = LDATA[id], C = LCODE[id]; this.film = new Film(LD, C.code, DURS, { intro: C.intro, outro: C.outro });
     const qo = this.film.scenes[0] && this.film.scenes[0].intro ? 1 : 0; this.quizzes = (MIDQ[id] || []).map(q => { const sc = this.film.scenes[q.after + qo], nx = this.film.scenes[q.after + qo + 1]; return Object.assign({}, q, { at: sc.start + sc.dur - (nx ? (nx.code.tdur ?? .8) : 0) - .05 }); });
-    this.g = 0; this.pg = 0; this.cueI = -1; this.ended = false; this.playing = false; this.curScene = -1; this.quiz = null;
+    this.g = 0; this.pg = 0; this.cueI = -1; this.ended = false; this.playing = false; this.curScene = -1; this.quiz = null; this.warm = {};
     const L = Store.L(id); this.filmSig = Math.round(this.film.total); this.resumeAt = L.pos && L.posV === this.filmSig && L.pos > 8 && L.pos < this.film.total - 8 ? L.pos : 0;
     $('lTag').textContent = `LESSON ${String(id).padStart(2, '0')} · ${META[id - 1].topic}`; $('lTitle').textContent = META[id - 1].title;
     $('pTag').textContent = `LESSON ${String(id).padStart(2, '0')} · ${META[id - 1].topic}`;
@@ -154,7 +154,7 @@ const Player = {
   pause() { this.playing = false; $('vo').pause(); $('stage').classList.remove('playing', 'idle'); if ($('poster').hidden && !this.ended) $('stage').classList.add('paused'); this.icon(); AudioCtl.on = false; AudioCtl.level(); if (this.film && this.g > 5) { Store.L(this.id).pos = this.g; Store.L(this.id).posV = this.filmSig; Store.save(); } },
   toggle() { if (!$('poster').hidden) { this.start(this.resumeAt || 0); return; } this.playing ? this.pause() : this.play(); },
   icon() { $('icPlay').innerHTML = this.playing ? '<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>' : '<path d="M8 5v14l11-7z"/>'; },
-  seek(g) { this.g = clamp(g, 0, this.film.total); this.pg = this.g; this.cueI = -1; this.hold = 0; $('vo').pause(); this.ended = false; $('endOv').hidden = true; this.render(); this.updateUI(); },
+  seek(g) { this.g = clamp(g, 0, this.film.total); this.pg = this.g; this.cueI = -1; this.hold = 0; this.warm = {}; $('vo').pause(); this.ended = false; $('endOv').hidden = true; this.render(); this.updateUI(); },
   replay() { const c = this.film.cues, i = Math.max(0, this.film.cueAt(this.g)); const j = this.g - (c[i] ? c[i].g : 0) < .8 && i > 0 ? i - 1 : i; if (c[j]) this.seek(c[j].g - .05); if (!this.playing && $('poster').hidden) this.play(); },
   jumpCue(d) { const c = this.film.cues; let i = this.film.cueAt(this.g); i = clamp(i + d, 0, c.length - 1); this.seek(c[i].g - .05); },
   jumpScene(d) { const s = this.film.scenes; const i = clamp(this.film.sceneAt(this.g) + d, 0, s.length - 1); this.seek(s[i].start + .01); },
@@ -179,6 +179,11 @@ const Player = {
       const c = F.cues[this.cueI]; let adv = dt * Store.d.set.speed;
       if (vo.currentTime !== this.lastVT) { this.lastVT = vo.currentTime; this.voProg = ts; }
       if (c && Store.d.set.voice && !vo.paused && !vo.ended && this.g >= c.g + c.dur - .02 && vo.currentTime < (vo.duration || 99) - .05 && ts - (this.voProg || 0) < 400) { this.hold += dt; if (this.hold < 2) adv = 0; } else this.hold = 0;
+      /* 声画同步：旁白真正在走时，画面时间轻轻追着声音走（只放慢或加快，从不倒退） */
+      if (c && Store.d.set.voice && !vo.paused && !vo.ended && !this.hold && ts - (this.voProg || 0) < 300 && this.g >= c.g && this.g < c.g + c.dur - .15) {
+        const drift = vo.currentTime + (ts - this.voProg) / 1000 * Store.d.set.speed - (this.g - c.g);   /* currentTime 有的浏览器更新得慢，按上次变化的时刻外推 */
+        if (Math.abs(drift) > .05 && Math.abs(drift) < .6) adv = Math.max(0, adv + drift * Math.min(1, dt * 3));   /* 差太多（比如声音没能跳到位）就不追，免得画面停住 */
+      }
       this.pg = this.g; this.g += adv;
       for (const q of this.quizzes) if (!q.shown && this.pg < q.at && this.g >= q.at) { this.g = q.at; this.showQuiz(q); break; }
       // 音效
@@ -189,6 +194,9 @@ const Player = {
       if (this.g >= F.total) { this.g = F.total; this.finish(); }
     }
     const si = F.sceneAt(this.g); if (si !== this.curScene) { this.curScene = si; if (this.playing) AudioCtl.setMood(F.scenes[si].mood || 'main'); }
+    /* 提前几秒在后台解码下一幕的照片（iPhone 内存紧时会丢掉解码好的图，第一次画会顿一下） */
+    const sm = this.playing && typeof SIMG !== 'undefined' && SIMG[this.id];
+    if (sm) for (const n of [si, F.sceneAt(this.g + 4)]) if (!this.warm[n]) { this.warm[n] = 1; (sm[n] || []).forEach(id => { const r = IMG.R[id]; if (r) [r.im, r.fg, r.bg].forEach(m => { if (m && m.decode) m.decode().catch(() => { }); }); }); }
     // 旁白与字幕
     const ci = F.cueAt(this.g), cue = F.cues[ci];
     if (ci !== this.cueI) {
