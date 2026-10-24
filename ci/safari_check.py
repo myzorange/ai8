@@ -3,11 +3,12 @@ import json, os, sys, time, traceback
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from jslib import HOOK, STATS, AV, CTU, SUBL, STATE, POSTER, SCENES, ENV, QUIZ_AFTER, save_img, contact
+from jslib import HOOK, HOOKX, STATS, AV, CTU, SUBL, STATE, POSTER, SCENES, ENV, QUIZ_AFTER, save_img, contact
 
 URL = os.environ.get('URL', 'https://myzorange.github.io/ai8/next/')
 OUT = 'out/safari'; os.makedirs(OUT, exist_ok=True)
 SUM = {}
+MARKS = []
 d = webdriver.Safari()
 d.set_script_timeout(30)
 
@@ -60,8 +61,9 @@ def scenes_pass(name, R):
     R['scenes'] = []; shots = []
     for s in scenes:
         g = max(s['start'] + .05, s['start'] + s['dur'] * .55 - 2.9)
-        ev(f"(Player.seek({g:.2f}), Player.play(), 1)"); time.sleep(2.95)
-        p = shot(name, f"s{s['n']:02d}", s['n'] in (5, 9, 12)); st = ev(STATS)
+        t1 = ev(f"(Player.seek({g:.2f}), Player.play(), performance.now() / 1000)"); time.sleep(2.95)
+        t2 = ev("performance.now() / 1000"); p = shot(name, f"s{s['n']:02d}", s['n'] in (5, 9, 12)); t3 = ev("performance.now() / 1000"); st = ev(STATS)
+        MARKS.append({'pass': name, 'n': s['n'], 'g': round(g, 2), 'seek': t1, 'shot0': t2, 'shot1': t3})
         R['scenes'].append({'n': s['n'], 'name': s['name'], 't': round(g + 2.95, 1), 'perf': st}); shots.append((p, f"{s['n']} @{g + 2.95:.0f}s"))
     contact(shots, f'{OUT}/{name}_sheet.jpg')
     R['av_scenes'] = ev(AV); R['sub_lines'] = ev(SUBL); R['currentTime_updates'] = ev(CTU)
@@ -82,11 +84,13 @@ def land():
     ev("(location.hash = '#/l/1', 1)")
     R['imgReadyS'] = wait_js("typeof Player !== 'undefined' && Player.imgReady === true", 150)
     time.sleep(.8); shot(name, 'poster', True); R['poster'] = ev(POSTER)
-    R['hook'] = ev(HOOK)
+    R['hook'] = ev(HOOK); R['hookx'] = ev(HOOKX)
     click('#bBig'); nap(9); shot(name, 'play9s', True); R['play9s'] = ev(STATE)
     nap(30)
     R['perf_0_40s'] = ev(STATS); R['av_0_40s'] = ev(AV); R['state40s'] = ev(STATE)
+    ev("(window.__pass = 'land', 1)")
     scenes_pass(name, R)
+    ev("(window.__pass = 'quiz', 1)")
     ev("(Player.quizzes.forEach(q => q.shown = false), 1)"); R['quiz'] = []
     for qi in range(3):
         qa = ev(f"Player.quizzes[{qi}].at"); ev(f"(Player.seek({qa} - 1.2), Player.play(), 1)"); time.sleep(3.5)
@@ -108,7 +112,7 @@ def port():
     name = 'mac_port'; R = SUM[name] = {'notes': []}
     d.execute_script("window.scrollTo(0, 0)")
     d.set_window_rect(0, 0, 430, 932); time.sleep(2.5)
-    R['env'] = ev(ENV)
+    R['env'] = ev(ENV); ev("(window.__pass = 'port', 1)")
     ev("(Player.quizzes.forEach(q => q.shown = true), Player.seek(20), Player.play(), 1)"); time.sleep(3); shot(name, 'play')
     scenes_pass(name, R)
     R['errs_in_page'] = ev("(window.__errs || []).slice(0, 10)")
@@ -119,7 +123,7 @@ def short():
     name = 'mac_short'; R = SUM[name] = {'notes': []}
     d.execute_script("window.scrollTo(0, 0)")
     d.set_window_rect(0, 0, 852, 480); time.sleep(2.5)
-    R['env'] = ev(ENV)
+    R['env'] = ev(ENV); ev("(window.__pass = 'short', 1)")
     ev("(Player.quizzes.forEach(q => q.shown = true), Player.seek(20), Player.play(), 1)"); time.sleep(3); shot(name, 'play')
     scenes_pass(name, R)
     R['errs_in_page'] = ev("(window.__errs || []).slice(0, 10)")
@@ -131,6 +135,8 @@ for fn in (land, port, short):
         SUM.setdefault(fn.__name__, {}).setdefault('notes', []).append('FATAL ' + traceback.format_exc()[-1500:])
         try: shot(fn.__name__, 'fatal')
         except Exception: pass
+try: json.dump({'marks': MARKS, 'av': ev('window.__avx || []'), 'ev': ev('window.__evx || []')}, open(f'{OUT}/avraw.json', 'w'))
+except Exception as e: SUM.setdefault('notes', []).append('avraw ' + str(e)[:300])
 try: d.quit()
 except Exception: pass
 json.dump(SUM, open(f'{OUT}/summary.json', 'w'), ensure_ascii=False, indent=1)
