@@ -1,0 +1,1 @@
+picked ((26, 2), True, 'iPhone 17 Pro')
