@@ -125,13 +125,15 @@ const Player = {
     const L = Store.L(id); this.resumeAt = L.pos && L.pos > 8 && L.pos < this.film.total - 8 ? L.pos : 0;
     $('lTag').textContent = `LESSON ${String(id).padStart(2, '0')} · ${META[id - 1].topic}`; $('lTitle').textContent = META[id - 1].title;
     $('pTag').textContent = `LESSON ${String(id).padStart(2, '0')} · ${META[id - 1].topic}`;
-    $('pLen').textContent = `约 ${Math.round(this.film.total / 60 * 10) / 10} 分钟 · ${LD.scenes.length} 幕 · 中途有 ${this.quizzes.length} 道小题`;
+    const lenTxt = `约 ${Math.round(this.film.total / 60 * 10) / 10} 分钟 · ${LD.scenes.length} 幕 · 中途有 ${this.quizzes.length} 道小题`; $('pLen').textContent = lenTxt;
+    this.posterG = C.posterAt ? C.posterAt(this.film) : 3.9; this.imgReady = !(C.imgs && C.imgs.length); this.pendingStart = undefined;
+    if (!this.imgReady) { $('stage').classList.add('loading'); IMG.load(C.imgs, p => { if (this.id === id && !this.imgReady) $('pLen').textContent = '正在载入画面 ' + Math.round(p * 100) + '%'; }).then(() => { if (this.id !== id) return; this.imgReady = true; $('stage').classList.remove('loading'); $('pLen').textContent = lenTxt; this.render(); if (this.pendingStart !== undefined) { const at = this.pendingStart; this.pendingStart = undefined; this.start(at); } }); }
     const row = $('pRow'); row.innerHTML = '';
     if (this.resumeAt) { const b1 = document.createElement('button'); b1.className = 'btn pri sm'; b1.textContent = '从 ' + fmtT(this.resumeAt) + ' 继续'; b1.onclick = () => this.start(this.resumeAt); const b2 = document.createElement('button'); b2.className = 'btn ghost sm'; b2.textContent = '从头开始'; b2.onclick = () => this.start(0); row.append(b1, b2); }
     $('poster').hidden = false; $('quizOv').hidden = true; $('endOv').hidden = true; $('stage').classList.remove('playing', 'idle');
     const ticks = $('pTicks'); ticks.innerHTML = this.film.scenes.slice(1).map(s => `<div class="tick" style="left:${s.start / this.film.total * 100}%"></div>`).join('') + this.quizzes.map(q => `<div class="qm" style="left:${q.at / this.film.total * 100}%"></div>`).join('');
     this.applySpeed(); this.applySubs(); this.setSub(null);
-    await loadFonts(); this.resize(); this.g = this.resumeAt || 3.8; this.render(); this.g = this.resumeAt || 0;
+    await loadFonts(); this.resize(); this.g = this.resumeAt || this.posterG; this.render(); this.g = this.resumeAt || 0;
     this.updateUI();
     if (!this.raf) this.raf = requestAnimationFrame(t => this.loop(t));
   },
@@ -140,9 +142,9 @@ const Player = {
     if (Router.cur !== 'lesson') return; const el = $('stage'), w = el.clientWidth, h = el.clientHeight; if (!w || !h) return;
     const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1) * this.dq); this.st.q = this.dq; this.st.resize(w, h, dpr); this.render();
   },
-  render() { if (!this.film) return; const t0 = performance.now(); const g = !$('poster').hidden ? (this.resumeAt || 3.9) : this.g; this.film.draw(this.st, Math.min(g, this.film.total - .001)); return performance.now() - t0; },
+  render() { if (!this.film) return; const t0 = performance.now(); const g = !$('poster').hidden ? (this.resumeAt || this.posterG || 3.9) : this.g; this.film.draw(this.st, Math.min(g, this.film.total - .001)); return performance.now() - t0; },
   start(at) {
-    AudioCtl.unlock(); $('poster').hidden = true; this.seek(at || 0); this.ended = false; this.play(); this.wake();
+    AudioCtl.unlock(); if (!this.imgReady) { this.pendingStart = at || 0; $('pLen').textContent = '画面马上就好…'; return; } $('poster').hidden = true; this.seek(at || 0); this.ended = false; this.play(); this.wake();
   },
   play() {
     if (this.quiz || !this.film) return; if (this.ended || this.g >= this.film.total - .05) { this.g = 0; this.ended = false; $('endOv').hidden = true; }
@@ -240,11 +242,16 @@ const LessonPage = {
     if (GAMES[id]) GAMES[id]($('game'), stars => {
       const L = Store.L(id), prev = L.stars || 0, firstWin = !L.game; L.game = 1; L.stars = Math.max(prev, stars); const gain = (firstWin ? 50 : 0) + Math.max(0, stars - prev) * 10; Store.xp(gain); return { gain, best: L.stars };
     });
-    $('res').innerHTML = resHTML(RES[id - 1]);
+    $('res').innerHTML = resHTML(RES[id - 1]) + creditsHTML(C);
     $('bPrev').hidden = id === 1; $('bNext').hidden = id === 8;
     $('bPrev').onclick = () => go(id - 1); $('bNext').onclick = () => go(id + 1);
   },
 };
+function creditsHTML(C) {
+  if (!C || !C.imgs || typeof IMGS === 'undefined') return '';
+  const rows = C.imgs.filter(k => IMGS[k] && IMGS[k].page).map(k => { const m = IMGS[k]; return `<li><a href="${esc(m.page)}" target="_blank" rel="noopener"><b>${esc(m.cn || m.title)}</b><small>${esc([m.by, m.lic].filter(Boolean).join(' · '))}</small></a></li>`; }).join('');
+  return `<details class="cred glass"><summary>画面里的真实照片与资料 · 来源和授权（${C.imgs.filter(k => IMGS[k] && IMGS[k].page).length} 项）</summary><p>照片来自维基共享资源、美国政府档案等，均为公有领域或允许使用的授权（CC0 / CC BY / CC BY-SA）；画面中经过调色、裁切和抠像。报纸、论文首页、书本和网页是按真实标题与原文措辞做的「复原示意」，不是原件；示例图片不是 ImageNet 原图。</p><ul>${rows}</ul></details>`;
+}
 function resHTML(list) {
   return list.map(([t, u, k, m, d]) => { const url = u.startsWith('@') ? YT + u.slice(1) + 's' : u; return `<a class="ri glass" href="${esc(url)}" target="_blank" rel="noopener"><span class="ty t-${esc(k)}">${esc(k)}</span><span class="bd"><b>${esc(t)}</b>${(m || d) ? `<small>${esc([m, d].filter(Boolean).join(' · '))}</small>` : ''}</span><span class="go">↗</span></a>`; }).join('');
 }
