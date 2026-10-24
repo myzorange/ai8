@@ -33,32 +33,35 @@ function TW(x, s, o) {
 function T(x, s, X, Y, o) {
   const f = o.f || 'sans', size = o.size || 16, w = o.w || 400, a = o.a ?? 1, al = o.al || 'left', tr = o.tr || 0;
   if (a <= 0.003 || !s) return 0;
+  const g = o.sh && x.__g ? x.__g : null;
   x.save(); x.font = fnt(f, size, w); x.textBaseline = o.bl || 'middle'; x.fillStyle = col(o.c || '#ffffff', a);
-  if (o.sh) { x.shadowColor = col(o.sh.c || '#000000', (o.sh.a ?? .5) * a); x.shadowBlur = o.sh.b || 0; x.shadowOffsetX = o.sh.x || 0; x.shadowOffsetY = o.sh.y || 0; }
+  if (g) { g.save(); g.font = x.font; g.textBaseline = x.textBaseline; g.fillStyle = col(o.sh.c || '#000000', Math.min(1, (o.sh.a ?? .5) * a * 1.5)); if (x.__gm) x.__gm(); }
   let wd;
-  if (!tr) { x.textAlign = al; x.fillText(s, X, Y); wd = x.measureText(s).width; }
+  if (!tr) { x.textAlign = al; x.fillText(s, X, Y); if (g) { g.textAlign = al; g.fillText(s, X, Y); } wd = x.measureText(s).width; }
   else {
     const ch = [...s], ws = ch.map(c => x.measureText(c).width), sp = tr * size;
     wd = ws.reduce((p, q) => p + q, 0) + sp * (ch.length - 1);
-    let xx = al === 'center' ? X - wd / 2 : al === 'right' ? X - wd : X; x.textAlign = 'left';
-    ch.forEach((c, i) => { x.fillText(c, xx, Y); xx += ws[i] + sp; });
+    let xx = al === 'center' ? X - wd / 2 : al === 'right' ? X - wd : X; x.textAlign = 'left'; if (g) g.textAlign = 'left';
+    ch.forEach((c, i) => { x.fillText(c, xx, Y); if (g) g.fillText(c, xx, Y); xx += ws[i] + sp; });
   }
-  x.restore(); return wd;
+  if (g) g.restore(); x.restore(); return wd;
 }
 /* 让文字不超过 maxW：返回合适的字号 */
 function fit(x, s, maxW, o) { let size = o.size; for (let i = 0; i < 5; i++) { const w = TW(x, s, { ...o, size }); if (w <= maxW) break; size *= Math.max(.5, maxW / w * .97); } return size; }
 /* 逐字出现：p 0→1，每个字带上浮与透明 */
 function TReveal(x, s, X, Y, o, p) {
   const ch = [...s], n = ch.length; if (p <= 0) return 0;
+  const g = o.sh && x.__g ? x.__g : null;
   x.save(); x.font = fnt(o.f || 'sans', o.size || 16, o.w || 400); x.textBaseline = 'middle'; x.textAlign = 'left';
+  if (g) { g.save(); g.font = x.font; g.textBaseline = 'middle'; g.textAlign = 'left'; }
   const ws = ch.map(c => x.measureText(c).width), sp = (o.tr || 0) * (o.size || 16), tot = ws.reduce((a, b) => a + b, 0) + sp * (n - 1);
   let xx = o.al === 'center' ? X - tot / 2 : o.al === 'right' ? X - tot : X;
   ch.forEach((c, i) => {
     const qi = E.o3(clamp((p * (n + 3) - i) / 3));
-    if (qi > 0) { x.globalAlpha = (o.a ?? 1) * qi; x.fillStyle = col(o.c || '#ffffff', 1); if (o.sh) { x.shadowColor = col(o.sh.c, o.sh.a ?? .5); x.shadowBlur = o.sh.b || 0; } x.fillText(c, xx, Y + (1 - qi) * (o.size || 16) * .35); }
+    if (qi > 0) { const yy = Y + (1 - qi) * (o.size || 16) * .35; x.globalAlpha = (o.a ?? 1) * qi; x.fillStyle = col(o.c || '#ffffff', 1); x.fillText(c, xx, yy); if (g) { g.globalAlpha = Math.min(1, (o.a ?? 1) * qi * (o.sh.a ?? .5) * 1.5); g.fillStyle = col(o.sh.c || '#000000', 1); g.fillText(c, xx, yy); } }
     xx += ws[i] + sp;
   });
-  x.restore(); return tot;
+  if (g) g.restore(); x.restore(); return tot;
 }
 const GLYPH = '01#$%&*+<>/\\=?ABCDEFGHJKLMNPRSTUVXYZ';
 function decode(s, p, seed = 0) {
@@ -91,7 +94,6 @@ function rich(x, s, X, Y, maxW, o) {
     const lw = ln.reduce((p, c) => p + c.w, 0), yy = y0 + li * lh; let xx = o.al === 'center' ? X - lw / 2 : o.al === 'right' ? X - lw : X;
     for (const c of ln) {
       x.fillStyle = col(c.k ? (o.kc || o.c) : o.c, a);
-      if (c.k && o.kglow) { x.shadowColor = col(o.kc, .8 * a); x.shadowBlur = o.kglow; } else if (o.shb) { x.shadowColor = o.shc; x.shadowBlur = o.shb; } else x.shadowBlur = 0;
       x.fillText(c.s, xx, yy); xx += c.w;
     }
   });
@@ -115,140 +117,115 @@ const K = {
   c: { pri: '#45E3FF', priHi: '#C2F7FF', sec: '#7B5CFF', acc: '#FF4FD8', accHi: '#FFB3F1', ink: '#EAF6FF', mute: '#8597B4', dim: '#33415a', line: '#1c2944', gold: '#FFC86B', red: '#FF5A6E', ok: '#5CFFB0', cold: '#A9BED3' },
   depth: { far: .3, near: 1.9 }, blur: { far: .6, near: 5 }, glow: 1.1, vig: .62, vigC: '#00000c', grain: .06, grainOp: 'overlay', tint: ['#3d5cff', .06],
 };
+/* 舞台：每组画面由 6 张叠放的画布组成（远景/中景/近景/泛光/文字/文字光晕），
+   颗粒、调色、暗角、模糊、泛光和转场遮罩都交给 GPU（CSS）完成，画布只画内容。 */
 class Stage {
-  constructor(cv) { this.cv = cv; this.ctx = cv.getContext('2d'); this.L = {}; this.sc = {}; this.noise = []; this.fno = 0; this.S = { stage: this }; this.q = 1; this.k = K; }
-  mk(w, h) { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; }
+  constructor(root, opts = {}) {
+    this.root = root; this.k = K; this.q = 1; this.S = { stage: this }; this.opts = opts; this.fno = 0;
+    root.classList.add('film'); root.innerHTML = '';
+    this.stacks = [this.mkStack(0)]; if (!opts.single) this.stacks.push(this.mkStack(1));
+    this.fx = this.mkCv('fx'); root.appendChild(this.fx.cv);
+    for (const c of ['tint', 'vig', 'grain']) { const d = document.createElement('div'); d.className = 'post p-' + c; root.appendChild(d); this['p' + c] = d; }
+    this.applyLook();
+  }
+  mkCv(cls) { const c = document.createElement('canvas'); c.className = cls; return { cv: c, ctx: c.getContext('2d') }; }
+  mkStack(i) {
+    const el = document.createElement('div'); el.className = 'stack'; if (i) el.hidden = true;
+    const L = {}; for (const n of ['far', 'mid', 'near', 'glow', 'hud', 'hglow']) { L[n] = this.mkCv('ly ly-' + n); el.appendChild(L[n].cv); }
+    L.mid.ctx.__g = L.glow.ctx; L.near.ctx.__g = L.glow.ctx; L.far.ctx.__g = L.glow.ctx; L.hud.ctx.__g = L.hglow.ctx;
+    this.root.appendChild(el); return { el, L, farKey: '', dirty: {} };
+  }
+  applyLook() {
+    const k = this.k, r = this.root.style;
+    this.ptint.style.display = k.tint ? '' : 'none'; if (k.tint) { this.ptint.style.background = k.tint[0]; this.ptint.style.opacity = k.tint[1]; }
+    this.pvig.style.display = k.vig > 0 ? '' : 'none'; this.pvig.style.opacity = Math.min(1, k.vig / .62);
+    this.pgrain.style.display = k.grain > 0 ? '' : 'none'; this.pgrain.style.opacity = k.grain;
+    if (k.grain > 0 && !Stage.grainURL) {
+      const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'), im = x.createImageData(256, 256), rr = rng(7);
+      for (let i = 0; i < im.data.length; i += 4) { const v = 128 + (rr() + rr() + rr() - 1.5) * 118; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; }
+      x.putImageData(im, 0, 0); Stage.grainURL = c.toDataURL('image/png');
+    }
+    if (k.grain > 0) this.pgrain.style.backgroundImage = `url(${Stage.grainURL})`;
+  }
   resize(W, H, dpr) {
-    this.W = W; this.H = H; this.dpr = dpr; const bw = Math.round(W * dpr), bh = Math.round(H * dpr);
-    this.cv.width = bw; this.cv.height = bh;
-    for (const [n, s] of [['far', 1], ['mid', 1], ['near', 1], ['hud', 1], ['glow', .25]]) { const c = this.mk(bw * s, bh * s); this.L[n] = { cv: c, ctx: c.getContext('2d'), s }; }
-    this.buf = this.mk(bw, bh); this.bufCtx = this.buf.getContext('2d');
-    this.vig = null; this.sc = {};
-    if (!this.noise.length) this.makeNoise();
-  }
-  makeNoise() {
-    const r = rng(7);
-    for (let k = 0; k < 4; k++) {
-      const c = this.mk(256, 256), x = c.getContext('2d'), im = x.createImageData(256, 256);
-      for (let i = 0; i < im.data.length; i += 4) { const v = 128 + (r() + r() + r() - 1.5) * 118; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; }
-      x.putImageData(im, 0, 0); this.noise.push(c);
+    this.W = W; this.H = H; this.dpr = dpr; const m = .06, fs = dpr * .5;
+    for (const s of this.stacks) {
+      for (const n in s.L) {
+        const c = s.L[n].cv;
+        if (n === 'far') { c.width = Math.round(W * (1 + 2 * m) * fs); c.height = Math.round(H * (1 + 2 * m) * fs); Object.assign(c.style, { left: -m * W + 'px', top: -m * H + 'px', width: W * (1 + 2 * m) + 'px', height: H * (1 + 2 * m) + 'px' }); }
+        else { const sc = n === 'glow' || n === 'hglow' ? .25 : 1; c.width = Math.max(1, Math.round(W * dpr * sc)); c.height = Math.max(1, Math.round(H * dpr * sc)); Object.assign(c.style, { left: '0px', top: '0px', width: W + 'px', height: H + 'px' }); }
+      }
+      s.farKey = ''; s.dirty = { near: 1, glow: 1, hglow: 1 };
     }
-  }
-  scratch(key, w, h) {
-    w = Math.max(1, Math.round(w)); h = Math.max(1, Math.round(h)); let c = this.sc[key];
-    if (!c) c = this.sc[key] = this.mk(w, h); else if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
-    const x = c.getContext('2d'); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, w, h); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
-    return c;
-  }
-  blurDraw(dst, src, b, alpha = 1) {
-    const D = dst.canvas; dst.save(); dst.setTransform(1, 0, 0, 1, 0, 0); dst.globalAlpha = alpha; dst.imageSmoothingEnabled = true; dst.imageSmoothingQuality = 'high';
-    const px = b * this.dpr;
-    if (px < 1.6) dst.drawImage(src, 0, 0, D.width, D.height);
-    else {
-      const s = clamp(1.6 / px, 1 / 32, 1); let cur = src, k = 0;
-      while (cur.width * .5 >= src.width * s && cur.width > 4) { const c = this.scratch('b' + k, cur.width * .5, cur.height * .5); c.getContext('2d').drawImage(cur, 0, 0, c.width, c.height); cur = c; k++; }
-      if (Math.abs(cur.width - src.width * s) > 2) { const c = this.scratch('b' + k, src.width * s, src.height * s); c.getContext('2d').drawImage(cur, 0, 0, c.width, c.height); cur = c; }
-      dst.drawImage(cur, 0, 0, D.width, D.height);
-    }
-    dst.restore();
-  }
-  bloom(m, g, amt) {
-    const a = this.scratch('g1', g.width / 2, g.height / 2); a.getContext('2d').drawImage(g, 0, 0, a.width, a.height);
-    const b = this.scratch('g2', a.width / 2, a.height / 2); b.getContext('2d').drawImage(a, 0, 0, b.width, b.height);
-    const c = this.q > .7 ? this.scratch('g3', b.width / 2, b.height / 2) : null; if (c) c.getContext('2d').drawImage(b, 0, 0, c.width, c.height);
-    m.save(); m.setTransform(1, 0, 0, 1, 0, 0); m.globalCompositeOperation = 'lighter'; m.imageSmoothingEnabled = true; m.imageSmoothingQuality = 'high';
-    const W = m.canvas.width, H = m.canvas.height;
-    m.globalAlpha = clamp(amt * .55); m.drawImage(g, 0, 0, W, H);
-    m.globalAlpha = clamp(amt * .65); m.drawImage(a, 0, 0, W, H);
-    m.globalAlpha = clamp(amt * .6); m.drawImage(b, 0, 0, W, H);
-    if (c) { m.globalAlpha = clamp(amt * .5); m.drawImage(c, 0, 0, W, H); }
-    m.restore();
-  }
-  vignette(k) {
-    if (this.vig && this.vigW === this.cv.width && this.vigH === this.cv.height) return this.vig;
-    const c = this.mk(this.cv.width, this.cv.height), x = c.getContext('2d'), w = c.width, h = c.height;
-    x.translate(w / 2, h / 2); x.scale(w / 2, h / 2);
-    const g = x.createRadialGradient(0, 0, 0, 0, 0, 1.42);
-    g.addColorStop(0, col(k.vigC, 0)); g.addColorStop(.5, col(k.vigC, 0)); g.addColorStop(.8, col(k.vigC, k.vig * .45)); g.addColorStop(1.0, col(k.vigC, k.vig));
-    x.fillStyle = g; x.fillRect(-1, -1, 2, 2);
-    this.vig = c; this.vigW = w; this.vigH = h; return c;
-  }
-  grain(m, k) {
-    const n = this.noise[this.fno % 4], r = rng(this.fno * 977 + 13); this.fno++;
-    const p = m.createPattern(n, 'repeat'), sc = this.dpr * .8;
-    m.save(); m.globalCompositeOperation = k.grainOp || 'overlay'; m.globalAlpha = k.grain;
-    m.setTransform(sc, 0, 0, sc, -(r() * 256 | 0) * sc, -(r() * 256 | 0) * sc); m.fillStyle = p;
-    m.fillRect(0, 0, m.canvas.width / sc + 512, m.canvas.height / sc + 512); m.restore();
+    this.fx.cv.width = Math.round(W * dpr * .5); this.fx.cv.height = Math.round(H * dpr * .5); Object.assign(this.fx.cv.style, { width: W + 'px', height: H + 'px' });
+    const r = this.root.style, mn = Math.min(W, H);
+    r.setProperty('--gblur', Math.max(3, mn * .011).toFixed(1) + 'px'); r.setProperty('--hblur', Math.max(2.5, mn * .009).toFixed(1) + 'px');
+    r.setProperty('--nblur', (this.q < .7 ? 0 : Math.max(1.5, mn * this.k.blur.near / 540)).toFixed(1) + 'px'); r.setProperty('--fblur', (mn * this.k.blur.far / 540).toFixed(2) + 'px');
   }
   camT(x, c, dz, s) {
     const d = this.dpr * s, z = 1 + (c.z - 1) * dz, cx = this.W / 2 + (c.ox || 0), cy = this.H / 2 + (c.oy || 0), r = (c.r || 0) * dz;
     const cs = Math.cos(r) * z, sn = Math.sin(r) * z, tx = cx + c.x * dz, ty = cy + c.y * dz;
     x.setTransform(d * cs, d * sn, -d * sn, d * cs, d * (cx - cs * tx + sn * ty), d * (cy - sn * tx - cs * ty));
   }
-  /* 准备一帧：清空图层、设置镜头，返回场景绘制用的 S */
-  begin(cam, t) {
-    const { W, H } = this, S = this.S, P = H > W * 1.05, k = this.k;
-    Object.assign(S, { W, H, P, k, t, u: Math.min(W, H) / 100, v: P ? W / 56 : H / 100 });
-    const c = Object.assign({ x: 0, y: 0, z: 1, r: 0 }, cam || {});
-    for (const n in this.L) { const l = this.L[n]; l.ctx.setTransform(1, 0, 0, 1, 0, 0); l.ctx.globalAlpha = 1; l.ctx.globalCompositeOperation = 'source-over'; l.ctx.shadowBlur = 0; l.ctx.clearRect(0, 0, l.cv.width, l.cv.height); }
-    this.camT(this.L.far.ctx, c, k.depth.far, 1); this.camT(this.L.mid.ctx, c, 1, 1); this.camT(this.L.near.ctx, c, k.depth.near, 1); this.camT(this.L.glow.ctx, c, 1, .25);
-    this.L.hud.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  begin(si, cam, t) {
+    const s = this.stacks[si], { W, H } = this, P = H > W * 1.05, k = this.k, S = this.S;
+    Object.assign(S, { W, H, P, k, t, u: Math.min(W, H) / 100, v: P ? W / 56 : H / 100, stage: this, stack: s });
+    const c = Object.assign({ x: 0, y: 0, z: 1, r: 0 }, cam || {}), L = s.L;
+    for (const n of ['mid', 'near', 'glow', 'hud', 'hglow']) {
+      if ((n === 'near' || n === 'glow' || n === 'hglow') && !s.dirty[n]) continue;
+      const l = L[n], x = l.ctx; x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 1; x.globalCompositeOperation = 'source-over'; x.clearRect(0, 0, l.cv.width, l.cv.height); s.dirty[n] = 0;
+    }
+    this.camT(L.mid.ctx, c, 1, 1); this.camT(L.near.ctx, c, k.depth.near, 1); this.camT(L.glow.ctx, c, 1, .25);
+    L.hud.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0); L.hglow.ctx.setTransform(this.dpr * .25, 0, 0, this.dpr * .25, 0, 0);
+    const fz = 1 + (c.z - 1) * k.depth.far; L.far.cv.style.transform = `translate(${(-c.x * k.depth.far * fz).toFixed(2)}px,${(-c.y * k.depth.far * fz).toFixed(2)}px) scale(${fz.toFixed(4)})`;
+    const fsc = this.dpr * .5; L.far.ctx.setTransform(fsc, 0, 0, fsc, .06 * W * fsc, .06 * H * fsc);
     S.cam = c; S.map = (px, py, dz = 1) => { const z = 1 + (c.z - 1) * dz; return [z * (px - (W / 2 + c.x * dz)) + W / 2, z * (py - (H / 2 + c.y * dz)) + H / 2, z]; };
-    S.far = this.L.far.ctx; S.mid = this.L.mid.ctx; S.near = this.L.near.ctx; S.glow = this.L.glow.ctx; S.hud = this.L.hud.ctx;
+    S.far = L.far.ctx; S.mid = L.mid.ctx; S.hud = L.hud.ctx;
+    Object.defineProperty(S, 'near', { configurable: true, get() { s.dirty.near = 1; return L.near.ctx; } });
+    Object.defineProperty(S, 'glow', { configurable: true, get() { s.dirty.glow = 1; return L.glow.ctx; } });
+    L.mid.ctx.__gm = L.near.ctx.__gm = () => { s.dirty.glow = 1; }; L.hud.ctx.__gm = () => { s.dirty.hglow = 1; };
     return S;
   }
-  composite(m, extra = {}) {
-    const k = this.k, c = this.S.cam;
-    m.setTransform(1, 0, 0, 1, 0, 0); m.globalAlpha = 1; m.globalCompositeOperation = 'source-over';
-    m.fillStyle = k.bg0; m.fillRect(0, 0, m.canvas.width, m.canvas.height);
-    this.blurDraw(m, this.L.far.cv, c.farBlur ?? k.blur.far);
-    this.blurDraw(m, this.L.mid.cv, c.midBlur ?? 0);
-    this.blurDraw(m, this.L.near.cv, this.q < .6 ? 0 : (c.nearBlur ?? k.blur.near));
-    if (k.glow > 0) this.bloom(m, this.L.glow.cv, k.glow * (c.glow ?? 1));
-    if (k.tint) { m.save(); m.globalCompositeOperation = 'soft-light'; m.globalAlpha = k.tint[1]; m.fillStyle = extra.tint || k.tint[0]; m.fillRect(0, 0, m.canvas.width, m.canvas.height); m.restore(); }
-    if (k.vig > 0) m.drawImage(this.vignette(k), 0, 0);
-    m.drawImage(this.L.hud.cv, 0, 0);
-  }
-  /* 画一帧；fnB 存在时做转场：A 在上，按 p 揭开 B */
   frame(A, B = null, p = 0, tr = null) {
-    let S = this.begin(A.cam, A.t); A.draw(S);
-    if (!B) { this.composite(this.ctx); if (this.k.grain > 0 && this.q > .5) this.grain(this.ctx, this.k); return; }
-    this.composite(this.bufCtx);
-    S = this.begin(B.cam, B.t); B.draw(S); this.composite(this.ctx);
-    this.reveal(this.ctx, this.buf, p, tr || { type: 'fade' });
-    if (this.k.grain > 0 && this.q > .5) this.grain(this.ctx, this.k);
+    const s0 = this.stacks[0], s1 = this.stacks[1];
+    let S = this.begin(0, A.cam, A.t); A.draw(S);
+    if (B && s1) { S = this.begin(1, B.cam, B.t); B.draw(S); s1.el.hidden = false; this.reveal(clamp(p), tr || { type: 'fade' }, s0, s1); }
+    else { if (s1 && !s1.el.hidden) s1.el.hidden = true; this.plain(s0); }
+    if (this.k.grain > 0) { const r = rng(++this.fno * 977 + 13); this.pgrain.style.backgroundPosition = `${(r() * 256) | 0}px ${(r() * 256) | 0}px`; }
   }
-  reveal(m, bufA, p, tr) {
-    const W = this.W, H = this.H, d = this.dpr, k = this.k.c; p = clamp(p);
-    m.save(); m.setTransform(d, 0, 0, d, 0, 0);
-    const type = tr.type || 'fade';
-    if (type === 'fade') { m.globalAlpha = 1 - E.ioS(p); m.drawImage(bufA, 0, 0, W, H); m.globalAlpha = 1; m.globalCompositeOperation = 'lighter'; m.fillStyle = col(k.pri, .07 * Math.sin(Math.PI * p)); m.fillRect(0, 0, W, H); }
+  plain(s0) {
+    const st = s0.el.style; if (st.zIndex || st.opacity || st.transform) { st.zIndex = ''; st.opacity = ''; st.transform = ''; }
+    if (this.fxOn) { const x = this.fx.ctx; x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, this.fx.cv.width, this.fx.cv.height); this.fxOn = false; }
+    if (this.stacks[1]) { const s1 = this.stacks[1].el.style; s1.clipPath = s1.webkitClipPath = ''; s1.opacity = ''; }
+  }
+  reveal(p, tr, s0, s1) {
+    const W = this.W, H = this.H, C = this.k.c, st0 = s0.el.style, st1 = s1.el.style, type = tr.type || 'fade';
+    st0.zIndex = ''; st0.opacity = ''; st0.transform = ''; st1.clipPath = st1.webkitClipPath = ''; st1.opacity = '';
+    const x = this.fx.ctx, d = this.dpr * .5; x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, this.fx.cv.width, this.fx.cv.height); x.setTransform(d, 0, 0, d, 0, 0); this.fxOn = true;
+    const glowLine = (path, c) => { const w = Math.min(W, H) * .02; for (const [lw, a] of [[w * 3, .12], [w, .35], [w * .25, .95]]) { path(); x.strokeStyle = col(c, a * Math.sin(Math.PI * p)); x.lineWidth = lw; x.stroke(); } };
+    if (type === 'fade') { st1.opacity = E.ioS(p).toFixed(3); x.fillStyle = col(C.pri, .06 * Math.sin(Math.PI * p)); x.fillRect(0, 0, W, H); }
     else if (type === 'iris') {
       const cx = (tr.x ?? .5) * W, cy = (tr.y ?? .5) * H, R = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy)) * E.io3(p) * 1.02;
-      m.beginPath(); m.rect(0, 0, W, H); m.arc(cx, cy, Math.max(.1, R), 0, TAU, true); m.save(); m.clip(); m.drawImage(bufA, 0, 0, W, H); m.restore();
-      m.globalCompositeOperation = 'lighter'; const w = Math.min(W, H) * .02;
-      for (const [lw, a] of [[w * 3, .12], [w, .35], [w * .25, .9]]) { m.beginPath(); m.arc(cx, cy, Math.max(.1, R), 0, TAU); m.strokeStyle = col(tr.c || k.pri, a * Math.sin(Math.PI * p)); m.lineWidth = lw; m.stroke(); }
+      st1.clipPath = st1.webkitClipPath = `circle(${R.toFixed(1)}px at ${cx.toFixed(1)}px ${cy.toFixed(1)}px)`;
+      glowLine(() => { x.beginPath(); x.arc(cx, cy, Math.max(.1, R), 0, TAU); }, tr.c || C.pri);
     } else if (type === 'wipe') {
-      const ang = tr.ang ?? -.35, L = W + H, off = lerp(-L * .6, L * .6, E.io3(p)), cx = W / 2 + Math.cos(ang) * off, cy = H / 2 + Math.sin(ang) * off;
-      const nx = Math.cos(ang), ny = Math.sin(ang), tx = -ny * L, ty = nx * L;
-      m.beginPath(); m.moveTo(cx + tx, cy + ty); m.lineTo(cx - tx, cy - ty); m.lineTo(cx - tx + nx * L * 2, cy - ty + ny * L * 2); m.lineTo(cx + tx + nx * L * 2, cy + ty + ny * L * 2); m.closePath();
-      m.save(); m.clip(); m.drawImage(bufA, 0, 0, W, H); m.restore();
-      m.globalCompositeOperation = 'lighter'; const w = Math.min(W, H) * .02;
-      for (const [lw, a] of [[w * 3, .12], [w, .35], [w * .25, .95]]) { m.beginPath(); m.moveTo(cx + tx, cy + ty); m.lineTo(cx - tx, cy - ty); m.strokeStyle = col(tr.c || k.pri, a * Math.sin(Math.PI * p)); m.lineWidth = lw; m.stroke(); }
-    } else if (type === 'zoom') {
-      const s = 1 + E.i2(p) * .35; m.globalAlpha = 1 - E.io3(p); m.translate(W / 2, H / 2); m.scale(s, s); m.drawImage(bufA, -W / 2, -H / 2, W, H);
-    }
-    m.restore();
+      const ang = tr.ang ?? -.35, L = W + H, off = lerp(-L * .6, L * .6, E.io3(p)), cx = W / 2 + Math.cos(ang) * off, cy = H / 2 + Math.sin(ang) * off, nx = Math.cos(ang), ny = Math.sin(ang), tx = -ny * L, ty = nx * L;
+      const pts = [[cx + tx, cy + ty], [cx - tx, cy - ty], [cx - tx - nx * L * 2, cy - ty - ny * L * 2], [cx + tx - nx * L * 2, cy + ty - ny * L * 2]];
+      st1.clipPath = st1.webkitClipPath = 'polygon(' + pts.map(q => q[0].toFixed(1) + 'px ' + q[1].toFixed(1) + 'px').join(',') + ')';
+      glowLine(() => { x.beginPath(); x.moveTo(cx + tx, cy + ty); x.lineTo(cx - tx, cy - ty); }, tr.c || C.pri);
+    } else if (type === 'zoom') { const sc = 1 + E.i2(p) * .35; st0.zIndex = '3'; st0.transform = `scale(${sc.toFixed(4)})`; st0.opacity = (1 - E.io3(p)).toFixed(3); }
   }
 }
-
 /* ---------- 深空全息 · 绘图套件 ---------- */
 const H = {
   _stars: null,
   stars(n = 260) { if (!this._stars) { const r = rng(91); this._stars = Array.from({ length: n }, () => [r(), r(), r(), r()]); } return this._stars; },
   /* 背景：o.cold 0..1 冷寂，o.hue 'gold' 等 */
   bg(S, t, o = {}) {
-    const x = S.far, { W, H: h, k } = S, cold = o.cold || 0, C = k.c;
+    const st = S.stack, key = [S.W, S.H, Math.round((o.cold || 0) * 12), o.hue || '', o.neb ?? 1, o.starA ?? 1, o.n1x ?? '', o.n1y ?? '', o.n2x ?? '', o.n2y ?? '', o.moon ? o.moon.map(q => Math.round(q)).join(',') : ''].join('|');
+    if (st && st.farKey === key) return; if (st) st.farKey = key;
+    const x = S.far, { W, H: h, k } = S, cold = Math.round((o.cold || 0) * 12) / 12, C = k.c;
+    x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, x.canvas.width, x.canvas.height); x.restore();
     let g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, mix('#050816', '#0a0d12', cold)); g.addColorStop(1, mix('#020309', '#06070a', cold));
     x.fillStyle = g; x.fillRect(-W * .3, -h * .3, W * 1.6, h * 1.6);
     const sat = 1 - cold * .85;
@@ -256,10 +233,11 @@ const H = {
     haze(x, W * (o.n2x ?? .06), h * (o.n2y ?? .95), W * .55, mix('#0a86ad', '#2c3e50', cold), .24 * (o.neb ?? 1));
     if (sat > .2) haze(x, W * .55, -h * .05, W * .38, o.hue === 'gold' ? C.gold : C.acc, .07 * sat * (o.neb ?? 1));
     for (const s of this.stars()) {
-      const a = (.15 + s[2] * .7 * (.6 + .4 * Math.sin(t * 2 + s[3] * 20))) * (o.starA ?? 1);
+      const a = (.15 + s[2] * .7 * (.6 + .4 * Math.sin(s[3] * 20))) * (o.starA ?? 1);
       x.fillStyle = col(s[3] < .8 ? '#ffffff' : (cold > .5 ? '#cfe3ff' : C.pri), a);
-      const sz = s[2] < .9 ? .9 : 1.6; x.fillRect(s[0] * W * 1.3 - W * .15, s[1] * h * 1.2 - h * .1, sz, sz);
+      const sz = s[2] < .9 ? 1.2 : 2; x.fillRect(s[0] * W * 1.3 - W * .15, s[1] * h * 1.2 - h * .1, sz, sz);
     }
+    if (o.moon) { const [mx, my, mr] = o.moon; haze(x, mx, my, mr * 7, '#9fc4ff', .2); const mg = x.createRadialGradient(mx - mr * .3, my - mr * .3, mr * .1, mx, my, mr); mg.addColorStop(0, '#ffffff'); mg.addColorStop(1, '#cfe2ff'); x.beginPath(); x.arc(mx, my, mr, 0, TAU); x.fillStyle = mg; x.fill(); }
   },
   /* 地面极坐标网格（mid 层） */
   floor(S, cx, cy, R, tilt, a = 1, c) {

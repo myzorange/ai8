@@ -277,10 +277,11 @@ const L1 = (() => {
       tin: { type: 'fade' }, tdur: 1.1, year: 1971, mood: 'cold', lead: 1.0, tail: 1.8,
       camera: (t, S, F) => ({ z: 1.07 - .07 * E.ioS(clamp(t / F.dur)), y: lerp(-.01, .01, E.ioS(clamp(t / F.dur))) * S.H }),
       draw(t, S, F) {
-        H.bg(S, t, { cold: 1, neb: .55, starA: .8 }); const { W, H: h, P, v } = S, x = S.mid, fx = S.far, hy = P ? h * .6 : h * .64;
+        const { W, H: h, P, v } = S, x = S.mid, hy = P ? h * .6 : h * .64;
         // 月亮与倒影
         const mx = P ? W * .2 : W * .24, my = hy - v * (P ? 15 : 12), mr = v * (P ? 2.8 : 4.2);
-        haze(fx, mx, my, mr * 7, '#9fc4ff', .2); const mg = fx.createRadialGradient(mx - mr * .3, my - mr * .3, mr * .1, mx, my, mr); mg.addColorStop(0, '#ffffff'); mg.addColorStop(1, '#cfe2ff'); fx.beginPath(); fx.arc(mx, my, mr, 0, TAU); fx.fillStyle = mg; fx.fill(); S.glow.beginPath(); S.glow.arc(mx, my, mr * 1.2, 0, TAU); S.glow.fillStyle = 'rgba(220,235,255,.32)'; S.glow.fill();
+        H.bg(S, t, { cold: 1, neb: .55, starA: .8, moon: [mx, my, mr] });
+        S.glow.beginPath(); S.glow.arc(mx, my, mr * 1.2, 0, TAU); S.glow.fillStyle = 'rgba(220,235,255,.32)'; S.glow.fill();
         for (let i = 0; i < 18; i++) { const yy = hy + v * .8 + i * v * (P ? .9 : 1.0), ww = mr * (1.6 - i * .06) * (1 + .3 * Math.sin(t * 1.3 + i * 1.7)); x.fillStyle = col('#dcebff', .32 * (1 - i / 18)); x.fillRect(mx - ww / 2, yy, ww, Math.max(1, v * .18)); }
         const g = x.createLinearGradient(0, hy - v * 10, 0, hy); g.addColorStop(0, 'rgba(120,150,190,0)'); g.addColorStop(1, 'rgba(120,150,190,.16)'); x.fillStyle = g; x.fillRect(-W * .1, hy - v * 10, W * 1.2, v * 10);
         const gw = x.createLinearGradient(0, hy, 0, h); gw.addColorStop(0, 'rgba(10,18,32,.55)'); gw.addColorStop(1, 'rgba(2,4,9,.9)'); x.fillStyle = gw; x.fillRect(-W * .1, hy, W * 1.2, h - hy);
