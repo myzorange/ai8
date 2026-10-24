@@ -3,7 +3,7 @@ import json, os, sys, time, traceback
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from jslib import HOOK, STATS, AV, STATE, POSTER, SCENES, ENV, QUIZ_AFTER, save_img, contact
+from jslib import HOOK, STATS, AV, CTU, SUBL, STATE, POSTER, SCENES, ENV, QUIZ_AFTER, save_img, contact
 
 URL = os.environ.get('URL', 'https://myzorange.github.io/ai8/next/')
 OUT = 'out/safari'; os.makedirs(OUT, exist_ok=True)
@@ -56,7 +56,7 @@ def click(sel): retry(lambda: d.find_element(By.CSS_SELECTOR, sel).click())
 
 
 def scenes_pass(name, R):
-    scenes = ev(SCENES); ev("(Player.quizzes.forEach(q => q.shown = true), 1)")
+    scenes = ev(SCENES); ev("(Player.quizzes.forEach(q => q.shown = true), __av.length = 0, __subL.length = 0, 1)")
     R['scenes'] = []; shots = []
     for s in scenes:
         g = max(s['start'] + .05, s['start'] + s['dur'] * .55 - 2.9)
@@ -64,7 +64,7 @@ def scenes_pass(name, R):
         p = shot(name, f"s{s['n']:02d}", s['n'] in (5, 9, 12)); st = ev(STATS)
         R['scenes'].append({'n': s['n'], 'name': s['name'], 't': round(g + 2.95, 1), 'perf': st}); shots.append((p, f"{s['n']} @{g + 2.95:.0f}s"))
     contact(shots, f'{OUT}/{name}_sheet.jpg')
-    R['av_scenes'] = ev(AV)
+    R['av_scenes'] = ev(AV); R['sub_lines'] = ev(SUBL); R['currentTime_updates'] = ev(CTU)
 
 
 def land():
