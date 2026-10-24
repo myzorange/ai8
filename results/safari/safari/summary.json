@@ -8,17 +8,17 @@
     848,
     1
    ],
-   "ver": "v3-preview-6"
+   "ver": "v3-preview-7"
   },
-  "swActiveS": 8.7,
+  "swActiveS": 6.6,
   "swControlled": true,
-  "imgReadyS": 3.4,
+  "imgReadyS": 2.3,
   "poster": {
    "scenes": 17,
    "imgsOk": 45,
    "sw": true,
    "pLen": "约 8.1 分钟 · 16 幕 · 中途有 3 道小题",
-   "ver": "v3-preview-6",
+   "ver": "v3-preview-7",
    "quizzes": [
     96.1,
     170.2,
@@ -32,46 +32,46 @@
    "cls": "stage playing idle",
    "voPaused": false,
    "voSrc": "1_0_1.mp3",
-   "g": 9.28,
+   "g": 9.34,
    "voErr": null,
    "voReady": 4,
    "actx": "running",
    "errs": [],
    "dq": 1,
-   "voT": 0.77,
+   "voT": 0.88,
    "sub": "电话那头说：您获得了诺贝尔物理学奖。",
    "playing": true
   },
   "perf_0_40s": {
-   "frames": 2213,
-   "gapMax": 290,
-   "over50": 34,
-   "ms95": 4,
+   "frames": 2337,
+   "gapMax": 225,
+   "over50": 5,
+   "ms95": 3,
    "dq": 1,
    "ms50": 2,
    "gap50": 17,
-   "msMax": 35,
-   "gap95": 26
+   "msMax": 10,
+   "gap95": 18
   },
   "av_0_40s": {
-   "signedMed": -0.049,
-   "n": 136,
-   "p90": 0.058,
+   "signedMed": -0.018,
+   "n": 118,
+   "p90": 0.029,
    "note": "audio minus film, s",
-   "med": 0.049,
-   "max": 0.365
+   "med": 0.018,
+   "max": 1.032
   },
   "state40s": {
    "cls": "stage playing idle",
    "voPaused": false,
    "voSrc": "1_1_2.mp3",
-   "g": 38.99,
+   "g": 39.3,
    "voErr": null,
    "voReady": 4,
    "actx": "running",
    "errs": [],
    "dq": 1,
-   "voT": 3.24,
+   "voT": 2.58,
    "sub": "后来，一个成了康奈尔的心理学家，一个成了人工智能的奠基人。",
    "playing": true
   },
@@ -81,15 +81,15 @@
     "name": "序 · 凌晨两点的电话",
     "t": 13.0,
     "perf": {
-     "frames": 206,
-     "gapMax": 79,
-     "over50": 3,
-     "ms95": 4,
+     "frames": 194,
+     "gapMax": 45,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 7,
-     "gap95": 24
+     "msMax": 4,
+     "gap95": 18
     }
    },
    {
@@ -97,15 +97,15 @@
     "name": "第一幕 · 两个少年",
     "t": 35.7,
     "perf": {
-     "frames": 193,
-     "gapMax": 113,
-     "over50": 2,
-     "ms95": 4,
+     "frames": 192,
+     "gapMax": 41,
+     "over50": 0,
+     "ms95": 2,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 5,
-     "gap95": 25
+     "msMax": 3,
+     "gap95": 18
     }
    },
    {
@@ -113,15 +113,15 @@
     "name": "第二幕 · 华盛顿，1958",
     "t": 62.1,
     "perf": {
-     "frames": 186,
-     "gapMax": 75,
-     "over50": 3,
-     "ms95": 4,
+     "frames": 193,
+     "gapMax": 42,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 27,
-     "gap95": 23
+     "msMax": 14,
+     "gap95": 18
     }
    },
    {
@@ -129,15 +129,15 @@
     "name": "第三幕 · 感知机",
     "t": 87.3,
     "perf": {
-     "frames": 187,
-     "gapMax": 130,
-     "over50": 3,
-     "ms95": 4,
+     "frames": 192,
+     "gapMax": 34,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 115,
-     "gap95": 28
+     "msMax": 12,
+     "gap95": 18
     }
    },
    {
@@ -145,15 +145,15 @@
     "name": "第四幕 · 报纸沸腾",
     "t": 107.4,
     "perf": {
-     "frames": 196,
-     "gapMax": 66,
-     "over50": 1,
-     "ms95": 6,
+     "frames": 193,
+     "gapMax": 24,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
-     "ms50": 3,
+     "ms50": 2,
      "gap50": 17,
-     "msMax": 19,
-     "gap95": 30
+     "msMax": 9,
+     "gap95": 18
     }
    },
    {
@@ -161,15 +161,15 @@
     "name": "第五幕 · Mark I",
     "t": 129.9,
     "perf": {
-     "frames": 174,
-     "gapMax": 84,
-     "over50": 3,
-     "ms95": 6,
+     "frames": 195,
+     "gapMax": 42,
+     "over50": 0,
+     "ms95": 4,
      "dq": 1,
-     "ms50": 4,
-     "gap50": 18,
-     "msMax": 22,
-     "gap95": 33
+     "ms50": 3,
+     "gap50": 17,
+     "msMax": 16,
+     "gap95": 21
     }
    },
    {
@@ -177,15 +177,15 @@
     "name": "第六幕 · 判决",
     "t": 157.8,
     "perf": {
-     "frames": 194,
-     "gapMax": 89,
-     "over50": 3,
-     "ms95": 4,
+     "frames": 195,
+     "gapMax": 45,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
-     "ms50": 3,
+     "ms50": 2,
      "gap50": 17,
-     "msMax": 6,
-     "gap95": 34
+     "msMax": 7,
+     "gap95": 18
     }
    },
    {
@@ -193,15 +193,15 @@
     "name": "第七幕 · 7 月 11 日",
     "t": 189.9,
     "perf": {
-     "frames": 209,
-     "gapMax": 58,
-     "over50": 1,
-     "ms95": 4,
+     "frames": 194,
+     "gapMax": 43,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 5,
-     "gap95": 19
+     "msMax": 10,
+     "gap95": 18
     }
    },
    {
@@ -209,15 +209,15 @@
     "name": "第八幕 · 再给我六个月",
     "t": 221.5,
     "perf": {
-     "frames": 199,
-     "gapMax": 71,
-     "over50": 2,
-     "ms95": 4,
+     "frames": 194,
+     "gapMax": 30,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 29,
-     "gap95": 21
+     "msMax": 18,
+     "gap95": 18
     }
    },
    {
@@ -225,15 +225,15 @@
     "name": "第九幕 · 反向传播",
     "t": 252.0,
     "perf": {
-     "frames": 181,
-     "gapMax": 110,
-     "over50": 4,
-     "ms95": 8,
+     "frames": 193,
+     "gapMax": 47,
+     "over50": 0,
+     "ms95": 5,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
      "msMax": 10,
-     "gap95": 35
+     "gap95": 22
     }
    },
    {
@@ -241,15 +241,15 @@
     "name": "第十幕 · 一套课本",
     "t": 289.3,
     "perf": {
-     "frames": 204,
-     "gapMax": 74,
-     "over50": 2,
-     "ms95": 4,
+     "frames": 196,
+     "gapMax": 48,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 13,
-     "gap95": 24
+     "msMax": 9,
+     "gap95": 20
     }
    },
    {
@@ -257,15 +257,15 @@
     "name": "第十一幕 · 卧室里的显卡",
     "t": 329.3,
     "perf": {
-     "frames": 188,
-     "gapMax": 128,
-     "over50": 4,
+     "frames": 190,
+     "gapMax": 52,
+     "over50": 1,
      "ms95": 4,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 7,
-     "gap95": 38
+     "msMax": 5,
+     "gap95": 18
     }
    },
    {
@@ -273,15 +273,15 @@
     "name": "第十二幕 · 太浩湖拍卖",
     "t": 363.8,
     "perf": {
-     "frames": 210,
-     "gapMax": 71,
-     "over50": 4,
+     "frames": 198,
+     "gapMax": 42,
+     "over50": 0,
      "ms95": 4,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 10,
-     "gap95": 27
+     "msMax": 14,
+     "gap95": 20
     }
    },
    {
@@ -289,15 +289,15 @@
     "name": "第十三幕 · 注意力",
     "t": 398.5,
     "perf": {
-     "frames": 224,
-     "gapMax": 56,
-     "over50": 1,
-     "ms95": 4,
+     "frames": 196,
+     "gapMax": 47,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 12,
-     "gap95": 29
+     "msMax": 5,
+     "gap95": 18
     }
    },
    {
@@ -305,15 +305,15 @@
     "name": "第十四幕 · 66 年",
     "t": 433.8,
     "perf": {
-     "frames": 243,
-     "gapMax": 129,
-     "over50": 8,
-     "ms95": 4,
+     "frames": 196,
+     "gapMax": 63,
+     "over50": 1,
+     "ms95": 2,
      "dq": 1,
-     "ms50": 2,
+     "ms50": 1,
      "gap50": 17,
-     "msMax": 9,
-     "gap95": 38
+     "msMax": 4,
+     "gap95": 19
     }
    },
    {
@@ -321,15 +321,15 @@
     "name": "尾声 · 苦涩的教训",
     "t": 464.2,
     "perf": {
-     "frames": 210,
-     "gapMax": 64,
-     "over50": 3,
+     "frames": 198,
+     "gapMax": 36,
+     "over50": 0,
      "ms95": 3,
      "dq": 1,
      "ms50": 2,
-     "gap50": 17,
-     "msMax": 8,
-     "gap95": 22
+     "gap50": 16,
+     "msMax": 4,
+     "gap95": 19
     }
    },
    {
@@ -337,25 +337,40 @@
     "name": "片尾",
     "t": 481.4,
     "perf": {
-     "frames": 200,
-     "gapMax": 58,
-     "over50": 1,
+     "frames": 197,
+     "gapMax": 38,
+     "over50": 0,
      "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 5,
-     "gap95": 21
+     "msMax": 3,
+     "gap95": 19
     }
    }
   ],
   "av_scenes": {
-   "signedMed": -0.05,
-   "n": 196,
-   "p90": 0.124,
+   "signedMed": -0.017,
+   "n": 177,
+   "p90": 0.08,
    "note": "audio minus film, s",
-   "med": 0.05,
-   "max": 0.379
+   "med": 0.017,
+   "max": 0.162
+  },
+  "sub_lines": {
+   "n": 103,
+   "max": 2,
+   "lines": [
+    53,
+    50,
+    0
+   ]
+  },
+  "currentTime_updates": {
+   "n": 400,
+   "p90": 12,
+   "med": 8,
+   "note": "ms between audio currentTime changes"
   },
   "quiz": [
    {
@@ -386,7 +401,7 @@
     }
    }
   ],
-  "endS": 4.6,
+  "endS": 2.6,
   "credits": 44,
   "errs_in_page": []
  },
@@ -399,7 +414,7 @@
     880,
     1
    ],
-   "ver": "v3-preview-6"
+   "ver": "v3-preview-7"
   },
   "scenes": [
    {
@@ -407,15 +422,15 @@
     "name": "序 · 凌晨两点的电话",
     "t": 13.0,
     "perf": {
-     "frames": 1066,
-     "gapMax": 101,
-     "over50": 9,
-     "ms95": 4,
+     "frames": 974,
+     "gapMax": 74,
+     "over50": 3,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 75,
-     "gap95": 30
+     "msMax": 65,
+     "gap95": 19
     }
    },
    {
@@ -423,15 +438,15 @@
     "name": "第一幕 · 两个少年",
     "t": 35.7,
     "perf": {
-     "frames": 194,
-     "gapMax": 64,
-     "over50": 2,
-     "ms95": 3,
+     "frames": 188,
+     "gapMax": 42,
+     "over50": 0,
+     "ms95": 2,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 8,
-     "gap95": 22
+     "msMax": 7,
+     "gap95": 18
     }
    },
    {
@@ -439,15 +454,15 @@
     "name": "第二幕 · 华盛顿，1958",
     "t": 62.1,
     "perf": {
-     "frames": 185,
-     "gapMax": 84,
-     "over50": 3,
-     "ms95": 4,
+     "frames": 194,
+     "gapMax": 52,
+     "over50": 1,
+     "ms95": 2,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 20,
-     "gap95": 26
+     "msMax": 14,
+     "gap95": 19
     }
    },
    {
@@ -455,15 +470,15 @@
     "name": "第三幕 · 感知机",
     "t": 87.3,
     "perf": {
-     "frames": 177,
-     "gapMax": 107,
-     "over50": 6,
-     "ms95": 5,
+     "frames": 183,
+     "gapMax": 36,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 9,
-     "gap95": 37
+     "msMax": 10,
+     "gap95": 21
     }
    },
    {
@@ -471,15 +486,15 @@
     "name": "第四幕 · 报纸沸腾",
     "t": 107.4,
     "perf": {
-     "frames": 187,
-     "gapMax": 51,
+     "frames": 190,
+     "gapMax": 52,
      "over50": 1,
-     "ms95": 5,
+     "ms95": 3,
      "dq": 1,
-     "ms50": 3,
+     "ms50": 2,
      "gap50": 17,
-     "msMax": 13,
-     "gap95": 22
+     "msMax": 6,
+     "gap95": 19
     }
    },
    {
@@ -487,15 +502,15 @@
     "name": "第五幕 · Mark I",
     "t": 129.9,
     "perf": {
-     "frames": 174,
-     "gapMax": 96,
-     "over50": 4,
-     "ms95": 4,
+     "frames": 195,
+     "gapMax": 28,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
-     "ms50": 3,
+     "ms50": 2,
      "gap50": 17,
-     "msMax": 22,
-     "gap95": 31
+     "msMax": 12,
+     "gap95": 19
     }
    },
    {
@@ -503,15 +518,15 @@
     "name": "第六幕 · 判决",
     "t": 157.8,
     "perf": {
-     "frames": 180,
-     "gapMax": 75,
-     "over50": 3,
-     "ms95": 5,
+     "frames": 201,
+     "gapMax": 40,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
-     "ms50": 3,
+     "ms50": 2,
      "gap50": 17,
-     "msMax": 8,
-     "gap95": 36
+     "msMax": 7,
+     "gap95": 19
     }
    },
    {
@@ -519,8 +534,40 @@
     "name": "第七幕 · 7 月 11 日",
     "t": 189.9,
     "perf": {
+     "frames": 193,
+     "gapMax": 41,
+     "over50": 0,
+     "ms95": 3,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 4,
+     "gap95": 18
+    }
+   },
+   {
+    "n": 8,
+    "name": "第八幕 · 再给我六个月",
+    "t": 221.5,
+    "perf": {
      "frames": 191,
-     "gapMax": 49,
+     "gapMax": 55,
+     "over50": 1,
+     "ms95": 3,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 16,
+     "msMax": 16,
+     "gap95": 19
+    }
+   },
+   {
+    "n": 9,
+    "name": "第九幕 · 反向传播",
+    "t": 252.0,
+    "perf": {
+     "frames": 191,
+     "gapMax": 47,
      "over50": 0,
      "ms95": 3,
      "dq": 1,
@@ -531,51 +578,19 @@
     }
    },
    {
-    "n": 8,
-    "name": "第八幕 · 再给我六个月",
-    "t": 221.5,
-    "perf": {
-     "frames": 193,
-     "gapMax": 52,
-     "over50": 1,
-     "ms95": 3,
-     "dq": 1,
-     "ms50": 2,
-     "gap50": 17,
-     "msMax": 19,
-     "gap95": 19
-    }
-   },
-   {
-    "n": 9,
-    "name": "第九幕 · 反向传播",
-    "t": 252.0,
-    "perf": {
-     "frames": 188,
-     "gapMax": 55,
-     "over50": 1,
-     "ms95": 5,
-     "dq": 1,
-     "ms50": 2,
-     "gap50": 17,
-     "msMax": 7,
-     "gap95": 27
-    }
-   },
-   {
     "n": 10,
     "name": "第十幕 · 一套课本",
     "t": 289.3,
     "perf": {
-     "frames": 190,
-     "gapMax": 84,
-     "over50": 3,
+     "frames": 192,
+     "gapMax": 48,
+     "over50": 0,
      "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 12,
-     "gap95": 25
+     "msMax": 10,
+     "gap95": 19
     }
    },
    {
@@ -583,15 +598,15 @@
     "name": "第十一幕 · 卧室里的显卡",
     "t": 329.3,
     "perf": {
-     "frames": 194,
-     "gapMax": 50,
+     "frames": 190,
+     "gapMax": 39,
      "over50": 0,
-     "ms95": 4,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 6,
-     "gap95": 22
+     "msMax": 8,
+     "gap95": 19
     }
    },
    {
@@ -599,15 +614,15 @@
     "name": "第十二幕 · 太浩湖拍卖",
     "t": 363.8,
     "perf": {
-     "frames": 192,
-     "gapMax": 59,
-     "over50": 1,
-     "ms95": 4,
+     "frames": 185,
+     "gapMax": 36,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 6,
-     "gap95": 25
+     "msMax": 4,
+     "gap95": 19
     }
    },
    {
@@ -615,15 +630,15 @@
     "name": "第十三幕 · 注意力",
     "t": 398.5,
     "perf": {
-     "frames": 189,
-     "gapMax": 60,
+     "frames": 186,
+     "gapMax": 80,
      "over50": 1,
-     "ms95": 4,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
-     "gap50": 17,
-     "msMax": 5,
-     "gap95": 21
+     "gap50": 16,
+     "msMax": 7,
+     "gap95": 19
     }
    },
    {
@@ -631,15 +646,15 @@
     "name": "第十四幕 · 66 年",
     "t": 433.8,
     "perf": {
-     "frames": 187,
-     "gapMax": 72,
-     "over50": 5,
-     "ms95": 3,
+     "frames": 190,
+     "gapMax": 59,
+     "over50": 2,
+     "ms95": 2,
      "dq": 1,
-     "ms50": 2,
+     "ms50": 1,
      "gap50": 17,
-     "msMax": 5,
-     "gap95": 39
+     "msMax": 10,
+     "gap95": 19
     }
    },
    {
@@ -647,14 +662,14 @@
     "name": "尾声 · 苦涩的教训",
     "t": 464.2,
     "perf": {
-     "frames": 194,
+     "frames": 189,
      "gapMax": 43,
      "over50": 0,
-     "ms95": 3,
+     "ms95": 2,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 6,
+     "msMax": 4,
      "gap95": 19
     }
    },
@@ -663,25 +678,40 @@
     "name": "片尾",
     "t": 481.4,
     "perf": {
-     "frames": 187,
-     "gapMax": 52,
-     "over50": 1,
+     "frames": 193,
+     "gapMax": 31,
+     "over50": 0,
      "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 9,
+     "msMax": 3,
      "gap95": 19
     }
    }
   ],
   "av_scenes": {
-   "signedMed": -0.052,
-   "n": 218,
-   "p90": 0.713,
+   "signedMed": -0.017,
+   "n": 170,
+   "p90": 0.085,
    "note": "audio minus film, s",
-   "med": 0.052,
-   "max": 15.256
+   "med": 0.017,
+   "max": 1.163
+  },
+  "sub_lines": {
+   "n": 101,
+   "max": 2,
+   "lines": [
+    18,
+    83,
+    0
+   ]
+  },
+  "currentTime_updates": {
+   "n": 400,
+   "p90": 12,
+   "med": 8,
+   "note": "ms between audio currentTime changes"
   },
   "errs_in_page": []
  },
@@ -694,7 +724,7 @@
     428,
     1
    ],
-   "ver": "v3-preview-6"
+   "ver": "v3-preview-7"
   },
   "scenes": [
    {
@@ -702,15 +732,15 @@
     "name": "序 · 凌晨两点的电话",
     "t": 13.0,
     "perf": {
-     "frames": 539,
-     "gapMax": 100,
-     "over50": 7,
-     "ms95": 3,
+     "frames": 549,
+     "gapMax": 76,
+     "over50": 2,
+     "ms95": 2,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 27,
-     "gap95": 27
+     "msMax": 11,
+     "gap95": 19
     }
    },
    {
@@ -718,15 +748,15 @@
     "name": "第一幕 · 两个少年",
     "t": 35.7,
     "perf": {
-     "frames": 191,
-     "gapMax": 71,
-     "over50": 1,
-     "ms95": 4,
+     "frames": 194,
+     "gapMax": 47,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 12,
-     "gap95": 28
+     "msMax": 4,
+     "gap95": 19
     }
    },
    {
@@ -734,15 +764,15 @@
     "name": "第二幕 · 华盛顿，1958",
     "t": 62.1,
     "perf": {
-     "frames": 193,
-     "gapMax": 63,
+     "frames": 195,
+     "gapMax": 55,
      "over50": 1,
-     "ms95": 4,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
-     "gap50": 17,
-     "msMax": 14,
-     "gap95": 22
+     "gap50": 16,
+     "msMax": 13,
+     "gap95": 19
     }
    },
    {
@@ -750,15 +780,15 @@
     "name": "第三幕 · 感知机",
     "t": 87.3,
     "perf": {
-     "frames": 187,
-     "gapMax": 54,
-     "over50": 2,
-     "ms95": 4,
+     "frames": 192,
+     "gapMax": 44,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
      "msMax": 6,
-     "gap95": 25
+     "gap95": 19
     }
    },
    {
@@ -766,15 +796,15 @@
     "name": "第四幕 · 报纸沸腾",
     "t": 107.4,
     "perf": {
-     "frames": 183,
-     "gapMax": 62,
-     "over50": 2,
-     "ms95": 5,
+     "frames": 192,
+     "gapMax": 42,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
-     "ms50": 3,
+     "ms50": 2,
      "gap50": 17,
-     "msMax": 12,
-     "gap95": 28
+     "msMax": 4,
+     "gap95": 18
     }
    },
    {
@@ -782,15 +812,15 @@
     "name": "第五幕 · Mark I",
     "t": 129.9,
     "perf": {
-     "frames": 184,
-     "gapMax": 72,
-     "over50": 1,
-     "ms95": 5,
+     "frames": 192,
+     "gapMax": 48,
+     "over50": 0,
+     "ms95": 4,
      "dq": 1,
      "ms50": 3,
      "gap50": 17,
-     "msMax": 17,
-     "gap95": 29
+     "msMax": 12,
+     "gap95": 22
     }
    },
    {
@@ -798,15 +828,15 @@
     "name": "第六幕 · 判决",
     "t": 157.8,
     "perf": {
-     "frames": 178,
-     "gapMax": 67,
-     "over50": 2,
-     "ms95": 5,
+     "frames": 193,
+     "gapMax": 45,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
-     "ms50": 3,
+     "ms50": 2,
      "gap50": 17,
-     "msMax": 7,
-     "gap95": 29
+     "msMax": 3,
+     "gap95": 19
     }
    },
    {
@@ -814,15 +844,15 @@
     "name": "第七幕 · 7 月 11 日",
     "t": 189.9,
     "perf": {
-     "frames": 191,
-     "gapMax": 64,
-     "over50": 1,
-     "ms95": 4,
+     "frames": 194,
+     "gapMax": 41,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 6,
-     "gap95": 23
+     "msMax": 3,
+     "gap95": 19
     }
    },
    {
@@ -830,15 +860,15 @@
     "name": "第八幕 · 再给我六个月",
     "t": 221.5,
     "perf": {
-     "frames": 191,
-     "gapMax": 66,
-     "over50": 3,
-     "ms95": 4,
+     "frames": 194,
+     "gapMax": 41,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 21,
-     "gap95": 25
+     "msMax": 16,
+     "gap95": 19
     }
    },
    {
@@ -846,15 +876,15 @@
     "name": "第九幕 · 反向传播",
     "t": 252.0,
     "perf": {
-     "frames": 172,
-     "gapMax": 90,
-     "over50": 3,
-     "ms95": 7,
+     "frames": 193,
+     "gapMax": 44,
+     "over50": 0,
+     "ms95": 4,
      "dq": 1,
-     "ms50": 3,
+     "ms50": 2,
      "gap50": 17,
-     "msMax": 11,
-     "gap95": 36
+     "msMax": 5,
+     "gap95": 20
     }
    },
    {
@@ -862,15 +892,15 @@
     "name": "第十幕 · 一套课本",
     "t": 289.3,
     "perf": {
-     "frames": 168,
-     "gapMax": 128,
-     "over50": 6,
-     "ms95": 4,
+     "frames": 193,
+     "gapMax": 40,
+     "over50": 0,
+     "ms95": 2,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 13,
-     "gap95": 46
+     "msMax": 10,
+     "gap95": 18
     }
    },
    {
@@ -878,15 +908,15 @@
     "name": "第十一幕 · 卧室里的显卡",
     "t": 329.3,
     "perf": {
-     "frames": 173,
-     "gapMax": 102,
-     "over50": 4,
-     "ms95": 6,
+     "frames": 191,
+     "gapMax": 30,
+     "over50": 0,
+     "ms95": 3,
      "dq": 1,
-     "ms50": 3,
-     "gap50": 17,
-     "msMax": 15,
-     "gap95": 40
+     "ms50": 2,
+     "gap50": 16,
+     "msMax": 4,
+     "gap95": 19
     }
    },
    {
@@ -894,15 +924,15 @@
     "name": "第十二幕 · 太浩湖拍卖",
     "t": 363.8,
     "perf": {
-     "frames": 192,
-     "gapMax": 97,
-     "over50": 3,
-     "ms95": 5,
+     "frames": 188,
+     "gapMax": 43,
+     "over50": 0,
+     "ms95": 4,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 12,
-     "gap95": 31
+     "msMax": 4,
+     "gap95": 19
     }
    },
    {
@@ -910,15 +940,15 @@
     "name": "第十三幕 · 注意力",
     "t": 398.5,
     "perf": {
-     "frames": 194,
-     "gapMax": 69,
-     "over50": 2,
-     "ms95": 4,
+     "frames": 192,
+     "gapMax": 36,
+     "over50": 0,
+     "ms95": 2,
      "dq": 1,
-     "ms50": 2,
+     "ms50": 1,
      "gap50": 17,
-     "msMax": 6,
-     "gap95": 25
+     "msMax": 4,
+     "gap95": 19
     }
    },
    {
@@ -926,15 +956,15 @@
     "name": "第十四幕 · 66 年",
     "t": 433.8,
     "perf": {
-     "frames": 181,
-     "gapMax": 81,
-     "over50": 4,
-     "ms95": 3,
+     "frames": 184,
+     "gapMax": 47,
+     "over50": 0,
+     "ms95": 2,
      "dq": 1,
-     "ms50": 2,
+     "ms50": 1,
      "gap50": 17,
-     "msMax": 13,
-     "gap95": 34
+     "msMax": 4,
+     "gap95": 19
     }
    },
    {
@@ -942,15 +972,15 @@
     "name": "尾声 · 苦涩的教训",
     "t": 464.2,
     "perf": {
-     "frames": 191,
-     "gapMax": 65,
-     "over50": 1,
-     "ms95": 4,
+     "frames": 193,
+     "gapMax": 44,
+     "over50": 0,
+     "ms95": 2,
      "dq": 1,
      "ms50": 2,
      "gap50": 17,
-     "msMax": 7,
-     "gap95": 19
+     "msMax": 3,
+     "gap95": 18
     }
    },
    {
@@ -958,25 +988,40 @@
     "name": "片尾",
     "t": 481.4,
     "perf": {
-     "frames": 188,
-     "gapMax": 56,
-     "over50": 1,
-     "ms95": 3,
+     "frames": 193,
+     "gapMax": 39,
+     "over50": 0,
+     "ms95": 2,
      "dq": 1,
-     "ms50": 2,
-     "gap50": 17,
-     "msMax": 6,
+     "ms50": 1,
+     "gap50": 16,
+     "msMax": 3,
      "gap95": 19
     }
    }
   ],
   "av_scenes": {
-   "signedMed": -0.051,
-   "n": 190,
-   "p90": 0.124,
+   "signedMed": -0.017,
+   "n": 172,
+   "p90": 0.077,
    "note": "audio minus film, s",
-   "med": 0.051,
-   "max": 0.522
+   "med": 0.017,
+   "max": 1.033
+  },
+  "sub_lines": {
+   "n": 101,
+   "max": 1,
+   "lines": [
+    101,
+    0,
+    0
+   ]
+  },
+  "currentTime_updates": {
+   "n": 400,
+   "p90": 12,
+   "med": 8,
+   "note": "ms between audio currentTime changes"
   },
   "errs_in_page": []
  }
