@@ -268,13 +268,22 @@ const DOC = {
     }
     return (this.cache[key] = { cv, w: W, h: H, mk });
   },
+  /* 投影预先画好一次（每帧实时模糊阴影在 Safari 上很贵） */
+  shadow(d, v) {
+    const k = Math.round(v * 10); if (d.sh && d.sh.k === k) return d.sh;
+    const dpr = Math.min(2, window.devicePixelRatio || 1), pad = Math.ceil(v * 4 / dpr * 1.6), cv = document.createElement('canvas');
+    cv.width = Math.ceil((d.w + pad * 2) * dpr); cv.height = Math.ceil((d.h + pad * 2) * dpr); const x = cv.getContext('2d');
+    x.shadowColor = 'rgba(0,0,0,.6)'; x.shadowBlur = v * 4; x.shadowOffsetX = cv.width; x.fillStyle = '#000'; x.fillRect(pad * dpr - cv.width, pad * dpr, d.w * dpr, d.h * dpr);  /* 方块画在画布外，只让它的影子落进来 */
+    return (d.sh = { cv, pad, oy: v * 1.6 / dpr, k });
+  },
   /* 画文献：R 中心放置，宽度 w，旋转 rot；hl: [{k:标记名, p:进度}] 荧光笔；返回 {map(x,y) 文献坐标→屏幕} */
   draw(S, x, kind, cx, cy, w, o = {}) {
     const d = this.get(kind, w); const a = o.a ?? 1; if (!d || a <= 0) return null;
     const rot = o.rot || 0, sc = o.sc || 1, cs = Math.cos(rot), sn = Math.sin(rot);
     const map = (px, py) => { const X = (px - d.w / 2) * sc, Y = (py - d.h / 2) * sc; return [cx + X * cs - Y * sn, cy + X * sn + Y * cs]; };
     x.save(); x.globalAlpha = a; x.translate(cx, cy); x.rotate(rot); x.scale(sc, sc);
-    x.shadowColor = 'rgba(0,0,0,.6)'; x.shadowBlur = S.v * 4; x.shadowOffsetY = S.v * 1.6; x.drawImage(d.cv, -d.w / 2, -d.h / 2, d.w, d.h); x.shadowColor = 'transparent';
+    const sh = this.shadow(d, S.v); x.drawImage(sh.cv, -d.w / 2 - sh.pad, -d.h / 2 - sh.pad + sh.oy, d.w + sh.pad * 2, d.h + sh.pad * 2);
+    x.drawImage(d.cv, -d.w / 2, -d.h / 2, d.w, d.h);
     for (const h of (o.hl || [])) { const m = d.mk[h.k]; if (!m || h.p <= 0) continue; x.fillStyle = h.c || 'rgba(69,227,255,.36)'; x.fillRect(m[0] - d.w / 2, m[1] - d.h / 2, m[2] * E.io3(clamp(h.p)), m[3]); }
     x.restore();
     return { map, d, box: k => { const m = d.mk[k]; if (!m) return null; const p1 = map(m[0], m[1]), p2 = map(m[0] + m[2], m[1] + m[3]); return { x: Math.min(p1[0], p2[0]), y: Math.min(p1[1], p2[1]), w: Math.abs(p2[0] - p1[0]), h: Math.abs(p2[1] - p1[1]), c: [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2], r: [Math.max(p1[0], p2[0]), (p1[1] + p2[1]) / 2], l: [Math.min(p1[0], p2[0]), (p1[1] + p2[1]) / 2] }; } };
@@ -289,12 +298,15 @@ const W3 = {
   grid(S, x, X, Y, w, shape, p, o = {}) {
     const C = S.k.c, n = o.n || 20, gap = w * .012, cell = (w - gap * (n + 1)) / n, a = o.a ?? 1; if (a <= 0) return;
     x.save(); x.globalAlpha = a; x.fillStyle = 'rgba(4,12,26,.75)'; x.fillRect(X, Y, w, w); x.strokeStyle = col(C.pri, .35); x.lineWidth = 1; x.strokeRect(X, Y, w, w);
-    const g = S.glow; g.save(); g.globalAlpha = a;
+    /* 按亮度分 16 档，每档一次填充（Safari 的画布每次绘制都有固定开销，400 格逐个画会掉帧） */
+    const B = 16, cells = Array.from({ length: B + 1 }, () => []), hot = Array.from({ length: B + 1 }, () => []);
     for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
-      const on = shape ? shape(i, j) : 0, q = clamp(p * (n + 6) - (i + j) * .5) , lit = on * q, cx = X + gap + i * (cell + gap), cy = Y + gap + j * (cell + gap);
-      x.fillStyle = lit > .05 ? col(C.pri, .25 + .75 * lit) : 'rgba(69,227,255,.07)'; x.fillRect(cx, cy, cell, cell);
-      if (lit > .3) { g.fillStyle = col(C.pri, lit * .8); g.fillRect(cx - 1, cy - 1, cell + 2, cell + 2); }
+      const on = shape ? shape(i, j) : 0, q = clamp(p * (n + 6) - (i + j) * .5), lit = on * q, cx = X + gap + i * (cell + gap), cy = Y + gap + j * (cell + gap);
+      const b = lit > .05 ? Math.max(1, Math.round(lit * B)) : 0; cells[b].push(cx, cy); if (lit > .3) hot[b].push(cx, cy);
     }
+    for (let b = 0; b <= B; b++) { const L = cells[b]; if (!L.length) continue; x.fillStyle = b ? col(C.pri, .25 + .75 * b / B) : 'rgba(69,227,255,.07)'; x.beginPath(); for (let k = 0; k < L.length; k += 2) x.rect(L[k], L[k + 1], cell, cell); x.fill(); }
+    const g = S.glow; g.save(); g.globalAlpha = a;
+    for (let b = 1; b <= B; b++) { const L = hot[b]; if (!L.length) continue; g.fillStyle = col(C.pri, b / B * .8); g.beginPath(); for (let k = 0; k < L.length; k += 2) g.rect(L[k] - 1, L[k + 1] - 1, cell + 2, cell + 2); g.fill(); }
     g.restore(); x.restore();
   },
   /* 柱状图：items [[标签, 值, 颜色]]；max 轴上限 */
@@ -330,11 +342,12 @@ const W3 = {
   },
   /* 雪 */
   snow(S, t, amt, seed = 5) {
-    if (amt <= 0) return; const x = S.near, { W, H: h, v } = S, r = rng(seed);
+    if (amt <= 0) return; const x = S.near, { W, H: h, v } = S, r = rng(seed), B = 6, bk = Array.from({ length: B }, () => []);
     for (let i = 0; i < 140; i++) {
       const s0 = r(), s1 = r(), s2 = r(), s3 = r(), y = ((s1 + t * (.025 + .05 * s2)) % 1) * h * 1.1 - h * .05, xx = (s0 + Math.sin(t * .6 + s3 * 6) * .015) * W, rr = (.5 + s2 * 1.8) * v * .13;
-      x.fillStyle = col('#e4f1ff', amt * (.25 + .55 * s2)); x.beginPath(); x.arc(xx, y, rr, 0, TAU); x.fill();
+      bk[Math.min(B - 1, Math.floor(s2 * B))].push(xx, y, rr);
     }
+    for (let b = 0; b < B; b++) { const L = bk[b]; if (!L.length) continue; x.fillStyle = col('#e4f1ff', amt * (.25 + .55 * (b + .5) / B)); x.beginPath(); for (let k = 0; k < L.length; k += 3) { x.moveTo(L[k] + L[k + 2], L[k + 1]); x.arc(L[k], L[k + 1], L[k + 2], 0, TAU); } x.fill(); }
   },
   /* 全息印章 */
   seal(S, x, cx, cy, r, s, p, o = {}) {
