@@ -65,7 +65,9 @@ class Film {
     return { i, lt };
   }
   layer(stage, sc, t) {
-    const F = this.F(sc), c = sc.code, self = this;
+    const F = this.F(sc), c = sc.code, self = this, S0 = stage.S;
+    /* 镜头函数在 begin() 之前调用：先把画面尺寸填好（第一帧、或刚改过窗口大小时，S.v 还没有或是旧的，抖动会算成 NaN） */
+    if (stage.W && (S0.W !== stage.W || S0.H !== stage.H)) { const P = stage.H > stage.W * 1.05; Object.assign(S0, { W: stage.W, H: stage.H, P, u: Math.min(stage.W, stage.H) / 100, v: P ? stage.W / 56 : stage.H / 100 }); }
     return {
       t, cam: c.camera ? c.camera(t, stage.S, F) : { z: 1 + .03 * E.ioS(clamp(t / sc.dur)) },
       draw(S) {

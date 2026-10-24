@@ -33,6 +33,8 @@ const Store = {
 };
 
 /* ---------- 声音：旁白（保留音调变速）、配乐（交叉淡入的循环 + 自动压低）、音效 ---------- */
+/* 全部音效（真实录音与电影音效，提前解码，卡点时不等加载） */
+const SFX_ALL = ['whoosh', 'rise', 'impact', 'hit', 'braam', 'tick', 'blip', 'correct', 'wrong', 'star', 'levelup', 'ding', 'phone', 'flash', 'shutter', 'snappers', 'crowd', 'applause', 'cards', 'relay', 'switch', 'motor', 'press', 'paper', 'wind', 'sea', 'sails', 'gulls', 'clock', 'gavel', 'stamp', 'plane', 'email', 'cash', 'data', 'scan', 'pencil', 'keyboard', 'gpu'];
 const AudioCtl = {
   ctx: null, buf: {}, moods: {}, mood: 'main', on: false, duck: 0,
   unlock() {
@@ -45,14 +47,26 @@ const AudioCtl = {
     }
     if (this.ctx) { try { const b = this.ctx.createBuffer(1, 1, 22050), s = this.ctx.createBufferSource(); s.buffer = b; s.connect(this.ctx.destination); s.start(0); } catch (e) { } if (this.ctx.state !== 'running') this.ctx.resume().catch(() => { }); }
   },
-  preload() { ['main', 'cold'].forEach(n => this.get('bgm/' + n + '.mp3')); ['whoosh', 'rise', 'impact', 'tick', 'blip', 'correct', 'wrong', 'star', 'levelup', 'ding'].forEach(n => this.get('sfx/' + n + '.mp3')); },
+  preload() { ['main', 'cold'].forEach(n => this.get('bgm/' + n + '.mp3')); SFX_ALL.forEach(n => this.get('sfx/' + n + '.mp3')); },
   get(u) {
     if (this.buf[u]) return this.buf[u];
     return (this.buf[u] = fetch(u).then(r => r.arrayBuffer()).then(a => new Promise((res, rej) => this.ctx.decodeAudioData(a, res, rej))).catch(() => null));
   },
-  async sfx(n, vol = 1) {
+  /* 音效：o.dur 长音效（环境声）到点淡出；o.film 影片里的音效，暂停或拖进度时一起停掉 */
+  live: [],
+  async sfx(n, vol = 1, o = {}) {
     if (!Store.d.set.sfx || !this.ctx) return; const b = await this.get('sfx/' + n + '.mp3'); if (!b) return;
-    const s = this.ctx.createBufferSource(); s.buffer = b; const g = this.ctx.createGain(); g.gain.value = vol; s.connect(g); g.connect(this.sGain); s.start();
+    if (o.film && !Player.playing) return;
+    const now = this.ctx.currentTime, s = this.ctx.createBufferSource(); s.buffer = b; const g = this.ctx.createGain(); g.gain.setValueAtTime(vol, now); s.connect(g); g.connect(this.sGain);
+    s.start(now);
+    if (o.dur && o.dur < b.duration) { const fo = Math.min(.6, o.dur * .3); g.gain.setValueAtTime(vol, now + o.dur - fo); g.gain.linearRampToValueAtTime(0, now + o.dur); s.stop(now + o.dur + .05); }
+    if (o.film) { const it = { s, g }; this.live.push(it); s.onended = () => { this.live = this.live.filter(q => q !== it); }; }
+  },
+  /* 停掉影片里正在响的音效（暂停、拖进度、退出时） */
+  stopFilm() {
+    if (!this.ctx) return; const now = this.ctx.currentTime;
+    for (const { s, g } of this.live) { try { g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value, now); g.gain.linearRampToValueAtTime(0, now + .12); s.stop(now + .15); } catch (e) { } }
+    this.live = [];
   },
   node(m) { if (!this.moods[m]) { const g = this.ctx.createGain(); g.gain.value = 0; g.connect(this.mGain); this.moods[m] = { g, cur: null, endAt: 0 }; } return this.moods[m]; },
   async loop(m) {
@@ -153,10 +167,10 @@ const Player = {
     if (this.quiz || !this.film) return; if (this.ended || this.g >= this.film.total - .05) { this.g = 0; this.ended = false; $('endOv').hidden = true; }
     this.playing = true; this.cueI = -1; $('stage').classList.add('playing'); $('stage').classList.remove('paused'); this.icon(); AudioCtl.on = true; AudioCtl.setMood(this.sceneMood()); AudioCtl.level(); this.wake();
   },
-  pause() { this.playing = false; $('vo').pause(); $('stage').classList.remove('playing', 'idle'); if ($('poster').hidden && !this.ended) $('stage').classList.add('paused'); this.icon(); AudioCtl.on = false; AudioCtl.level(); if (this.film && this.g > 5) { Store.L(this.id).pos = this.g; Store.L(this.id).posV = this.filmSig; Store.save(); } },
+  pause() { this.playing = false; $('vo').pause(); AudioCtl.stopFilm(); $('stage').classList.remove('playing', 'idle'); if ($('poster').hidden && !this.ended) $('stage').classList.add('paused'); this.icon(); AudioCtl.on = false; AudioCtl.level(); if (this.film && this.g > 5) { Store.L(this.id).pos = this.g; Store.L(this.id).posV = this.filmSig; Store.save(); } },
   toggle() { if (!$('poster').hidden) { this.start(this.resumeAt || 0); return; } this.playing ? this.pause() : this.play(); },
   icon() { $('icPlay').innerHTML = this.playing ? '<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>' : '<path d="M8 5v14l11-7z"/>'; },
-  seek(g) { this.g = clamp(g, 0, this.film.total); this.pg = this.g; this.cueI = -1; this.hold = 0; this.warm = {}; $('vo').pause(); this.ended = false; $('endOv').hidden = true; this.render(); this.updateUI(); },
+  seek(g) { this.g = clamp(g, 0, this.film.total); this.pg = this.g; this.cueI = -1; this.hold = 0; this.warm = {}; $('vo').pause(); AudioCtl.stopFilm(); this.ended = false; $('endOv').hidden = true; this.render(); this.updateUI(); },
   replay() { const c = this.film.cues, i = Math.max(0, this.film.cueAt(this.g)); const j = this.g - (c[i] ? c[i].g : 0) < .8 && i > 0 ? i - 1 : i; if (c[j]) this.seek(c[j].g - .05); if (!this.playing && $('poster').hidden) this.play(); },
   jumpCue(d) { const c = this.film.cues; let i = this.film.cueAt(this.g); i = clamp(i + d, 0, c.length - 1); this.seek(c[i].g - .05); },
   jumpScene(d) { const s = this.film.scenes; const i = clamp(this.film.sceneAt(this.g) + d, 0, s.length - 1); this.seek(s[i].start + .01); },
@@ -216,7 +230,8 @@ const Player = {
       for (const q of this.quizzes) if (!q.shown && this.pg < q.at && this.g >= q.at) { this.g = q.at; this.showQuiz(q); break; }
       // 音效
       for (const sc of F.scenes) {
-        for (const [tt, nm] of (sc.code.sfx || [])) { const g0 = sc.start + tt; if (this.pg < g0 && this.g >= g0) AudioCtl.sfx(nm, .8); }
+        if (sc.code.keys) sc.code.keys(F.F(sc));   /* 卡点音效的时刻从旁白算出来，先算好 */
+        for (const [tt, nm, vol, dur] of (sc.code.sfx || [])) { const g0 = sc.start + tt; if (this.pg < g0 && this.g >= g0 && this.g < g0 + .4) AudioCtl.sfx(nm, vol ?? .8, { dur: dur ? dur / Store.d.set.speed : 0, film: true }); }
         const tr = sc.code.tin, td = sc.code.tdur ?? .8, gw = sc.start - td * .6; if (sc.n > 0 && tr && tr.type !== 'fade' && this.pg < gw && this.g >= gw) AudioCtl.sfx('whoosh', .55);
       }
       if (this.g >= F.total) { this.g = F.total; this.finish(); }
