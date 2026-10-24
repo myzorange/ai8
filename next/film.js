@@ -63,7 +63,7 @@ class Film {
       draw(S) {
         if (c.draw) c.draw(t, S, F);
         if (!sc.intro && !sc.outro && c.hud !== false) {
-          H.head(S, t, c.tag || `LESSON_${String(self.lesson.id).padStart(2, '0')} // ${sc.i === 0 ? 'PROLOGUE' : (sc.name.startsWith('尾声') ? 'EPILOGUE' : 'ACT ' + String(sc.i).padStart(2, '0'))}`, sc.name.replace(/^第.幕 · |^尾声 · /, '') === sc.name ? sc.name : sc.name.split(' · ')[1], {});
+          H.head(S, t, c.tag || `LESSON_${String(self.lesson.id).padStart(2, '0')} // ${sc.i === 0 ? 'PROLOGUE' : (sc.name.startsWith('尾声') ? 'EPILOGUE' : 'ACT ' + String(sc.i).padStart(2, '0'))}`, sc.name.replace(/^第.{1,3}幕 · |^尾声 · |^序 · /, ''), {});
           if (c.year) H.year(S, t, c.year, c.yearO || {});
         }
       },

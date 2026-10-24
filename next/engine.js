@@ -327,7 +327,7 @@ const H = {
   /* 场景标题（左上） */
   head(S, t, tag, name, o = {}) {
     const x = S.hud, C = S.k.c, v = S.v, a1 = E.o3(seg(t, .15, .8)), a2 = E.o3(seg(t, .3, 1.1)), dy = (1 - a2) * v * 1.2;
-    const X = S.P ? S.W * .075 : S.W * .06, Y = S.P ? S.H * .068 : S.H * .1;
+    const X = S.P ? S.W * .075 : S.W * .06, Y = S.P ? S.H * .094 : S.H * .1;
     T(x, decode(tag, seg(t, .15, .9) * 1.3, 7), X, Y, { f: 'mono', size: v * 1.3, w: 500, c: C.pri, tr: .08, a: a1 * (o.a ?? 1) });
     const sz = v * (S.P ? 3.8 : 4.4), Y2 = Y + v * 3.6 + dy, oo = { f: 'smiley', size: sz, w: 400, a: a2 * .55 * (o.a ?? 1) };
     T(x, name, X - 1.5, Y2, { ...oo, c: C.acc }); T(x, name, X + 1.5, Y2, { ...oo, c: C.pri });
