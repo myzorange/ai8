@@ -35,13 +35,15 @@ const Store = {
 /* ---------- 声音：旁白（保留音调变速）、配乐（交叉淡入的循环 + 自动压低）、音效 ---------- */
 const AudioCtl = {
   ctx: null, buf: {}, moods: {}, mood: 'main', on: false, duck: 0,
-  async unlock() {
+  unlock() {
+    // 必须在点击的同一时刻同步执行（iOS 的要求）
+    const vo = $('vo'); if (!this._u) { this._u = 1; try { vo.src = SILENT; const p = vo.play(); if (p) p.then(() => vo.pause()).catch(() => { }); } catch (e) { } }
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { }
     if (!this.ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (AC) { this.ctx = new AC(); this.mGain = this.ctx.createGain(); this.mGain.gain.value = 0; this.mGain.connect(this.ctx.destination); this.sGain = this.ctx.createGain(); this.sGain.gain.value = .85; this.sGain.connect(this.ctx.destination); this.preload(); }
     }
-    if (this.ctx && this.ctx.state !== 'running') { try { await this.ctx.resume(); } catch (e) { } }
-    const vo = $('vo'); if (!this._u) { this._u = 1; try { vo.src = SILENT; const p = vo.play(); if (p) p.then(() => vo.pause()).catch(() => { }); } catch (e) { } }
+    if (this.ctx) { try { const b = this.ctx.createBuffer(1, 1, 22050), s = this.ctx.createBufferSource(); s.buffer = b; s.connect(this.ctx.destination); s.start(0); } catch (e) { } if (this.ctx.state !== 'running') this.ctx.resume().catch(() => { }); }
   },
   preload() { ['main', 'cold'].forEach(n => this.get('bgm/' + n + '.mp3')); ['whoosh', 'rise', 'impact', 'tick', 'blip', 'correct', 'wrong', 'star', 'levelup', 'ding'].forEach(n => this.get('sfx/' + n + '.mp3')); },
   get(u) {
@@ -401,11 +403,11 @@ const Router = {
   await loadFonts(); Router.route();
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('sw.js').then(reg => {
-      const ask = w => toast('有新版本了', '点此更新', () => { w.postMessage('skip'); });
+      const ask = w => toast('有新版本了', '点此更新', () => { window.__wantReload = true; w.postMessage('skip'); });
       if (reg.waiting && navigator.serviceWorker.controller) ask(reg.waiting);
       reg.addEventListener('updatefound', () => { const w = reg.installing; w && w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) ask(w); }); });
       setInterval(() => reg.update().catch(() => { }), 30 * 60 * 1000);
     }).catch(() => { });
-    let reloaded = false; navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloaded) return; reloaded = true; location.reload(); });
+    let reloaded = false; navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloaded || !window.__wantReload) return; reloaded = true; location.reload(); });
   }
 })();
