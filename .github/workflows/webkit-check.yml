@@ -20,6 +20,7 @@ jobs:
           python-version: '3.12'
       - run: pip install selenium==4.25.0 pillow==10.4.0
       - run: sudo safaridriver --enable
+      - run: mkdir -p out/safari && (sysctl -n machdep.cpu.brand_string; sysctl -n hw.ncpu; sysctl -n hw.memsize; sw_vers) > out/safari/runner.txt; cat out/safari/runner.txt
       - run: python ci/safari_check.py
       - if: always()
         uses: actions/upload-artifact@v4

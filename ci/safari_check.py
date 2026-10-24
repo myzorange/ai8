@@ -8,6 +8,7 @@ from jslib import HOOK, HOOKX, STATS, AV, CTU, SUBL, STATE, POSTER, SCENES, ENV,
 URL = os.environ.get('URL', 'https://myzorange.github.io/ai8/next/')
 OUT = 'out/safari'; os.makedirs(OUT, exist_ok=True)
 SUM = {}
+BENCH = "(() => { const c = document.createElement('canvas'); c.width = 900; c.height = 900; const x = c.getContext('2d'); const t = performance.now(); for (let i = 0; i < 6000; i++) { x.fillStyle = 'rgba(' + (i % 255) + ',120,220,.5)'; x.beginPath(); x.arc(i % 900, (i * 7) % 900, 24, 0, 6.283); x.fill(); } x.getImageData(0, 0, 1, 1); const t2 = performance.now(); let a = 0; for (let i = 0; i < 3e6; i++) a += Math.sin(i); return { canvas: +(t2 - t).toFixed(1), js: +(performance.now() - t2).toFixed(1) }; })()"
 MARKS = []
 d = webdriver.Safari()
 d.set_script_timeout(30)
@@ -84,6 +85,7 @@ def land():
     ev("(location.hash = '#/l/1', 1)")
     R['imgReadyS'] = wait_js("typeof Player !== 'undefined' && Player.imgReady === true", 150)
     time.sleep(.8); shot(name, 'poster', True); R['poster'] = ev(POSTER)
+    R['bench'] = [ev(BENCH) for _ in range(3)]
     R['hook'] = ev(HOOK); R['hookx'] = ev(HOOKX)
     click('#bBig'); nap(9); shot(name, 'play9s', True); R['play9s'] = ev(STATE)
     nap(30)
