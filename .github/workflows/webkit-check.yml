@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   safari:
+    if: ${{ !contains(github.event.head_commit.message, '[ab-perf]') }}
     runs-on: macos-15
     timeout-minutes: 30
     steps:
@@ -29,7 +30,7 @@ jobs:
           path: out/
           if-no-files-found: ignore
   webkit:
-    if: ${{ !contains(github.event.head_commit.message, '[safari-only]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[safari-only]') && !contains(github.event.head_commit.message, '[ab-perf]') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
@@ -50,7 +51,7 @@ jobs:
           path: out/
           if-no-files-found: ignore
   asr:
-    if: ${{ !contains(github.event.head_commit.message, '[safari-only]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[safari-only]') && !contains(github.event.head_commit.message, '[ab-perf]') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -66,8 +67,36 @@ jobs:
           name: asr
           path: out/
           if-no-files-found: ignore
+  abperf:
+    if: ${{ contains(github.event.head_commit.message, '[ab-perf]') }}
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install selenium==4.25.0 pillow==10.4.0 rangehttpserver==1.4.0
+      - run: sudo safaridriver --enable
+      - run: |
+          git fetch -q --depth=3 origin main
+          mkdir -p ab/a ab/b
+          git archive "$(cat ci/AB_A)" next | tar -x -C ab/a
+          git archive "$(cat ci/AB_B)" next | tar -x -C ab/b
+          grep -o 'VER="[^"]*"' ab/a/next/data.js ab/b/next/data.js
+          (cd ab/a/next && python -m RangeHTTPServer 8801 >/dev/null 2>&1 &)
+          (cd ab/b/next && python -m RangeHTTPServer 8802 >/dev/null 2>&1 &)
+          sleep 2; curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8801/index.html
+          mkdir -p out/abperf && (sysctl -n machdep.cpu.brand_string; sysctl -n hw.ncpu) > out/abperf/runner.txt
+          python ci/ab_perf.py A=http://localhost:8801/ B=http://localhost:8802/
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: abperf
+          path: out/
+          if-no-files-found: ignore
   publish:
-    needs: [safari, webkit, asr]
+    needs: [safari, webkit, asr, abperf]
     if: always()
     runs-on: ubuntu-24.04
     steps:
