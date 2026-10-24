@@ -21,7 +21,7 @@ const IMG = {
     const step = () => { done++; if (onp) onp(done / ids.length); };
     const work = ids.map(id => async () => {
       if (this.R[id] || !M[id]) { step(); return; }
-      const m = M[id], r = { w: m.w, h: m.h, g: m.g, fc: m.fc || [.5, .5] };
+      const m = M[id], r = { w: m.w, h: m.h, nw: m.nw, g: m.g, fc: m.fc || [.5, .5] };
       if (m.fg) { const [fg, bg] = await Promise.all([this.one(this.base + id + '_fg.webp' + q), this.one(this.base + id + '_bg.webp' + q)]); r.fg = fg; r.bg = bg; r.ok = !!(fg && bg); }
       else { r.im = await this.one(this.base + id + '.webp' + q); r.ok = !!r.im; }
       this.R[id] = r; step();
@@ -44,17 +44,28 @@ const _scr = rng(77), SCRATCH = Array.from({ length: 64 }, () => [_scr(), _scr()
 /* 照片。R={x,y,w,h}；o: p 推拉进度 0..1，z0/z1 缩放，f0/f1 焦点（图片坐标 0..1），depth 视差强度，
    a 透明度，r 圆角，rev 自上而下扫描显影 0..1，frame 全息边框，cred 署名，vig 暗角，scan 扫描光进度，contain 完整显示
    返回 { map(u,v) → 屏幕坐标 }，用来把标注钉在照片里的物体上 */
+/* 照片太窄、署名放不下时：先去掉"摄于某年 / 今日"这类说明，再把名字缩成首字母（完整署名在学习资料页） */
+function credFit(x, s, maxW, size) {
+  const tw = q => TW(x, q, { f: 'mono', size, w: 500 }); if (tw(s) <= maxW) return s;
+  let q = s.split(' · ').filter(p => !/摄于|今日|诺贝尔|藏品|版画|校舍/.test(p)).join(' · ') || s; if (tw(q) <= maxW) return q;
+  return q.split(' · ').map(p => /^\p{Lu}\p{Ll}+( \p{Lu}[\p{Ll}'-]+)+$/u.test(p) ? p.replace(/^(\p{Lu})\p{Ll}+/u, '$1.') : p).join(' · ');
+}
 function PH(S, x, id, R, o = {}) {
   const r = IMG.get(id), a = o.a ?? 1, C = S.k.c, v = S.v;
   if (!r || a <= 0.003 || R.w < 2 || R.h < 2) return null;
   const iw = r.w, ih = r.h, p = clamp(o.p ?? .5), e = (o.ease || E.ioS)(p);
   const z = lerp(o.z0 ?? 1.03, o.z1 ?? 1.12, e), f0 = o.f0 || [.5, .5], f1 = o.f1 || f0;
   const fx = lerp(f0[0], f1[0], e), fy = lerp(f0[1], f1[1], e);
-  const base = o.contain ? Math.min(R.w / iw, R.h / ih) : Math.max(R.w / iw, R.h / ih), s = base * z, vw = R.w / s, vh = R.h / s;
+  let base = o.contain ? Math.min(R.w / iw, R.h / ih) : Math.max(R.w / iw, R.h / ih);
+  if (r.nw && o.cap !== false && !(R.w >= S.W - 1 && R.h >= S.H - 1)) {   // 原图很小：按原始分辨率限制显示尺寸，宁可小一点也不糊
+    const up = base * Math.max(o.z0 ?? 1.03, o.z1 ?? 1.12) * (S.dpr || (S.stage && S.stage.dpr) || 1) * iw / r.nw, mx = o.maxUp || 1.8;
+    if (up > mx) { const f = mx / up; R = { x: R.x + R.w * (1 - f) / 2, y: R.y + R.h * (1 - f) / 2, w: R.w * f, h: R.h * f }; base *= f; }
+  }
+  const s = base * z, vw = R.w / s, vh = R.h / s;
   let sx = fx * iw - vw / 2, sy = fy * ih - vh / 2;
   sx = vw <= iw ? clamp(sx, 0, iw - vw) : (iw - vw) / 2; sy = vh <= ih ? clamp(sy, 0, ih - vh) : (ih - vh) / 2;
   const map = (u, w) => [R.x + (u * iw - sx) * s, R.y + (w * ih - sy) * s];
-  const rev = o.rev ?? 1; if (rev <= 0) return { map, s };
+  const rev = o.rev ?? 1; if (rev <= 0) return { map, s, R };
   const arch = r.g === 'arch' || r.g === 'archc' || r.g === 'doc';
   x.save();
   rrect(x, R.x, R.y, R.w, R.h * (rev < 1 ? E.io3(rev) : 1), o.r ?? v * .45); x.clip();
@@ -81,10 +92,14 @@ function PH(S, x, id, R, o = {}) {
     g.addColorStop(0, 'rgba(120,240,255,0)'); g.addColorStop(.5, 'rgba(170,250,255,.28)'); g.addColorStop(1, 'rgba(120,240,255,0)');
     x.globalCompositeOperation = 'lighter'; x.fillStyle = g; x.fillRect(R.x, R.y, R.w, R.h); x.globalCompositeOperation = 'source-over';
   }
-  if (o.cred) {
+  if (o.cred && o.credY) {                                  // 全屏照片：署名放在字幕上方、避开刘海
+    const f = fsz(v * .95), cx0 = R.x + Math.max(v * 1.1, S.W * .055), cr = credFit(x, o.cred, R.w - cx0 * 2, v * .95), tw = TW(x, cr, { f: 'mono', size: v * .95, w: 500 });
+    x.fillStyle = 'rgba(0,0,8,.5)'; x.fillRect(cx0 - f * .45, o.credY - f * .85, tw + f * .9, f * 1.7);
+    T(x, cr, cx0, o.credY, { f: 'mono', size: v * .95, w: 500, c: '#dfeaf6', a: a * .9 });
+  } else if (o.cred) {
     const g = x.createLinearGradient(0, R.y + R.h - v * 4.5, 0, R.y + R.h); g.addColorStop(0, 'rgba(0,0,8,0)'); g.addColorStop(1, 'rgba(0,0,8,.62)');
     x.fillStyle = g; x.fillRect(R.x, R.y + R.h - v * 4.5, R.w, v * 4.5);
-    T(x, o.cred, R.x + v * 1.1, R.y + R.h - v * 1.3, { f: 'mono', size: v * .95, w: 500, c: '#dfeaf6', a: a * .85 });
+    T(x, credFit(x, o.cred, R.w - v * 2.2, v * .95), R.x + v * 1.1, R.y + R.h - v * 1.3, { f: 'mono', size: v * .95, w: 500, c: '#dfeaf6', a: a * .85 });
   }
   x.restore();
   if (rev < 1) {                                           // 显影扫描线
@@ -92,7 +107,7 @@ function PH(S, x, id, R, o = {}) {
     const gx = S.glow; gx.save(); gx.globalAlpha = a; gx.fillStyle = col(C.pri, 1); gx.fillRect(R.x, yy - v * .5, R.w, v); gx.restore(); S.stack && (S.stack.dirty.glow = 1);
   }
   if (o.frame) BRK(S, x, R.x - v * .7, R.y - v * .7, R.w + v * 1.4, R.h + v * 1.4, o.frame === true ? 1 : o.frame, { a, c: o.fc });
-  return { map, s };
+  return { map, s, R };
 }
 /* 全息框角 */
 function BRK(S, x, X, Y, w, h, p, o = {}) {

@@ -25,7 +25,7 @@ const L1X = (() => {
     return PH(S, o.x || S.mid, id, R, Object.assign({ a, p, frame: o.frame ?? SG(p * 8, 0, 1), cred: o.cred === false ? '' : (o.cred || CR[id]) }, o));
   }
   /* 全屏照片（纪录片式空镜） */
-  function fullPhoto(S, a, id, p, o = {}) { return PH(S, S.mid, id, full(S), Object.assign({ a, p, r: 0, vig: .7, cred: o.cred === false ? '' : (o.cred || CR[id]) }, o)); }
+  function fullPhoto(S, a, id, p, o = {}) { return PH(S, S.mid, id, full(S), Object.assign({ a, p, r: 0, vig: .7, credY: S.H * (S.P ? .8 : .78), cred: o.cred === false ? '' : (o.cred || CR[id]) }, o)); }
   /* 闪光（相机闪光灯） */
   function flash(S, t, t0, a = .8) { if (t < t0 || t > t0 + .6) return; const q = Math.exp(-(t - t0) * 9) * a; const x = S.hud; x.save(); x.fillStyle = col('#ffffff', q); x.fillRect(0, 0, S.W, S.H); x.restore(); }
   /* 侧栏里第 i 个标签的位置 */
@@ -210,7 +210,8 @@ L1S.push({
         const m = X.photo(S, a * (1 - .85 * fo), 'A22', seg(t, tH, F.dur), { R: P ? G.main : { x: W * .055, y: h * .17, w: W * .4, h: h * .65 }, z0: 1.02, z1: 1.14, f0: [.5, .42], depth: .9 });
         if (m) CO(S, x, m.map(.5, .3), P ? [W * .94, G.main.y + G.main.h + coH(S) * .5 + v * 1.2] : [W * .5, h * .26], X.SG(t, tH + .3, tH + 1.3) * a * (1 - X.SG(t, t4 - .4, t4)), '杰弗里·辛顿', 'GEOFFREY HINTON · 1947', { side: P ? -1 : 1 });
         const tr = F.kw(3, '诞生'), p66 = seg(t, tr - .2, tr + 1.4), yr = Math.round(lerp(2024, 1958, E.io3(p66)));
-        const X1 = lerp(P ? W * .1 : W * .5, W * .14, fo), X2 = lerp(P ? W * .9 : W * .93, W * .86, fo), Yt = lerp(P ? h * .68 : h * .5, P ? h * .62 : h * .66, fo);
+        const yP = Math.max(h * .68, G.main.y + G.main.h + coH(S) + v * 9 + fsz(v * 5) * .5);   /* 矮竖屏：大年份压在人名标签下面，整体往下让 */
+        const X1 = lerp(P ? W * .1 : W * .5, W * .14, fo), X2 = lerp(P ? W * .9 : W * .93, W * .86, fo), Yt = lerp(P ? yP : h * .5, P ? h * .62 : h * .66, fo);
         if (t > tr - .4) {
           const ta = X.SG(t, tr - .4, tr) * a;
           X.timeline(S, x, X1, X2, Yt, [[1958, '感知机', C.pri], [2024, '诺贝尔奖', C.acc]], 1, { a: ta });
@@ -399,12 +400,14 @@ L1S.push({
     const X = L1X, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid; H.bg(S, t, { hue: 'gold', neb: .8 });
     STAMP(S, t, .4, '1958.07.08 · THE NEW YORK TIMES', '《纽约时报》第二天的报道');
     const fly = E.o3(seg(t, .15, 1.1)), k1 = F.cue(1), k2 = F.cue(2);
-    const pw = P ? W * .6 : shortLand(S) ? Math.min(W * .34, h * .56) : W * .34, cx = P ? W * .5 : W * .27, cy = P ? h * .37 : h * .55;
-    const zq = X.SG(t, F.kw(0, '登出') - .2, F.kw(0, '登出') + .6) * (1 - X.SG(t, k1 - .3, k1 + .5)), sc = lerp(1, P ? 1.1 : 1.12, zq);
-    const D = DOC.draw(S, x, 'nyt', cx + (1 - fly) * W * .1, cy + (1 - fly) * h * .6 + zq * (P ? h * .02 : h * .04), pw, { rot: lerp(.35, -.04, fly), sc, a: clamp(fly * 2),
+    /* 竖屏：时间戳 → 复原示意标签 → 报纸 → 下方标注，自上而下排开，矮屏时报纸自动缩小 */
+    const rph = fsz(v * 1.15) * 1.85, recY = G.top + rph / 2 + v * .4, ptop = recY + rph / 2 + v * 1.2;
+    const lTop = h * .19 + rph / 2 + v * .9, pw = P ? Math.min(W * .6, (G.side.y + v * 3 - ptop) / 1.375) : shortLand(S) ? Math.min(W * .34, (h * .8 - lTop) / 1.3) : W * .34, cx = P ? W * .5 : W * .27, cy = P ? ptop + pw * .625 : shortLand(S) ? lTop + pw * .625 : h * .55;
+    const zq = X.SG(t, F.kw(0, '登出') - .2, F.kw(0, '登出') + .6) * (1 - X.SG(t, k1 - .3, k1 + .5)), sc = lerp(1, P ? 1.1 : shortLand(S) ? 1.04 : 1.12, zq);
+    const D = DOC.draw(S, x, 'nyt', cx + (1 - fly) * W * .1, cy + (1 - fly) * h * .6 + zq * (P ? h * .02 : shortLand(S) ? 0 : h * .04), pw, { rot: lerp(.35, -.04, fly), sc, a: clamp(fly * 2),
       hl: [{ k: 'q', p: seg(t, F.kw(1, '走路') - .3, F.kw(1, '存在') + .3) }, { k: 'cost', p: seg(t, k2 + .3, k2 + 1.6), c: 'rgba(255,200,107,.45)' }] });
     if (!D) return;
-    RECON(S, S.hud, P ? W * .06 : W * .055, P ? h * .2 + v * 3 : h * .19, X.SG(t, .9, 1.4), '复原示意 · 标题与引文为原文');
+    RECON(S, S.hud, P ? cx - pw / 2 : W * .055, P ? recY : h * .19, X.SG(t, .9, 1.4), '复原示意 · 标题与引文为原文');
     const hb = D.box('head'); if (hb) BOX(S, x, hb.x - v * .6, hb.y - v * .4, hb.w + v * 1.2, hb.h + v * .8, X.SG(t, F.kw(0, '标题') - .3, F.kw(0, '标题') + .5) * (1 - X.SG(t, k1 - .2, k1 + .3)));
     if (hb) CO(S, x, hb.r, P ? [W * .52, G.side.y + v * 1] : [W * .55, h * .3], X.SG(t, F.kw(0, '标题'), F.kw(0, '标题') + 1) * (1 - X.SG(t, k1 - .2, k1 + .3)), '海军新装置，边做边学', 'NEW NAVY DEVICE LEARNS BY DOING', { side: P ? -1 : 1, size: v * (P ? 1.9 : 2.5) });
     const qb = D.box('q'), q1 = X.SG(t, k1 - .1, k1 + .6) * (1 - X.SG(t, k2 - .2, k2 + .3));
@@ -453,7 +456,7 @@ L1S.push({
         BOX(S, x, bm[0][0], bm[0][1], bm[1][0] - bm[0][0], bm[1][1] - bm[0][1], X.SG(t, F.kw(0, 'Mark') + .3, F.kw(0, 'Mark') + 1.1) * a, { c: C.acc });
         CO(S, x, [bc[1][0], (bc[0][1] + bc[1][1]) / 2], X.sideB(S, 0, 2), X.SG(t, F.kw(0, 'Mark'), F.kw(0, 'Mark') + 1) * (1 - push) * a, '字母卡片「C」', 'STIMULUS CARD');
         CO(S, x, [bm[1][0], (bm[0][1] + bm[1][1]) / 2], X.sideB(S, P ? 0 : 0, 2, { dx: 0 }), X.SG(t, k1 - .1, k1 + .7) * a, '摄像头 = 它的“眼睛”', 'S-UNITS · 400 PHOTOCELLS', { c: C.acc });
-        const gs = P ? W * .5 : G.side.w * .82, gx = P ? W * .25 : G.side.x, gy = P ? G.side.y + v * 8 : G.side.y + G.side.h * .28;
+        const gy = P ? G.side.y + v * 3.2 + coH(S) * .5 + v * 1.4 : G.side.y + G.side.h * .28, gs = P ? Math.min(W * .5, G.bot - gy - v * 3.4) : Math.min(G.side.w * .82, G.bot - gy - v * 3.6), gx = P ? W / 2 - gs / 2 : G.side.x;   /* 方阵和下面的标签都要在字幕上方 */
         const ga = X.SG(t, F.kw(1, '400') - .3, F.kw(1, '400') + .3) * a;
         if (ga > 0) { W3.grid(S, x, gx, gy, gs, C_SHAPE, seg(t, F.kw(1, '400'), F.kw(1, '方阵') + .4), { a: ga }); TAG(S, S.hud, '400 PHOTOCELLS · 20 × 20', gx, gy + gs + v * 2, ga, { size: v * 1.15 }); }
       }],
@@ -465,8 +468,8 @@ L1S.push({
         const lab = [[.62, .9, '插线板：随机接线', 'S→A PLUGBOARD', 0], [.86, .78, '联想单元', '512 ASSOCIATION UNITS', 1], [.84, .14, '响应面板', 'RESPONSE PANEL', 2]];
         const naP = P ? X.SG(t, F.kw(2, '512') - .2, F.kw(2, '512') + .3) : 0;   /* 竖屏：网络图出来时标签让位 */
         lab.forEach(([u, w, a1, b1, i]) => CO(S, x, m.map(u, w), P ? X.sideB(S, i, 3, { cols: 1 }) : [W * .58, h * .25 + i * Math.max(h * .09, coH(S) + v * 1.2)], X.SG(t, k2 + .5 + i * .45, k2 + 1.3 + i * .45) * a * (1 - z) * (1 - naP), a1, b1, { ph: i * .3 }));
-        const NR = P ? { x: W * .07, y: G.side.y + v * 1, w: W * .86, h: G.side.h - v * 2 } : { x: W * .57, y: h * .52, w: W * .38, h: h * .28 };
-        const na = X.SG(t, F.kw(2, '512') - .2, F.kw(2, '512') + .5) * a * (P ? (1 - X.SG(t, k2 + .5, k2 + .6) * 0) : 1);
+        const NR = P ? { x: W * .07, y: G.side.y + v * 1, w: W * .86, h: G.side.h - v * 2 } : { x: W * .57, y: shortLand(S) ? h * .47 : h * .52, w: W * .38, h: shortLand(S) ? h * .25 : h * .28 };
+        const na = X.SG(t, F.kw(2, '512') - .2, F.kw(2, '512') + .5) * a * (P ? 1 - .75 * X.SG(t, k3, k3 + .5) : 1);   /* 竖屏：旋钮出来时网络退后 */
         if (na > 0 && !(P && z < .01 && t < F.kw(2, '512') - .2)) {
           const cols = [6, 9, 3], r = rng(512), pts = cols.map((n, i) => Array.from({ length: n }, (_, j) => [NR.x + NR.w * (.08 + .84 * i / 2), NR.y + NR.h * ((j + .5) / n)]));
           const wp = X.SG(t, F.kw(2, '随机') - .3, F.kw(2, '相连') + .4);
@@ -479,21 +482,22 @@ L1S.push({
         }
         const pa = X.SG(t, k3, k3 + .5) * a;
         if (pa > 0) {
-          const kx = P ? W * .3 : W * .66, ky = P ? h * .66 : h * .4, kr = v * (P ? 4 : 5), ang = Math.sin(t * 2.4) * 1.6;
+          const kr = v * (P ? 3.6 : 5), mo = kr * (P ? 2.8 : 2.2), kx = P ? W / 2 - mo / 2 : W * .66, ky = P ? G.side.y + G.side.h * .42 : h * .4, ang = Math.sin(t * 2.4) * 1.6;
           x.save(); x.globalAlpha = pa; x.beginPath(); x.arc(kx, ky, kr, 0, TAU); x.fillStyle = 'rgba(10,20,40,.9)'; x.fill(); x.strokeStyle = col(C.pri, .8); x.lineWidth = 1.5; x.stroke();
           x.strokeStyle = col(C.priHi, 1); x.lineWidth = v * .4; x.beginPath(); x.moveTo(kx, ky); x.lineTo(kx + Math.cos(ang - Math.PI / 2) * kr * .8, ky + Math.sin(ang - Math.PI / 2) * kr * .8); x.stroke();
-          for (let i = 0; i < 12; i++) { const aa = i / 12 * TAU + t * 1.6; x.fillStyle = col(C.gold, .9); x.fillRect(kx + kr * 2.2 + Math.cos(aa) * kr * .7 - 1.5, ky + Math.sin(aa) * kr * .7 - 1.5, 3, 3); }
-          x.beginPath(); x.arc(kx + kr * 2.2, ky, kr * .55, 0, TAU); x.strokeStyle = col(C.gold, .8); x.stroke(); x.restore();
+          for (let i = 0; i < 12; i++) { const aa = i / 12 * TAU + t * 1.6; x.fillStyle = col(C.gold, .9); x.fillRect(kx + mo + Math.cos(aa) * kr * .7 - 1.5, ky + Math.sin(aa) * kr * .7 - 1.5, 3, 3); }
+          x.beginPath(); x.arc(kx + mo, ky, kr * .55, 0, TAU); x.strokeStyle = col(C.gold, .8); x.stroke(); x.restore();
           T(S.hud, '电位器 = 记忆', kx, ky + kr + v * 2, { f: 'sans', size: v * 1.6, w: 700, c: C.ink, al: 'center', a: pa });
-          T(S.hud, '小电机', kx + kr * 2.2, ky + kr + v * 2, { f: 'sans', size: v * 1.4, w: 500, c: C.gold, al: 'center', a: pa });
+          T(S.hud, '小电机', kx + mo + kr * .85 + v * .8, ky, { f: 'sans', size: v * 1.4, w: 500, c: C.gold, al: 'left', a: pa });
           T(S.hud, 'w = ' + (.42 + .15 * (.5 + .5 * Math.sin(t * 2.4))).toFixed(2), kx, ky - kr - v * 1.6, { f: 'mono', size: v * 1.4, w: 500, c: C.priHi, al: 'center', a: pa });
         }
       }],
       [k4, F.dur, (a) => {
-        const m = X.photo(S, a, 'A02', seg(t, k4, F.dur), { z0: 1.06, z1: 1.12, f0: [.4, .5], depth: .7 });
+        const PR = P ? { x: G.main.x, y: G.main.y, w: G.main.w, h: G.main.h * .62 } : null;   /* 竖屏：照片压成一条，给方阵和引语留位 */
+        const m = X.photo(S, a, 'A02', seg(t, k4, F.dur), { R: PR || undefined, z0: 1.06, z1: 1.12, f0: [.4, .5], depth: .7 });
         const L = ['A', 'B', 'C'], tl = F.kw(4, '认字母'), li = Math.min(2, Math.floor(clamp((t - tl + .3) / 1.1) * 3));
-        const qs = v * (P ? 1.8 : 2), qh = fsz(qs) * 1.5 + v * 2 * 2.4 + v * 2.6, gx = P ? W * .08 : G.side.x, gy = P ? G.side.y + v * 2 : G.side.y + G.side.h * .12;
-        const gs = P ? W * .42 : Math.min(G.side.w * .62, G.side.y + G.side.h - qh - v * 4.6 - gy);   /* 横屏：方阵下面要留出引语卡的位置 */
+        const qs = v * (P ? 1.8 : 2), qh = fsz(qs) * 1.5 + v * 2 * 2.4 + v * 2.6, gx = P ? W * .08 : G.side.x, gy = P ? PR.y + PR.h + v * 2.2 : G.side.y + G.side.h * .12;
+        const gs = P ? Math.min(W * .42, G.bot - gy - qh - v * 6.1) : Math.min(G.side.w * .62, G.side.y + G.side.h - qh - v * 4.6 - gy);   /* 横屏：方阵下面要留出引语卡的位置 */
         const ga = X.SG(t, k4 + .3, k4 + .9) * a;
         if (ga > 0) {
           W3.grid(S, x, gx, gy, gs, X.letter(L[Math.max(0, li)]), t > tl - .3 ? 1 : seg(t, k4 + .3, k4 + 1.2), { a: ga });
@@ -501,7 +505,7 @@ L1S.push({
           T(S.hud, '8 个输出', gx + gs + v * 4, gy + gs + v * 2, { f: 'sans', size: v * 1.25, w: 500, c: C.mute, al: 'center', a: ga });
         }
         const qa = X.SG(t, k4 + 1.2, k4 + 1.9) * a;
-        if (qa > 0) QUOTE(S, S.hud, P ? { x: W * .07, y: G.side.y + gs + v * 6, w: W * .86 } : { x: G.side.x, y: gy + gs + v * 4.6, w: G.side.w }, '海军发布：能识别{字母}的实验机器', '档案照片原始说明 · 美国海军', qa, { c: C.pri, size: qs });
+        if (qa > 0) QUOTE(S, S.hud, P ? { x: W * .07, y: gy + gs + v * 4.6, w: W * .86 } : { x: G.side.x, y: gy + gs + v * 4.6, w: G.side.w }, '海军发布：能识别{字母}的实验机器', '档案照片原始说明 · 美国海军', qa, { c: C.pri, size: qs });
       }],
     ]);
   },

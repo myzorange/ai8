@@ -81,19 +81,19 @@ L1S.push({
         if (!P) T(S.hud, '《感知机》', bx, by - bw * .71 - v * 2.4, { f: 'smiley', size: v * 3.4, c: C.ink, al: 'center', a: X.SG(t, F.kw(1, '书名') - .2, F.kw(1, '书名') + .4) * a, sh: { c: C.pri, a: .5 } });
       }],
       [k2, k3, (a) => {
-        const R = P ? { x: W * .1, y: h * .24, w: W * .8, h: W * .8 } : { x: W * .1, y: h * .22, w: h * .56, h: h * .56 }, r = rng(4);
+        const s2 = Math.min(W * .8, G.bot - h * .24 - v * 17 - fsz(v * 1.8)), R = P ? { x: W / 2 - s2 / 2, y: h * .24, w: s2, h: s2 } : { x: W * .1, y: h * .22, w: h * (shortLand(S) ? .51 : .56), h: h * (shortLand(S) ? .51 : .56) }, r = rng(4);   /* 竖屏矮屏：图缩小，下面的公式和标签不进字幕区 */
         x.save(); x.globalAlpha = a; x.fillStyle = 'rgba(4,12,26,.6)'; x.fillRect(R.x, R.y, R.w, R.h); x.strokeStyle = col(C.mute, .4); x.strokeRect(R.x, R.y, R.w, R.h); x.restore();
         for (let i = 0; i < 26; i++) { const g1 = i % 2, u = g1 ? .62 + r() * .3 : .08 + r() * .3, w = g1 ? .55 + r() * .38 : .08 + r() * .38; H.node(S, R.x + u * R.w, R.y + (1 - w) * R.h, v * .8, { lit: 1, c: g1 ? C.acc : C.pri, a: a * X.SG(t, k2 + i * .03, k2 + .4 + i * .03) }); }
         const lp = X.SG(t, F.kw(2, '一条直线') - .3, F.kw(2, '一条直线') + .5); if (lp > 0) { x.save(); x.globalAlpha = a; x.beginPath(); x.rect(R.x, R.y, R.w, R.h); x.clip(); x.strokeStyle = col(C.gold, .95); x.lineWidth = v * .3; x.beginPath(); x.moveTo(R.x + R.w * lerp(.2, .05, lp), R.y + R.h * 1.05); x.lineTo(R.x + R.w * lerp(.8, .98, lp), R.y - R.h * .05); x.stroke(); x.restore(); }
         TAG(S, S.hud, '线性可分 · LINEAR SEPARABILITY', R.x, R.y + R.h + v * 2.2, lp * a, { size: v * 1.2 });
-        const fx = P ? W / 2 : W * .7, fy = P ? h * .24 + W * .8 + v * 8 : h * .38;
+        const fx = P ? W / 2 : W * .7, fy = P ? R.y + R.h + v * 8 : h * .38;
         T(S.hud, 'w₁x₁ + w₂x₂ > θ', fx, fy, { f: 'interd', size: v * (P ? 2.6 : 3.4), w: 700, c: C.ink, al: 'center', a: X.SG(t, k2 + .2, k2 + .8) * a, sh: { c: C.pri, a: .5 } });
         T(S.hud, '单层感知机 = 只能画一条直线', fx, fy + v * (P ? 4 : 5), { f: 'sans', size: v * (P ? 1.7 : 2), w: 500, c: C.mute, al: 'center', a: X.SG(t, k2 + .5, k2 + 1.1) * a });
         const ya = X.SG(t, F.kw(2, '永远') - .3, F.kw(2, '永远') + .3) * a;
         if (ya > 0) H.chip(S, S.hud, '有些简单问题，永远学不会', fx, fy + v * (P ? 9 : 11), { size: v * (P ? 1.8 : 2.2), hot: true, a: ya, al: 'center' });
       }],
       [k3, F.dur, (a) => {
-        const R = P ? { x: W * .12, y: h * .245, w: W * .76, h: W * .76 } : { x: W * .1, y: h * .2, w: h * .58, h: h * .58 };
+        const s3 = Math.min(W * .76, G.bot - h * .245 - v * 5 - v * 3 * 5.2 - v * 3.4), R = P ? { x: W / 2 - s3 / 2, y: h * .245, w: s3, h: s3 } : { x: W * .1, y: h * .2, w: h * .58, h: h * .58 };
         const tl = F.kw(3, '一条直线'), tries = [[-.6, -.4, [0]], [.9, .6, [2]], [-1.2, .1, [3]]], ti = Math.min(2, Math.max(0, Math.floor((t - tl) / .7)));
         const ln = t > tl - .2 ? tries[ti] : null, k4t = F.kw(4, '判决');
         X.xorPlot(S, x, R, { line: ln && t < k4t + .2 ? { ang: ln[0], off: ln[1] } : null, bad: ln && t < k4t + .2 ? ln[2] : [], la: X.SG(t, tl - .2, tl + .1) }, a);
@@ -107,7 +107,7 @@ L1S.push({
         const sa = X.SG(t, k4t - .1, k4t + .25);
         if (sa > 0) W3.seal(S, S.hud, R.x + R.w / 2, R.y + R.h / 2, v * (P ? 6 : 7.5), '此路不通', sa, { a });
         if (t > k4) { const cw = X.SG(t, k4t, k4t + 1.2); S.hud.save(); S.hud.fillStyle = col('#9cc4ff', .07 * cw); S.hud.fillRect(0, 0, W, h); S.hud.restore(); W3.snow(S, t, .8 * X.SG(t, k4t, k4t + 1.5)); }
-        TAG(S, S.hud, '同年 · 明斯基获 1969 年度图灵奖', P ? W / 2 : W * .75, P ? G.side.y + G.side.h - v * 2 : h * .74, X.SG(t, k4t + .8, k4t + 1.4) * a, { al: 'center', size: v * 1.15, c: C.mute });
+        TAG(S, S.hud, '同年 · 明斯基获 1969 年度图灵奖', P ? W / 2 : W * .75, P ? R.y + R.h + v * 5 + v * 3 * 5.2 + v * 2 : h * .74, X.SG(t, k4t + .8, k4t + 1.4) * a, { al: 'center', size: v * 1.15, c: C.mute });
       }],
     ]);
   },
@@ -206,15 +206,15 @@ L1S.push({
       [k1, k2, (a) => {
         const m = X.photo(S, a, 'A24', seg(t, k1, k2 + .4), { R: P ? G.main : { x: W * .055, y: h * .17, w: W * .3, h: h * .64 }, z0: 1.02, z1: 1.1, f0: [.5, .35], depth: .8 });
         if (m) CO(S, x, m.map(.5, .3), P ? [W * .55, G.main.y + G.main.h + coH(S) * .5 + v * 1.2] : [W * .4, h * .26], X.SG(t, k1 + .3, k1 + 1.1) * a, '乔治·布尔', 'GEORGE BOOLE · 1815–1864 · 布尔逻辑', { side: 1 });
-        const fx = P ? W * .5 : W * .66, fy = P ? h * .67 : h * .45, fa = X.SG(t, F.kw(1, '高祖父') - .3, F.kw(1, '高祖父') + .4) * a, g0 = v * (P ? 6 : 10), gs = v * (P ? 3 : 5);   /* 竖屏：家谱整体下移，给照片标签留位 */
+        const g0 = v * (P ? 6 : 10), gs = v * (P ? 3 : 5), fx = P ? W * .5 : W * .66, fy = P ? Math.max(h * .67, G.main.y + G.main.h + coH(S) + v * 2.4 + fsz(v * 1.7) * .9 + g0) : h * .45, fa = X.SG(t, F.kw(1, '高祖父') - .3, F.kw(1, '高祖父') + .4) * a;   /* 竖屏：家谱整体下移，给照片标签留位 */
         if (fa > 0) {
           const gens = ['乔治·布尔', '·', '·', '·', '杰弗里·辛顿'];
           gens.forEach((g, i) => { const yy = fy - g0 + i * gs, on = X.SG(t, F.kw(1, '高祖父') + i * .15, F.kw(1, '高祖父') + .4 + i * .15) * fa; if (g === '·') { H.node(S, fx, yy, v * .35, { lit: .5, a: on }); return; } H.chip(S, x, g, fx, yy, { size: v * 1.7, al: 'center', a: on, hot: i === 4 }); });
-          const lastY = fy - g0 + 4 * gs, tagY = Math.max(fy + v * (P ? 11 : 13.5), lastY + fsz(v * 1.7) * .95 + fsz(v * 1.25) * .93 + v * .8);
+          const lastY = fy - g0 + 4 * gs, tagY = Math.max(P ? 0 : fy + v * 13.5, lastY + fsz(v * 1.7) * .95 + fsz(v * 1.25) * .93 + v * (P ? 1.6 : .8));
           TAG(S, S.hud, '高祖父 → 玄孙', fx, tagY, fa, { al: 'center', f: 'sans', size: v * 1.25, c: C.gold });
         }
         const ba = X.SG(t, F.kw(1, '布尔逻辑') - .2, F.kw(1, '布尔逻辑') + .5) * a, r = rng(11);
-        if (ba > 0 && !P) ['AND', 'OR', 'NOT', '0', '1'].forEach((s, i) => { const px = P ? W * (.12 + i * .19) : W * (.46 + i * .1), py = P ? h * .76 : h * .8; T(S.hud, s, px, py + Math.sin(t + i) * v, { f: 'mono', size: v * (1.2 + r() * 1.2), w: 500, c: i % 3 ? C.pri : C.gold, al: 'center', a: ba * .55 }); });
+        if (ba > 0 && !P) ['AND', 'OR', 'NOT', '0', '1'].forEach((s, i) => { const px = P ? W * (.12 + i * .19) : W * (.46 + i * .1), py = P ? h * .76 : shortLand(S) ? h * .73 : h * .8; T(S.hud, s, px, py + Math.sin(t + i) * v, { f: 'mono', size: v * (1.2 + r() * 1.2), w: 500, c: i % 3 ? C.pri : C.gold, al: 'center', a: ba * .55 }); });
       }],
       [k2, k3, (a) => {
         X.photo(S, a, 'A39', seg(t, k2, k3 + .4), { R: P ? G.main : G.wide, z0: 1.04, z1: 1.12, f0: [.42, .5], f1: [.58, .48] });
@@ -259,14 +259,15 @@ L1S.push({
     else if (t > k4) STAMP(S, t, k4 + .2, '1987 · TORONTO', '多伦多');
     shots(t, [
       [0, k1, (a) => {
-        const top0 = headGeo(S).bottom + v * 1.5, pw = P ? W * .56 : Math.min(W * .34, (h * .93 - top0) / 1.3), cx = P ? W * .5 : W * .25, cy = P ? h * .39 : top0 + pw * .65;   /* 横屏：论文页从标题下方开始，不压标题 */
+        const top0 = headGeo(S).bottom + v * 1.5, rph = fsz(v * 1.15) * 1.85, recY = G.top + rph / 2 + v * .4, ptop = recY + rph / 2 + v * 1.2;   /* 竖屏：时间戳 → 复原示意 → 论文，自上而下 */
+        const pw = P ? Math.min(W * .56, (G.side.y + v * 4 - ptop) / 1.3) : Math.min(W * .34, ((shortLand(S) ? h * .8 : h * .93) - top0) / 1.3), cx = P ? W * .5 : W * .25, cy = P ? ptop + pw * .65 : top0 + pw * .65;   /* 横屏：论文页从标题下方开始，不压标题 */
         const D = DOC.draw(S, x, 'nature', cx, cy, pw, { rot: lerp(.1, -.03, X.SG(t, 0, .9)), a: X.SG(t, 0, .6) * a, hl: [{ k: 'title', p: seg(t, F.kw(0, '反向传播') - .4, F.kw(0, '反向传播') + .5) }, { k: 'auth', p: seg(t, F.kw(0, '鲁梅尔哈特') - .3, F.kw(0, '鲁梅尔哈特') + .5), c: 'rgba(255,200,107,.4)' }] });
-        if (!D) return; RECON(S, S.hud, P ? cx - pw / 2 : cx + pw / 2 + v * .8, P ? cy - D.d.h / 2 - v * 2 : cy - D.d.h / 2 + fsz(v * 1.15) * .95, X.SG(t, .5, 1) * a);   /* 横屏：标在页面右上角外侧，不挡刊头 */
+        if (!D) return; RECON(S, S.hud, P ? cx - pw / 2 : cx + pw / 2 + v * .8, P ? recY : cy - D.d.h / 2 + fsz(v * 1.15) * .95, X.SG(t, .5, 1) * a);   /* 横屏：标在页面右上角外侧，不挡刊头 */
         const tb = D.box('title'); if (tb) CO(S, x, tb.r, P ? [W * .94, G.side.y + v * 6] : [W * .5, h * .28], X.SG(t, F.kw(0, '反向传播') - .2, F.kw(0, '反向传播') + .8) * a, '通过反向传播误差来学习', 'BACK-PROPAGATING ERRORS', { side: P ? -1 : 1 });
         if (!P) IDC(S, x, { x: W * .5, y: h * .5, w: W * .42, h: h * .22 }, { img: 'A12', name: '戴维·鲁梅尔哈特', en: 'DAVID RUMELHART', lines: ['合作者 · 1991 年照片'], f: [.5, .3] }, X.SG(t, F.kw(0, '鲁梅尔哈特') - .3, F.kw(0, '鲁梅尔哈特') + .4) * a);
       }],
       [k1, k2, (a) => {
-        const R = P ? { x: W * .06, y: h * .24, w: W * .88, h: h * .4 } : { x: W * .1, y: h * .22, w: W * .62, h: h * .56 };
+        const R = P ? { x: W * .06, y: h * .24, w: W * .88, h: h * .4 } : { x: W * .1, y: h * .22, w: W * .62, h: h * (shortLand(S) ? .49 : .56) };
         const fw = seg(t, k1 + .2, F.kw(1, '最后一层') - .1), bk = seg(t, F.kw(1, '往回传') - .5, F.kw(1, '告诉') + .2);
         const pts = X.mlp(S, x, R, fw, bk, a, t, { layers: [3, 5, 4, 2] });
         T(S.hud, '猜错了', R.x + R.w * .9, R.y - v * 1.4, { f: 'sans', size: v * 1.7, w: 700, c: C.red, al: 'center', a: X.SG(t, F.kw(1, '猜错') - .2, F.kw(1, '猜错') + .3) * a });
@@ -289,8 +290,8 @@ L1S.push({
         if (m) CO(S, x, m.map(.48, .3), X.sideB(S, 0, 2), X.SG(t, k3 + .2, k3 + 1) * a, 'VAX-11/780 · 80 年代主力电脑', '≈ 1 MIPS · 每秒约 100 万条指令');
         const BR = P ? { x: W * .1, y: G.side.y + v * 12, w: W * .8 } : { x: G.side.x, y: G.side.y + G.side.h * .6, w: G.side.w }, ba = X.SG(t, F.kw(3, '太慢') - .3, F.kw(3, '太慢') + .3) * a;
         if (ba > 0) { const pr = .02 + .04 * seg(t, k3, k4); x.save(); x.globalAlpha = ba; x.strokeStyle = col(C.pri, .6); x.strokeRect(BR.x, BR.y, BR.w, v * 2); x.fillStyle = col(C.pri, .8); x.fillRect(BR.x + 2, BR.y + 2, (BR.w - 4) * pr, v * 2 - 4); x.restore(); T(S.hud, '训练中… ' + Math.round(pr * 100) + '%（示意）', BR.x, BR.y - v * 1.5, { f: 'mono', size: v * 1.2, w: 500, c: C.mute, a: ba }); }
-        const da = X.SG(t, F.kw(3, '数据太少') - .3, F.kw(3, '数据太少') + .3) * a; if (da > 0) H.chip(S, S.hud, '数据太少', P ? W * .5 : G.side.x + G.side.w * .3, P ? G.side.y + v * 20 : G.side.y + G.side.h * .85, { size: v * 1.8, a: da, al: 'center', hot: true });
-        const na = X.SG(t, F.kw(3, '没人在乎') - .3, F.kw(3, '没人在乎') + .3) * a; if (na > 0) T(S.hud, '几乎没人在乎', P ? W * .5 : G.side.x + G.side.w * .5, P ? G.side.y + v * 26 : G.side.y + G.side.h * .97, { f: 'smiley', size: v * (P ? 2.6 : 3), c: C.cold, al: 'center', a: na });
+        const da = X.SG(t, F.kw(3, '数据太少') - .3, F.kw(3, '数据太少') + .3) * a; if (da > 0) H.chip(S, S.hud, '数据太少', P ? W * .5 : G.side.x + G.side.w * .3, P ? G.side.y + v * 20 : G.side.y + G.side.h * (shortLand(S) ? .8 : .85), { size: v * 1.8, a: da, al: 'center', hot: true });
+        const na = X.SG(t, F.kw(3, '没人在乎') - .3, F.kw(3, '没人在乎') + .3) * a; if (na > 0) T(S.hud, '几乎没人在乎', P ? W * .5 : G.side.x + G.side.w * .5, P ? G.side.y + v * 26 : G.side.y + G.side.h * (shortLand(S) ? .93 : .97), { f: 'smiley', size: v * (P ? 2.6 : 3), c: C.cold, al: 'center', a: na });
       }],
       [k4, F.dur, (a) => {
         X.photo(S, a, 'A38', seg(t, k4, F.dur), { R: P ? G.main : G.wide, z0: 1.04, z1: 1.12, f0: [.3, .5], f1: [.5, .5] });
