@@ -11,7 +11,7 @@ const IMG = {
   one(src) {
     return new Promise(res => {
       const im = new Image(); im.decoding = 'async';
-      im.onload = () => { const d = im.decode ? im.decode().catch(() => 0) : Promise.resolve(); d.then(() => res(im)); };
+      im.onload = () => { const d = im.decode ? im.decode().catch(() => 0) : Promise.resolve(); Promise.race([d, new Promise(r => setTimeout(r, 1200))]).then(() => res(im)); };  /* 页面在后台时 decode() 可能一直不返回，最多等 1.2 秒 */
       im.onerror = () => res(null); im.src = src;
     });
   },

@@ -122,7 +122,7 @@ const Player = {
     this.id = id; const LD = LDATA[id], C = LCODE[id]; this.film = new Film(LD, C.code, DURS, { intro: C.intro, outro: C.outro });
     this.quizzes = (MIDQ[id] || []).map(q => { const sc = this.film.scenes[q.after + 1], nx = this.film.scenes[q.after + 2]; return Object.assign({}, q, { at: sc.start + sc.dur - (nx ? (nx.code.tdur ?? .8) : 0) - .05 }); });
     this.g = 0; this.pg = 0; this.cueI = -1; this.ended = false; this.playing = false; this.curScene = -1; this.quiz = null;
-    const L = Store.L(id); this.resumeAt = L.pos && L.pos > 8 && L.pos < this.film.total - 8 ? L.pos : 0;
+    const L = Store.L(id); this.filmSig = Math.round(this.film.total); this.resumeAt = L.pos && L.posV === this.filmSig && L.pos > 8 && L.pos < this.film.total - 8 ? L.pos : 0;
     $('lTag').textContent = `LESSON ${String(id).padStart(2, '0')} · ${META[id - 1].topic}`; $('lTitle').textContent = META[id - 1].title;
     $('pTag').textContent = `LESSON ${String(id).padStart(2, '0')} · ${META[id - 1].topic}`;
     const lenTxt = `约 ${Math.round(this.film.total / 60 * 10) / 10} 分钟 · ${LD.scenes.length} 幕 · 中途有 ${this.quizzes.length} 道小题`; $('pLen').textContent = lenTxt;
@@ -137,7 +137,7 @@ const Player = {
     this.updateUI();
     if (!this.raf) this.raf = requestAnimationFrame(t => this.loop(t));
   },
-  close() { this.pause(); if (this.film && this.g > 5 && !this.ended) { Store.L(this.id).pos = this.g; Store.save(); } },
+  close() { this.pause(); if (this.film && this.g > 5 && !this.ended) { Store.L(this.id).pos = this.g; Store.L(this.id).posV = this.filmSig; Store.save(); } },
   resize() {
     if (Router.cur !== 'lesson') return; const el = $('stage'), w = el.clientWidth, h = el.clientHeight; if (!w || !h) return;
     const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1) * this.dq); this.st.q = this.dq; this.st.resize(w, h, dpr); this.render();
@@ -150,7 +150,7 @@ const Player = {
     if (this.quiz || !this.film) return; if (this.ended || this.g >= this.film.total - .05) { this.g = 0; this.ended = false; $('endOv').hidden = true; }
     this.playing = true; this.cueI = -1; $('stage').classList.add('playing'); $('stage').classList.remove('paused'); this.icon(); AudioCtl.on = true; AudioCtl.setMood(this.sceneMood()); AudioCtl.level(); this.wake();
   },
-  pause() { this.playing = false; $('vo').pause(); $('stage').classList.remove('playing', 'idle'); if ($('poster').hidden && !this.ended) $('stage').classList.add('paused'); this.icon(); AudioCtl.on = false; AudioCtl.level(); if (this.film && this.g > 5) { Store.L(this.id).pos = this.g; Store.save(); } },
+  pause() { this.playing = false; $('vo').pause(); $('stage').classList.remove('playing', 'idle'); if ($('poster').hidden && !this.ended) $('stage').classList.add('paused'); this.icon(); AudioCtl.on = false; AudioCtl.level(); if (this.film && this.g > 5) { Store.L(this.id).pos = this.g; Store.L(this.id).posV = this.filmSig; Store.save(); } },
   toggle() { if (!$('poster').hidden) { this.start(this.resumeAt || 0); return; } this.playing ? this.pause() : this.play(); },
   icon() { $('icPlay').innerHTML = this.playing ? '<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>' : '<path d="M8 5v14l11-7z"/>'; },
   seek(g) { this.g = clamp(g, 0, this.film.total); this.pg = this.g; this.cueI = -1; this.hold = 0; $('vo').pause(); this.ended = false; $('endOv').hidden = true; this.render(); this.updateUI(); },
@@ -203,7 +203,7 @@ const Player = {
     const ms = this.render();
     if (this.playing && ms !== undefined) { const p = this.perf; p.n++; p.s += ms; if (p.n >= 90) { const avg = p.s / p.n; p.n = 0; p.s = 0; if (avg > 22 && this.dq > .55) { this.dq = Math.max(.55, this.dq - .15); this.resize(); } else if (avg < 8 && this.dq < 1) { this.dq = Math.min(1, this.dq + .1); this.resize(); } } }
     this.updateUI();
-    if (this.playing && Math.floor(this.g) % 5 === 0 && Math.floor(this.pg) % 5 !== 0) { Store.L(this.id).pos = this.g; Store.save(); }
+    if (this.playing && Math.floor(this.g) % 5 === 0 && Math.floor(this.pg) % 5 !== 0) { Store.L(this.id).pos = this.g; Store.L(this.id).posV = this.filmSig; Store.save(); }
   },
   updateUI() {
     const F = this.film; if (!F) return; const p = this.g / F.total * 100;
