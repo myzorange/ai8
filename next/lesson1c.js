@@ -9,7 +9,7 @@ L1S.push({
     if (this._k && this._k.F === F) return this._k; const k = i => F.cue(i) - .2;
     return (this._k = { F, tI: F.kw(0, '伊利亚') - .4, tA: F.kw(0, '亚历克斯') - .4, tGo: F.kw(0, '我们去') - .3, tG: F.kw(1, 'GTX') - .4, k2: k(2), tO: F.kw(2, '装不下') - .1, tSp: F.kw(2, '劈成两半') - .3, t26: F.kw(3, '26.2') - .5, t15: F.kw(3, '15.3'), tW: F.kw(4, '水泄不通') - .4, tL: F.kw(5, '计算机视觉') - .4, k6: k(6), tM: F.kw(6, '算力') + .2 });
   },
-  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[.3, 'whoosh', .45], [K.tI, 'blip', .45], [K.tA, 'blip', .45], [K.tGo, 'blip', .5], [K.tG, 'hit', .55], [K.tG + .3, 'gpu', .32, K.k2 - K.tG], [K.tO, 'wrong', .45], [K.tSp, 'whoosh', .45], [K.t26, 'tick', .45], [K.t15, 'impact', .75], [K.tW, 'crowd', .3, 3.4], [K.tW + .5, 'applause', .28, 2.8], [K.tL, 'blip', .4], [K.k6 + .1, 'rise', .42], [K.tM, 'impact', .62]]) : []; },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[K.tI, 'blip', .45], [K.tA, 'blip', .45], [K.tGo, 'blip', .5], [K.tG, 'hit', .55], [K.tO, 'wrong', .45], [K.t26, 'tick', .45], [K.t15, 'impact', .75], [K.tW, 'crowd', .3, 3.4], [K.tW + .5, 'applause', .28, 2.8], [K.tL, 'blip', .4], [K.tM, 'impact', .62]]) : []; },
   camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.tG, .03], [K.tO, .02], [K.t15, .05], [K.tM, .05]], [[K.tO, .3, .12, 2], [K.t15, .5, .14, 6], [K.tM, .4, .15, 11]]); },
   draw(t, S, F) {
     const X = L1X, Y = L1Y, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, k = i => F.cue(i) - .2, K = this.keys(F);
@@ -108,7 +108,7 @@ L1S.push({
     if (this._k && this._k.F === F) return this._k; const k = i => F.cue(i) - .2;
     return (this._k = { F, th: F.kw(0, '哈拉斯') - .5, t3: F.kw(1, '三个人') - .5, k2: k(2), tP: F.kw(3, '万美元') - .1, k4: k(4), tq: F.kw(4, '叫停') - .35, tg: F.kw(4, '谷歌') - .4, tV: F.kw(5, '值钱') - .5 });
   },
-  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[K.th, 'whoosh', .35], [K.t3, 'blip', .45], ...[0, 1, 2, 3, 4].map(i => [K.k2 + .35 + i * .9, 'email', .38]), [K.tP, 'cash', .65], [K.tP, 'hit', .55], [K.k4 + .1, 'clock', .4, K.tg - K.k4], [K.tq + .7, 'tick', .5], [K.tg + .3, 'gavel', .7], [K.tV, 'cash', .45]]) : []; },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[K.t3, 'blip', .45], [K.tP, 'cash', .65], [K.tP, 'hit', .55], [K.k4 + .1, 'clock', .4, K.tg - K.k4], [K.tq + .7, 'tick', .5], [K.tg + .3, 'gavel', .7], [K.tV, 'cash', .45]]) : []; },
   camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.tP, .06], [K.tg + .3, .04], [K.tV, .02]], [[K.tP, .55, .15, 5]]); },
   draw(t, S, F) {
     const X = L1X, Y = L1Y, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, k = i => F.cue(i) - .2, K = this.keys(F);
@@ -183,7 +183,7 @@ L1S.push({
     if (this._k && this._k.F === F) return this._k; const k = i => F.cue(i) - .2;
     return (this._k = { F, tA: F.kw(0, '注意力') - .2, tBt: F.kw(0, '披头士') - .2, k1: k(1), k2: k(2), tAt: F.kw(2, '注意') - .2, k3: k(3), tIt: F.kw(3, '它') - .2, tCat: F.kw(3, '最在意') - .2, tT: F.kw(4, 'Transformer') - .2, tUp: F.kw(5, '两个月') - .3, tB: F.kw(5, '它和') - .3 });
   },
-  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[.4, 'rise', .45], [K.tA, 'tick', .5], [K.tBt, 'blip', .38], [K.k1, 'blip', .5], [K.k2 + .1, 'tick', .38], [K.tAt, 'scan', .38], [K.k3 + .1, 'tick', .38], [K.tIt, 'scan', .42], [K.tCat, 'ding', .5], [K.tT, 'impact', .72], [K.tUp, 'rise', .42], [K.tB, 'blip', .45]]) : []; },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[K.tA, 'tick', .5], [K.tBt, 'blip', .38], [K.k1, 'blip', .5], [K.k2 + .1, 'tick', .38], [K.k3 + .1, 'tick', .38], [K.tCat, 'ding', .5], [K.tT, 'impact', .72], [K.tB, 'blip', .45]]) : []; },
   camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.k1, .02], [K.tCat, .02], [K.tT, .05], [K.tB, .02]], [[K.tT, .45, .14, 4]]); },
   draw(t, S, F) {
     const X = L1X, Y = L1Y, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, k = i => F.cue(i) - .2, K = this.keys(F);
@@ -246,7 +246,7 @@ L1S.push({
     if (this._k && this._k.F === F) return this._k; const k = i => F.cue(i) - .2;
     return (this._k = { F, tN: F.kw(0, '诺贝尔') - .3, k1: k(1), tM: F.kw(1, '核磁共振') - .3, tX: F.kw(1, '取消') - .2, tP: ['伊利亚', '亚历克斯', '而我'].map(w => F.kw(2, w) - .4), k3: k(3), tC: F.kw(4, '从') - .2 });
   },
-  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[.4, 'ding', .5], [K.tN, 'blip', .42], [K.tM, 'tick', .42], [K.tX, 'pencil', .55, .7], ...K.tP.map(q => [q, 'tick', .42]), [K.k3 + .2, 'hit', .55], [K.tC, 'rise', .45], [K.tC + 2, 'impact', .65]]) : []; },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[.4, 'ding', .5], [K.tN, 'blip', .42], [K.tM, 'tick', .42], [K.tX, 'pencil', .55, .7], ...K.tP.map(q => [q, 'tick', .42]), [K.k3 + .2, 'hit', .55], [K.tC + 2, 'impact', .65]]) : []; },
   camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.tX, .02], [K.tP[2], .02], [K.k3 + .2, .03], [K.tC + 2, .05]], [[K.tC + 2, .45, .16, 9]]); },
   draw(t, S, F) {
     const X = L1X, Y = L1Y, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, k = i => F.cue(i) - .2, K = this.keys(F);
@@ -322,7 +322,7 @@ L1S.push({
     if (this._k && this._k.F === F) return this._k; const k = i => F.cue(i) - .2;
     return (this._k = { F, tSh: F.kw(0, '短文') - .4, tSm: F.kw(1, '聪明') - .5, tGe: F.kw(1, '简单通用') - .3, tCm: F.kw(1, '算力') - .2, tZ: k(3) + .2, tY: F.kw(3, '你正在') - .2 });
   },
-  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[K.tSh, 'paper', .45], [K.tSm, 'whoosh', .28], [K.tGe, 'rise', .42], [K.tCm, 'hit', .55], [K.tZ, 'rise', .42], [K.tY, 'blip', .5], [K.tY + .15, 'keyboard', .32, 1.6]]) : []; },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[K.tSh, 'paper', .45], [K.tCm, 'hit', .55], [K.tY, 'blip', .5], [K.tY + .15, 'keyboard', .32, 1.6]]) : []; },
   camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.tCm, .04], [K.tY, .03]]); },
   draw(t, S, F) {
     const X = L1X, Y = L1Y, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, k = i => F.cue(i) - .2, K = this.keys(F);
@@ -380,7 +380,7 @@ L1S.push({
 /* ===== 片尾总结 ===== */
 const L1POINTS = [['1958', '感知机：第一台会从错误里学习的机器'], ['1969', '《感知机》一书之后，神经网络进入寒冬'], ['1986', '反向传播：多层网络终于能学了'], ['2012', 'ImageNet + 两块显卡：AlexNet 一战成名'], ['2017', 'Transformer：今天大模型的地基'], ['2024', '诺贝尔奖：一个想法等了 66 年']];
 const L1OUTRO = {
-  dur: 8.5, tin: { type: 'fade' }, sfx: [[.3, 'rise'], [1.6, 'ding']],
+  dur: 8.5, tin: { type: 'fade' }, sfx: [[1.6, 'ding']],
   camera: t => ({ z: 1 + .015 * E.ioS(clamp(t / 8.5)) }),
   draw(t, S) {
     const C = K.c; H.bg(S, t, {}); const { W, H: h, P, v } = S, x = S.mid, pa = E.o3(seg(t, .3, 1.1));
