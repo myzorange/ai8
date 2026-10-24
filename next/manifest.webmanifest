@@ -1,6 +1,6 @@
 {
- "name": "AI 八堂课",
- "short_name": "AI八堂课",
+ "name": "AI 八堂课 新版预览",
+ "short_name": "八堂课新版",
  "start_url": "./index.html",
  "scope": "./",
  "display": "standalone",
