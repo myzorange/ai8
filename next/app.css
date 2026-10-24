@@ -213,3 +213,5 @@ details.cred ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 details.cred li a{display:grid;gap:2px;text-decoration:none;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.03)}
 details.cred li b{font-weight:500;font-size:13px;color:#dfeaf6}
 details.cred li small{font-size:11.5px;color:var(--mute,#8597b4)}
+/* 自检截图模式（?shot=秒&clean）：只留画面 */
+.clean .poster{background:none}.clean .poster>*,.clean .bar,.clean .hint,.clean .toast,.clean .scrim{visibility:hidden!important}

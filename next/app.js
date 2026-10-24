@@ -127,6 +127,7 @@ const Player = {
     $('pTag').textContent = `LESSON ${String(id).padStart(2, '0')} · ${META[id - 1].topic}`;
     const lenTxt = `约 ${Math.round(this.film.total / 60 * 10) / 10} 分钟 · ${LD.scenes.length} 幕 · 中途有 ${this.quizzes.length} 道小题`; $('pLen').textContent = lenTxt;
     this.posterG = C.posterAt ? C.posterAt(this.film) : 3.9; this.imgReady = !(C.imgs && C.imgs.length); this.pendingStart = undefined;
+    const sp = new URLSearchParams(location.search); if (sp.has('shot')) { this.posterG = clamp(+sp.get('shot') || 0, 0, this.film.total - .01); this.resumeAt = 0; } document.documentElement.classList.toggle('clean', sp.has('clean'));  /* 自检用：?shot=秒 让封面停在这一帧，&clean 隐藏界面 */
     if (!this.imgReady) { $('stage').classList.add('loading'); IMG.load(C.imgs, p => { if (this.id === id && !this.imgReady) $('pLen').textContent = '正在载入画面 ' + Math.round(p * 100) + '%'; }).then(() => { if (this.id !== id) return; this.imgReady = true; $('stage').classList.remove('loading'); $('pLen').textContent = lenTxt; this.render(); if (this.pendingStart !== undefined) { const at = this.pendingStart; this.pendingStart = undefined; this.start(at); } }); }
     const row = $('pRow'); row.innerHTML = '';
     if (this.resumeAt) { const b1 = document.createElement('button'); b1.className = 'btn pri sm'; b1.textContent = '从 ' + fmtT(this.resumeAt) + ' 继续'; b1.onclick = () => this.start(this.resumeAt); const b2 = document.createElement('button'); b2.className = 'btn ghost sm'; b2.textContent = '从头开始'; b2.onclick = () => this.start(0); row.append(b1, b2); }
@@ -382,11 +383,11 @@ const Settings = {
   close() { $('sheet').hidden = true; },
 };
 
-function toast(msg, act, fn) {
-  const t = $('toast'); t.innerHTML = `<span>${esc(msg)}</span>${act ? `<button class="btn pri sm" id="tAct">${esc(act)}</button>` : ''}`; t.hidden = false;
-  if (act) $('tAct').onclick = () => { t.hidden = true; fn && fn(); };
-  clearTimeout(toast.h); toast.h = setTimeout(() => { if (!act) t.hidden = true; }, act ? 12000 : 3000);
-  if (act) setTimeout(() => { t.hidden = true; }, 12000);
+/* sticky：一直显示到用户点它（换页也不收起），用于“有新版本了” */
+function toast(msg, act, fn, sticky) {
+  const t = $('toast'); t.innerHTML = `<span>${esc(msg)}</span>${act ? `<button class="btn pri sm" id="tAct">${esc(act)}</button>` : ''}`; t.hidden = false; t.dataset.sticky = sticky ? '1' : '';
+  if (act) $('tAct').onclick = () => { t.hidden = true; t.dataset.sticky = ''; fn && fn(); };
+  clearTimeout(toast.h); if (!sticky) toast.h = setTimeout(() => { t.hidden = true; }, act ? 12000 : 3000);
 }
 
 /* ---------- 路由 ---------- */
@@ -395,7 +396,7 @@ const Router = {
   async route() {
     const h = location.hash || '#/'; const m = h.match(/^#\/l\/(\d+)/), prev = this.cur;
     if (prev === 'lesson') Player.close();
-    ['home', 'lesson', 'lib'].forEach(s => $(s).hidden = true); $('mapbg').hidden = false; $('toast').hidden = true;
+    ['home', 'lesson', 'lib'].forEach(s => $(s).hidden = true); $('mapbg').hidden = false; if (!$('toast').dataset.sticky) $('toast').hidden = true;
     if (m && LCODE[+m[1]]) { this.cur = 'lesson'; $('lesson').hidden = false; $('mapbg').hidden = true; window.scrollTo(0, 0); LessonPage.render(+m[1]); await Player.open(+m[1]); }
     else if (h.startsWith('#/lib')) { this.cur = 'lib'; $('lib').hidden = false; window.scrollTo(0, 0); Lib.render(); Home.start(); }
     else { this.cur = 'home'; $('home').hidden = false; Home.render(); Home.start(); if (prev) window.scrollTo(0, 0); }
@@ -410,7 +411,7 @@ const Router = {
   await loadFonts(); Router.route();
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('sw.js').then(reg => {
-      const ask = w => toast('有新版本了', '点此更新', () => { window.__wantReload = true; w.postMessage('skip'); });
+      const ask = w => toast('有新版本了', '点此更新', () => { window.__wantReload = true; w.postMessage('skip'); }, true);
       if (reg.waiting && navigator.serviceWorker.controller) ask(reg.waiting);
       reg.addEventListener('updatefound', () => { const w = reg.installing; w && w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) ask(w); }); });
       setInterval(() => reg.update().catch(() => { }), 30 * 60 * 1000);
