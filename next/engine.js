@@ -24,6 +24,15 @@ function mix(a, b, p) { const x = rgb(a), y = rgb(b); return '#' + [0, 1, 2].map
 const FONT = { serif: 'AI8Serif', sans: 'AI8Sans', smiley: 'AI8Smiley', inter: 'AI8Inter', interd: 'AI8InterD', mono: 'AI8Mono' };
 /* 小字自动放大，保证手机上也看得清（最小 11px） */
 const fsz = size => Math.max(11, size * (1 + .65 * clamp((26 - size) / 16)));
+/* 手机横屏很矮（高 340–430px）：小字被放大到 11px 后，按 v 算的行距会挤在一起。凡是上下叠放的文字，行距都按放大后的字号取较大值 */
+const shortLand = S => !S.P && S.H < 560;
+/* 场景标题的几何（标签行 + 大标题），H.head 和版面 LAY 共用 */
+function headGeo(S) {
+  const v = S.v, ls = v * 1.3, sz = v * (S.P ? 3.8 : 4.4), f1 = fsz(ls), f2 = fsz(sz);
+  const X = S.P ? S.W * .075 : S.W * .06, Y = S.P ? S.H * .094 : S.H * (shortLand(S) ? .085 : .1);
+  const Y2 = Y + Math.max(v * 3.6, f1 * .5 + f2 * .47 + 2);
+  return { X, Y, Y2, sz, bottom: Y2 + f2 * .5 };
+}
 function fnt(f, size, w = 400) { return `${w} ${fsz(size).toFixed(2)}px "${FONT[f] || f}","AI8Sans","PingFang SC","Hiragino Sans GB",sans-serif`; }
 function TW(x, s, o) {
   x.save(); x.font = fnt(o.f || 'sans', o.size || 16, o.w || 400); let w = x.measureText(s).width;
@@ -267,7 +276,7 @@ const H = {
     const l = Math.min(w, h) * .14; x.strokeStyle = col(c, .95); x.lineWidth = 1.4; x.beginPath();
     for (const [cx, cy, sx, sy] of [[X, Y, 1, 1], [X + w, Y, -1, 1], [X, Y + h, 1, -1], [X + w, Y + h, -1, -1]]) { x.moveTo(cx, cy + sy * l); x.lineTo(cx, cy); x.lineTo(cx + sx * l, cy); }
     x.stroke();
-    if (o.head) T(x, o.head, X + S.v * 1.2, Y + S.v * 1.6, { f: 'mono', size: S.v * 1.05, w: 500, c, tr: .08, a: .9 });
+    if (o.head) T(x, o.head, X + S.v * 1.2, Y + Math.max(S.v * 1.6, fsz(S.v * 1.05) * .5 + S.v * .5), { f: 'mono', size: S.v * 1.05, w: 500, c, tr: .08, a: .9 });
     x.restore();
     if (o.glow !== false) { const gx = S.glow; gx.save(); gx.globalAlpha = a; rrect(gx, X, Y, w, h, o.r ?? 6); gx.strokeStyle = col(c, .35); gx.lineWidth = 2; gx.stroke(); gx.restore(); }
   },
@@ -327,9 +336,9 @@ const H = {
   /* 场景标题（左上） */
   head(S, t, tag, name, o = {}) {
     const x = S.hud, C = S.k.c, v = S.v, a1 = E.o3(seg(t, .15, .8)), a2 = E.o3(seg(t, .3, 1.1)), dy = (1 - a2) * v * 1.2;
-    const X = S.P ? S.W * .075 : S.W * .06, Y = S.P ? S.H * .094 : S.H * .1;
+    const { X, Y, Y2: Y2s, sz } = headGeo(S);
     T(x, decode(tag, seg(t, .15, .9) * 1.3, 7), X, Y, { f: 'mono', size: v * 1.3, w: 500, c: C.pri, tr: .08, a: a1 * (o.a ?? 1) });
-    const sz = v * (S.P ? 3.8 : 4.4), Y2 = Y + v * 3.6 + dy, oo = { f: 'smiley', size: sz, w: 400, a: a2 * .55 * (o.a ?? 1) };
+    const Y2 = Y2s + dy, oo = { f: 'smiley', size: sz, w: 400, a: a2 * .55 * (o.a ?? 1) };
     T(x, name, X - 1.5, Y2, { ...oo, c: C.acc }); T(x, name, X + 1.5, Y2, { ...oo, c: C.pri });
     T(x, name, X, Y2, { f: 'smiley', size: sz, w: 400, c: C.ink, a: a2 * (o.a ?? 1), sh: { c: C.pri, a: .5, b: 16 } });
   },

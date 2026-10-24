@@ -127,6 +127,8 @@ function CO(S, x, A, B, p, title, sub, o = {}) {
   if (sub) T(x, sub, bx + pad, by + bh - pad * .55 - f2 * .55, { f: 'mono', size: ss, w: 500, c, tr: .12, a: a * la });
   return { x: bx, y: by, w: bw, h: bh };
 }
+/* 注释标签框的高度（有副标题时），竖着排几个标签时用来定间距 */
+function coH(S, o = {}) { const v = S.v; return fsz(o.size || v * (S.P ? 1.9 : 2.05)) * 1.22 + fsz(o.ss || v * 1.05) * 1.55 + v * 1.05 * 1.15; }
 /* 小标签（数据标签） */
 function TAG(S, x, s, X, Y, p, o = {}) {
   if (p <= 0) return 0; const C = S.k.c, v = S.v, c = o.c || C.pri, size = o.size || v * 1.25, a = (o.a ?? 1) * E.o3(clamp(p)), f = fsz(size);
@@ -136,22 +138,25 @@ function TAG(S, x, s, X, Y, p, o = {}) {
   return pw;
 }
 /* 版面：横屏左图右文；竖屏上图下文。字幕区留空 */
+/* 时间地点戳两行的字号与行距（第二行与第一行的中心距按放大后的字号取较大值） */
+function stampGeo(S) { const v = S.v, s1 = v * (S.P ? 1.05 : 1.2), s2 = v * (S.P ? 1.85 : 2.3), d = Math.max(v * (S.P ? 2.3 : 2.7), fsz(s1) * .5 + fsz(s2) * .5 + 1.5); return { s1, s2, d, bottom: d + fsz(s2) * .55 }; }
 function LAY(S) {
   const { W, H: h, P, v } = S;
   if (!P) {
-    const top = h * .175, bot = h * .815;
+    const top = Math.max(h * .175, headGeo(S).bottom + v * 1.2), bot = h * .815;
     return { P, top, bot, main: { x: W * .055, y: top, w: W * .545, h: bot - top }, side: { x: W * .64, y: top + h * .03, w: W * .31, h: bot - top - h * .03 },
       wide: { x: W * .055, y: top, w: W * .89, h: bot - top }, mid: { x: W * .2, y: top, w: W * .6, h: bot - top }, stamp: { x: W * .945, y: h * .085, al: 'right' } };
   }
-  const hy = h * .094 + v * 3.6, sy = Math.max(h * .163, hy + v * 3.2), top = Math.max(h * .2, sy + v * 4.4), mh = Math.min(h * .31, (h * .79 - top) * .5), bot = h * .79;
+  const hy = headGeo(S).Y2, sy = Math.max(h * .163, hy + v * 3.2), top = Math.max(h * .2, sy + Math.max(v * 4.4, stampGeo(S).bottom + v * .8)), mh = Math.min(h * .31, (h * .79 - top) * .5), bot = h * .79;
   return { P, top, bot, main: { x: W * .05, y: top + h * .015, w: W * .9, h: mh }, side: { x: W * .06, y: top + h * .02 + mh + h * .03, w: W * .88, h: bot - (top + h * .05 + mh) },
     wide: { x: W * .05, y: top + h * .02, w: W * .9, h: bot - top - h * .02 }, mid: { x: W * .05, y: top + h * .02, w: W * .9, h: bot - top - h * .02 }, stamp: { x: W * .075, y: sy, al: 'left' } };
 }
 /* 时间地点戳 */
 function STAMP(S, t, t0, l1, l2, o = {}) {
   const p = seg(t, t0, t0 + .9); if (p <= 0) return; const G = LAY(S), x = S.hud, C = S.k.c, v = S.v, a = E.o3(p) * (o.a ?? 1), X = G.stamp.x, Y = G.stamp.y, al = G.stamp.al;
-  T(x, decode(l1, p * 1.4, 11), X, Y, { f: 'mono', size: v * (S.P ? 1.05 : 1.2), w: 500, c: C.pri, tr: .14, al, a, sh: { c: C.pri, a: .5 } });
-  if (l2) TReveal(x, l2, X, Y + v * (S.P ? 2.3 : 2.7), { f: 'sans', size: v * (S.P ? 1.85 : 2.3), w: 700, c: C.ink, al, sh: { c: C.pri, a: .3 }, a: o.a ?? 1 }, seg(t, t0 + .2, t0 + 1.2));
+  const sg = stampGeo(S);
+  T(x, decode(l1, p * 1.4, 11), X, Y, { f: 'mono', size: sg.s1, w: 500, c: C.pri, tr: .14, al, a, sh: { c: C.pri, a: .5 } });
+  if (l2) TReveal(x, l2, X, Y + sg.d, { f: 'sans', size: sg.s2, w: 700, c: C.ink, al, sh: { c: C.pri, a: .3 }, a: o.a ?? 1 }, seg(t, t0 + .2, t0 + 1.2));
 }
 /* 镜头切换：在 [a,b] 期间显示，带淡入淡出 */
 function shots(t, list, fi = .32, fo = .32) {

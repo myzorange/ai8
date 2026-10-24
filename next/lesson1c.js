@@ -32,7 +32,7 @@ L1S.push({
         if (gp > 0) {
           const GR = P ? { x: W * .08, y: G.side.y + v * 2, w: W * .84, h: W * .84 * .65 } : { x: W * .48, y: h * .2, w: W * .46, h: W * .46 * .65 };
           const m = PH(S, x, 'A15', GR, { a: a * gp, p: seg(t, F.kw(1, 'GTX') - .4, k(2) + .3), z0: .96, z1: 1.04, contain: true, vig: 0, r: 0, flick: false, cred: X.CR.A15 });
-          if (m) CO(S, x, m.map(.42, .48), P ? [W * .94, GR.y + GR.h + v * 4] : [W * .9, h * .22], X.SG(t, F.kw(1, 'GTX'), F.kw(1, 'GTX') + .8) * a, 'GTX 580 × 2', '打游戏用的显卡', { side: -1 });
+          if (m) CO(S, x, m.map(.42, .48), P ? [W * .94, GR.y + GR.h + coH(S) * .5 + v * 1.2] : [W * .9, h * .22], X.SG(t, F.kw(1, 'GTX'), F.kw(1, 'GTX') + .8) * a, 'GTX 580 × 2', '打游戏用的显卡', { side: -1 });
           const da = X.SG(t, F.kw(1, '五六天') - .3, F.kw(1, '五六天') + .3) * a;
           if (da > 0) { const d = Math.min(6, 1 + Math.floor((t - F.kw(1, '五六天') + .3) * 3.5)); TAG(S, S.hud, '第 ' + d + ' 天 · 日夜不停', P ? W * .5 : W * .71, P ? GR.y + GR.h + v * 9 : h * .8, da, { al: 'center', f: 'sans', w: 700, size: v * 1.5, c: C.gold }); }
         }
@@ -63,7 +63,7 @@ L1S.push({
       }],
       [k(5), k(6), (a) => {
         const m = X.photo(S, a, 'A36', seg(t, k(5), k(6) + .4), { R: P ? G.main : { x: W * .055, y: h * .17, w: W * .36, h: h * .64 }, z0: 1.02, z1: 1.1, f0: [.5, .35], depth: .8 });
-        if (m) CO(S, x, m.map(.5, .25), P ? [W * .55, G.main.y + G.main.h + v * 3] : [W * .45, h * .25], X.SG(t, k(5) + .2, k(5) + 1) * a, '杨立昆', 'YANN LECUN · 2018 年照片', { side: 1 });
+        if (m) CO(S, x, m.map(.5, .25), P ? [W * .55, G.main.y + G.main.h + coH(S) * .5 + v * 1.2] : [W * .45, h * .25], X.SG(t, k(5) + .2, k(5) + 1) * a, '杨立昆', 'YANN LECUN · 2018 年照片', { side: 1 });
         QUOTE(S, S.hud, P ? { x: W * .07, y: G.side.y + v * 8, w: W * .86 } : { x: W * .45, y: h * .36, w: W * .48 }, '这是计算机视觉史上，一个{毫无疑问的转折点}。', '杨立昆 · 2012 年（见李飞飞回忆录）', X.SG(t, F.kw(5, '计算机视觉') - .4, F.kw(5, '计算机视觉') + .2) * a);
       }],
       [k(6), F.dur, (a) => {
@@ -96,7 +96,7 @@ L1S.push({
       [0, k(1), (a) => {
         const th = F.kw(0, '哈拉斯') - .5;
         X.fullPhoto(S, a * (1 - X.SG(t, th, th + .5)), 'A44', seg(t, 0, th + .5), { z0: 1.02, z1: 1.08, f0: [.4, .5], f1: [.55, .5] });
-        const pa = X.SG(t, th, th + .5) * a; if (pa > 0) { const m = X.photo(S, pa, 'A17', seg(t, th, k(1) + .6), { R: P ? G.main : G.wide, z0: 1.03, z1: 1.12, f0: [.5, .4] }); if (m) CO(S, x, m.map(.55, .25), P ? [W * .55, G.main.y + G.main.h + v * 3] : [W * .7, h * .3], X.SG(t, th + .4, th + 1.2) * a, '哈拉斯赌场酒店', "HARRAH'S · 2022 年照片", { side: 1 }); }
+        const pa = X.SG(t, th, th + .5) * a; if (pa > 0) { const m = X.photo(S, pa, 'A17', seg(t, th, k(1) + .6), { R: P ? G.main : G.wide, z0: 1.03, z1: 1.12, f0: [.5, .4] }); if (m) CO(S, x, m.map(.55, .25), P ? [W * .55, G.main.y + G.main.h + coH(S) * .5 + v * 1.2] : [W * .7, h * .3], X.SG(t, th + .4, th + 1.2) * a, '哈拉斯赌场酒店', "HARRAH'S · 2022 年照片", { side: 1 }); }
       }],
       [k(1), k(2), (a) => {
         const R = P ? { x: W * .08, y: h * .24, w: W * .84, h: h * .3 } : { x: W * .2, y: h * .22, w: W * .6, h: h * .5 };
@@ -153,13 +153,13 @@ L1S.push({
     const toks = (s, R, kwT) => { const n = s.length, gap = R.w / n; return s.map((w, i) => [R.x + gap * (i + .5), R.y + R.h / 2, w]); };
     shots(t, [
       [0, k(2), (a) => {
-        const pw = P ? W * .5 : W * .3, cx = P ? W * .5 : W * .24, cy = P ? h * .38 : h * .52;
+        const top0 = headGeo(S).bottom + v * 1.5, pw = P ? W * .5 : Math.min(W * .3, (h * .93 - top0) / 1.3), cx = P ? W * .5 : W * .24, cy = P ? h * .38 : top0 + pw * .65;   /* 横屏：论文页从标题下方开始 */
         const D = DOC.draw(S, x, 'attn', cx, cy, pw, { rot: lerp(.08, -.03, X.SG(t, 0, .9)), a: X.SG(t, 0, .6) * a, hl: [{ k: 'title', p: seg(t, F.kw(0, '注意力') - .3, F.kw(0, '一切') + .3) }, { k: 'gomez', p: seg(t, k(1) + .2, k(1) + .9), c: 'rgba(255,79,216,.35)' }] });
-        if (!D) return; RECON(S, S.hud, cx - pw / 2, cy - D.d.h / 2 - v * 2, X.SG(t, .5, 1) * a);
+        if (!D) return; RECON(S, S.hud, P ? cx - pw / 2 : cx + pw / 2 + v * .8, P ? cy - D.d.h / 2 - v * 2 : cy - D.d.h / 2 + fsz(v * 1.15) * .95, X.SG(t, .5, 1) * a);   /* 横屏：标在页面右上角外侧，不挡刊头 */
         const tb = D.box('title'); if (tb) CO(S, x, tb.r, P ? [W * .94, G.side.y + v * 6] : [W * .52, h * .28], X.SG(t, F.kw(0, '注意力') - .2, F.kw(0, '注意力') + .8) * a * (1 - X.SG(t, k(1) - .2, k(1) + .2)), '注意力就是你所需要的一切', 'ATTENTION IS ALL YOU NEED', { side: P ? -1 : 1 });
         TAG(S, S.hud, '化用披头士 · All You Need Is Love', P ? W / 2 : W * .7, P ? G.side.y + v * 13 : h * .46, X.SG(t, F.kw(0, '披头士') - .2, F.kw(0, '披头士') + .4) * a * (1 - X.SG(t, k(1) - .2, k(1) + .2)), { al: 'center', f: 'sans', w: 700, size: v * 1.4, c: C.gold });
         const ga = X.SG(t, k(1), k(1) + .6) * a;
-        if (ga > 0) { const R = P ? { x: W * .2, y: G.side.y + v * 3, w: W * .6, h: h * .22 } : { x: W * .55, y: h * .2, w: W * .36, h: h * .6 }; const m = PH(S, x, 'A43', R, { a: ga, p: seg(t, k(1), k(2)), z0: 1.03, z1: 1.1, f0: [.5, .35], depth: .8, frame: ga, cred: X.CR.A43 }); if (m) CO(S, x, m.map(.55, .2), P ? [W * .94, R.y + R.h + v * 3] : [W * .55, h * .86], X.SG(t, k(1) + .4, k(1) + 1.2) * a, '艾丹·戈麦斯', '2017 年 20 岁 · 谷歌大脑实习生', { side: P ? -1 : 1 }); }
+        if (ga > 0) { const R = P ? { x: W * .2, y: G.side.y + v * 3, w: W * .6, h: h * .22 } : { x: W * .55, y: h * .2, w: W * .36, h: h * .5 }; const m = PH(S, x, 'A43', R, { a: ga, p: seg(t, k(1), k(2)), z0: 1.03, z1: 1.1, f0: [.5, .35], depth: .8, frame: ga, cred: X.CR.A43 }); if (m) CO(S, x, m.map(.55, .2), P ? [W * .94, R.y + R.h + coH(S) * .5 + v * 1.2] : [W * .55, h * .76], X.SG(t, k(1) + .4, k(1) + 1.2) * a, '艾丹·戈麦斯', '2017 年 20 岁 · 谷歌大脑实习生', { side: P ? -1 : 1 }); }
       }],
       [k(2), k(4), (a) => {
         const s1 = ['每', '个', '词', '都', '去', '注', '意', '其', '他', '词'], s2 = ['猫', '没', '吃', '鱼', '，', '因为', '它', '不', '饿'];
@@ -263,7 +263,7 @@ L1S.push({
     shots(t, [
       [0, k(1), (a) => {
         const m = X.photo(S, a, 'A25', seg(t, 0, k(1) + .5), { R: P ? G.main : { x: W * .055, y: h * .17, w: W * .4, h: h * .5 }, z0: 1.02, z1: 1.1, f0: [.5, .4], depth: .8 });
-        if (m) CO(S, x, m.map(.5, .25), P ? [W * .55, G.main.y + G.main.h + v * 3] : [W * .2, h * .76], X.SG(t, .5, 1.3) * a, '理查德·萨顿', 'RICHARD SUTTON · 强化学习先驱', { side: 1 });
+        if (m) CO(S, x, m.map(.5, .25), P ? [W * .55, G.main.y + G.main.h + coH(S) * .5 + v * 1.2] : [W * .2, h * .76], X.SG(t, .5, 1.3) * a, '理查德·萨顿', 'RICHARD SUTTON · 强化学习先驱', { side: 1 });
         const pw = P ? W * .78 : W * .4, D = DOC.draw(S, x, 'web', P ? W * .5 : W * .72, P ? G.side.y + pw * .39 + v * 6 : h * .48, pw, { a: X.SG(t, F.kw(0, '短文') - .4, F.kw(0, '短文') + .2) * a, rot: -.02, hl: [{ k: 'title', p: seg(t, F.kw(0, '苦涩') - .2, F.kw(0, '苦涩') + .6) }] });
         if (D) RECON(S, S.hud, (P ? W * .5 : W * .72) - pw / 2, (P ? G.side.y + pw * .39 + v * 6 : h * .48) - D.d.h / 2 - v * 2, X.SG(t, F.kw(0, '短文'), F.kw(0, '短文') + .5) * a);
       }],
@@ -319,7 +319,7 @@ const L1OUTRO = {
     L1POINTS.forEach(([y, s], i) => {
       const a = E.o3(seg(t, .9 + i * .28, 1.4 + i * .28)), yy = R.y + v * (P ? 13.5 : 13.5) + i * v * (P ? 6.6 : 7.4);
       H.chip(S, x, y, R.x + v * 2.4, yy, { size: v * 1.5, f: 'mono', a, hot: i === 5 });
-      const tx0 = R.x + v * (P ? 11.5 : 12.5); T(x, s, tx0, yy, { f: 'sans', size: fit(x, s, R.x + R.w - v * 2 - tx0, { f: 'sans', size: v * (P ? 1.8 : 2.2), w: 500 }), w: 500, c: C.ink, a });
+      const chipW = TW(x, y, { f: 'mono', size: v * 1.5, w: 500 }) + fsz(v * 1.5) * 1.3, tx0 = R.x + Math.max(v * (P ? 11.5 : 12.5), v * 2.4 + chipW + v * 1.4);   /* 年份胶囊被放大时，正文跟着往右让 */ T(x, s, tx0, yy, { f: 'sans', size: fit(x, s, R.x + R.w - v * 2 - tx0, { f: 'sans', size: v * (P ? 1.8 : 2.2), w: 500 }), w: 500, c: C.ink, a });
     });
     T(S.hud, '下一课 · 一台猜下一个字的机器', R.x + R.w / 2, R.y + R.h - v * 3.4, { f: 'sans', size: v * 1.8, w: 500, c: C.pri, al: 'center', tr: .1, a: E.o3(seg(t, 2.8, 3.5)) });
   },
