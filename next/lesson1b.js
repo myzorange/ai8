@@ -64,7 +64,7 @@ L1S.push({
     if (this._k && this._k.F === F) return this._k; const tl3 = F.kw(3, '一条直线');
     return (this._k = { F, tO: F.kw(0, '老校友') - .3, tB: F.kw(1, '一本书') - .3, tL: F.kw(2, '一条直线') - .3, tY: F.kw(2, '永远') - .3, tr: [tl3 - .2, tl3 + .5, tl3 + 1.2], tJ: F.kw(4, '判决') });
   },
-  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[.3, 'hit', .55], [K.tO, 'blip', .45], [K.tB + .3, 'stamp', .6], [K.tL, 'whoosh', .3], [K.tY, 'wrong', .4], ...K.tr.map(q => [q, 'tick', .45]), [K.tJ - .12, 'gavel', .8], [K.tJ - .08, 'stamp', .55], [K.tJ, 'braam', .45]]) : []; },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[.3, 'hit', .55], [K.tO, 'blip', .45], [K.tB + .3, 'stamp', .6], [K.tY, 'wrong', .4], ...K.tr.map(q => [q, 'tick', .45]), [K.tJ - .12, 'gavel', .8], [K.tJ - .08, 'stamp', .55], [K.tJ, 'braam', .45]]) : []; },
   camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.tB + .3, .03], [K.tY, .02], [K.tJ - .1, .06]], [[K.tB + .3, .3, .12, 5], [K.tJ - .1, .6, .16, 8]]); },
   draw(t, S, F) {
     const X = L1X, Y = L1Y, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, k1 = F.cue(1) - .2, k2 = F.cue(2) - .2, k3 = F.cue(3) - .2, k4 = F.cue(4) - .2, K = this.keys(F);
@@ -132,7 +132,7 @@ L1S.push({
     const tA = F.kw(0, '经费') - .3, tB = F.kw(0, '转行') + .6, ord = [5, 2, 7, 0, 3, 6, 1, 4];
     return (this._k = { F, offs: ord.map((_, i) => lerp(tA, tB, (i + .5) / 8)), tWin: F.kw(0, '寒冬') - .4, k1: F.cue(1) - .2, tCit: F.kw(1, '论证') - .4, tK: F.kw(2, '几千') - .3, k3: F.cue(3) - .2, k4: F.cue(4) - .2 });
   },
-  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [...K.offs.map(q => [q, 'switch', .45]), [K.tWin - .1, 'wind', .42, K.k1 - K.tWin + .9], [K.tWin, 'braam', .45], [K.k1 + .5, 'motor', .28, 1.3], [K.tCit, 'tick', .4], [K.tK, 'rise', .4], [K.k3, 'sea', .5, K.k4 - K.k3 + .5], [K.k3 + .3, 'sails', .28, K.k4 - K.k3], [K.k3 + .7, 'gulls', .14, 3.2]]) : []; },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [...K.offs.map(q => [q, 'switch', .45]), [K.tWin, 'braam', .45], [K.k1 + .5, 'motor', .28, 1.3], [K.tCit, 'tick', .4], [K.k3, 'sea', .5, K.k4 - K.k3 + .5], [K.k3 + .3, 'sails', .28, K.k4 - K.k3], [K.k3 + .7, 'gulls', .14, 3.2]]) : []; },
   camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.tWin, .03], [K.k1 + .5, .015], [K.tK, .02]], [], .012 * E.ioS(seg(t, K.k3, K.k4))); },
   draw(t, S, F) {
     const X = L1X, Y = L1Y, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, k1 = F.cue(1) - .2, k2 = F.cue(2) - .2, k3 = F.cue(3) - .2, k4 = F.cue(4) - .2, K = this.keys(F);
@@ -225,7 +225,7 @@ L1S.push({
     if (this._k && this._k.F === F) return this._k; const k5 = F.kw(4, '再给我'), k6 = F.kw(4, '五十年'), D = Math.max(.5, k6 - k5 - .4);   /* 第 i 张“+6 个月”出现的时刻（和画面里的算法一致） */
     return (this._k = { F, tn: F.kw(0, '辛顿') - .4, tG: F.kw(1, '高祖父'), tC: F.kw(2, '木匠') - .5, tQ: F.kw(3, '一再劝') - .3, tY: F.kw(3, '约好') - .2, k5, k6, chips: Array.from({ length: 9 }, (_, i) => Math.max(k5 + i * .25, k5 - .2 + D * (i + 1) / 9)).filter(q => q < k6 - .2) });
   },
-  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[0, 'wind', .42, K.tn + .6], [K.tn, 'whoosh', .45], [K.tG, 'tick', .4], [K.tG + .6, 'tick', .4], [K.tC, 'plane', .5, 2.6], [K.tQ, 'blip', .45], [K.tY, 'blip', .45], ...K.chips.map(q => [q, 'tick', .35]), [K.k6 - .1, 'impact', .75], [K.k6 + .2, 'blip', .4]]) : []; },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[K.tG, 'tick', .4], [K.tG + .6, 'tick', .4], [K.tQ, 'blip', .45], [K.tY, 'blip', .45], ...K.chips.map(q => [q, 'tick', .35]), [K.k6 - .1, 'impact', .75], [K.k6 + .2, 'blip', .4]]) : []; },
   camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.tn, .03], [K.tY, .02], [K.k6 - .1, .06]], [[K.k6 - .1, .55, .16, 7]]); },
   draw(t, S, F) {
     const X = L1X, Y = L1Y, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, k1 = F.cue(1) - .2, k2 = F.cue(2) - .2, k3 = F.cue(3) - .2, k4 = F.cue(4) - .2, K = this.keys(F);
@@ -308,7 +308,7 @@ L1S.push({
     if (this._k && this._k.F === F) return this._k;
     return (this._k = { F, tR: F.kw(0, '反向传播') - .2, k1: F.cue(1) - .2, tBk: F.kw(1, '往回传') - .5, tT: F.kw(1, '告诉') - .3, tJ: F.kw(2, '迎刃') - .3, tb: F.kw(4, '冷板凳') });
   },
-  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[.1, 'paper', .5], [K.tR, 'tick', .5], [K.k1 + .3, 'whoosh', .3], [K.tBk, 'scan', .45], [K.tT, 'blip', .4], [K.tJ, 'impact', .6], [K.tJ + .2, 'correct', .5], [K.tb - 1.2, 'clock', .32, 4.5]]) : []; },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[.1, 'paper', .5], [K.tR, 'tick', .5], [K.tT, 'blip', .4], [K.tJ, 'impact', .6], [K.tJ + .2, 'correct', .5], [K.tb - 1.2, 'clock', .32, 4.5]]) : []; },
   camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.tR, .02], [K.tJ, .05]], [[K.tJ, .45, .14, 3]]); },
   draw(t, S, F) {
     const X = L1X, Y = L1Y, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, k1 = F.cue(1) - .2, k2 = F.cue(2) - .2, k3 = F.cue(3) - .2, k4 = F.cue(4) - .2, K = this.keys(F);
@@ -379,7 +379,7 @@ L1S.push({
     if (this._k && this._k.F === F) return this._k; const k = i => F.cue(i) - .2;
     return (this._k = { F, tD: F.kw(0, '数据') - .3, tL: F.kw(1, '李飞飞') - .3, tY: F.kw(2, '将近') - .3, tk3: k(3) + 1, k4: k(4), tR: F.kw(4, '真人') - .3, k5: k(5), tI: F.kw(5, 'ImageNet') - .2, k6: k(6), tC: F.kw(6, '比赛') - .4 });
   },
-  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[.4, 'rise', .45], [K.tD, 'impact', .7], [K.tL, 'whoosh', .4], [K.tY, 'hit', .6], [K.tk3, 'keyboard', .38, 2.3], [K.tR, 'braam', .4], [K.k5 + .1, 'data', .38, K.tI - K.k5 - .1], [K.tI, 'impact', .6], [K.k6 + .3, 'crowd', .18, 4], [K.tC, 'hit', .55]]) : []; },
+  get sfx() { const K = this._k; return K ? (K.sx = K.sx || [[K.tD, 'impact', .7], [K.tY, 'hit', .6], [K.tk3, 'keyboard', .38, 2.3], [K.tR, 'braam', .4], [K.k5 + .1, 'data', .38, K.tI - K.k5 - .1], [K.tI, 'impact', .6], [K.k6 + .3, 'crowd', .18, 4], [K.tC, 'hit', .55]]) : []; },
   camera(t, S, F) { const K = this.keys(F); return L1X.cam(t, S, [[K.tD, .05], [K.tY, .04], [K.tR, .03], [K.tI, .05], [K.tC, .03]], [[K.tD, .45, .14, 2], [K.tI, .35, .14, 9]]); },
   draw(t, S, F) {
     const X = L1X, Y = L1Y, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, k = i => F.cue(i) - .2, K = this.keys(F);

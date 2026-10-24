@@ -34,7 +34,8 @@ const Store = {
 
 /* ---------- 声音：旁白（保留音调变速）、配乐（交叉淡入的循环 + 自动压低）、音效 ---------- */
 /* 全部音效（真实录音与电影音效，提前解码，卡点时不等加载） */
-const SFX_ALL = ['whoosh', 'rise', 'impact', 'hit', 'braam', 'tick', 'blip', 'correct', 'wrong', 'star', 'levelup', 'ding', 'phone', 'flash', 'shutter', 'snappers', 'crowd', 'applause', 'cards', 'relay', 'switch', 'motor', 'press', 'paper', 'wind', 'sea', 'sails', 'gulls', 'clock', 'gavel', 'stamp', 'plane', 'email', 'cash', 'data', 'scan', 'pencil', 'keyboard', 'gpu'];
+/* 不用“刷刷、嗖嗖、呼呼”一类的转场声、蓄力声和风声（2026-10-25 用户要求：重复太多）；转场不配音效 */
+const SFX_ALL = ['impact', 'hit', 'braam', 'tick', 'blip', 'correct', 'wrong', 'star', 'levelup', 'ding', 'phone', 'flash', 'shutter', 'snappers', 'crowd', 'applause', 'cards', 'relay', 'switch', 'motor', 'press', 'paper', 'sea', 'sails', 'gulls', 'clock', 'gavel', 'stamp', 'cash', 'data', 'pencil', 'keyboard'];
 const AudioCtl = {
   ctx: null, buf: {}, moods: {}, mood: 'main', on: false, duck: 0,
   unlock() {
@@ -242,7 +243,6 @@ const Player = {
       for (const sc of F.scenes) {
         if (sc.code.keys) sc.code.keys(F.F(sc));   /* 卡点音效的时刻从旁白算出来，先算好 */
         for (const [tt, nm, vol, dur] of (sc.code.sfx || [])) { const g0 = sc.start + tt; if (this.pg < g0 && this.g >= g0 && this.g < g0 + .4) AudioCtl.sfx(nm, vol ?? .8, { dur: dur ? dur / Store.d.set.speed : 0, film: true }); }
-        const tr = sc.code.tin, td = sc.code.tdur ?? .8, gw = sc.start - td * .6; if (sc.n > 0 && tr && tr.type !== 'fade' && this.pg < gw && this.g >= gw) AudioCtl.sfx('whoosh', .55);
       }
       if (this.g >= F.total) { this.g = F.total; this.finish(); }
     }
@@ -440,7 +440,7 @@ const Lib = {
 const Settings = {
   open() {
     const s = Store.d.set, row = (k, t, sub) => `<div class="sw"><div>${t}${sub ? `<small>${sub}</small>` : ''}</div><button class="tg ${s[k] ? 'on' : ''}" data-k="${k}" aria-label="${t}"></button></div>`;
-    $('sheetIn').innerHTML = `<h3>设置</h3>${row('voice', '旁白', '你的克隆声音')}${row('music', '背景音乐', '旁白响起时会自动压低')}${row('sfx', '音效', '转场、答题、通关的提示音')}${row('subs', '字幕', '关键词会跟着旁白亮起')}
+    $('sheetIn').innerHTML = `<h3>设置</h3>${row('voice', '旁白', '你的克隆声音')}${row('music', '背景音乐', '旁白响起时会自动压低')}${row('sfx', '音效', '片中音效、答题和通关的提示音')}${row('subs', '字幕', '关键词会跟着旁白亮起')}
       <div class="sw"><div>语速</div><div class="seg">${[.75, 1, 1.25, 1.5].map(v => `<button class="${s.speed === v ? 'on' : ''}" data-v="${v}">${v}×</button>`).join('')}</div></div>
       <div class="sw"><div>学习进度<small>经验值 ${Store.d.xp} · 星星 ${Store.stars()}</small></div><button class="btn sm ghost" id="sReset">清除进度</button></div>
       <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn pri sm" id="sOk">完成</button></div>`;
