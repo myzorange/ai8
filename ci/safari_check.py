@@ -114,7 +114,18 @@ def port():
     R['errs_in_page'] = ev("(window.__errs || []).slice(0, 10)")
 
 
-for fn in (land, port):
+def short():
+    """wide-and-short window, like an iPhone held sideways (about 852 x 393 CSS px)"""
+    name = 'mac_short'; R = SUM[name] = {'notes': []}
+    d.execute_script("window.scrollTo(0, 0)")
+    d.set_window_rect(0, 0, 852, 480); time.sleep(2.5)
+    R['env'] = ev(ENV)
+    ev("(Player.quizzes.forEach(q => q.shown = true), Player.seek(20), Player.play(), 1)"); time.sleep(3); shot(name, 'play')
+    scenes_pass(name, R)
+    R['errs_in_page'] = ev("(window.__errs || []).slice(0, 10)")
+
+
+for fn in (land, port, short):
     try: fn()
     except Exception:
         SUM.setdefault(fn.__name__, {}).setdefault('notes', []).append('FATAL ' + traceback.format_exc()[-1500:])
