@@ -172,7 +172,8 @@ const Player = {
     const F = this.film, vo = $('vo');
     if (this.playing) {
       const c = F.cues[this.cueI]; let adv = dt * Store.d.set.speed;
-      if (c && Store.d.set.voice && !vo.paused && !vo.ended && this.g >= c.g + c.dur - .02) { this.hold += dt; if (this.hold < 3) adv = 0; } else this.hold = 0;
+      if (vo.currentTime !== this.lastVT) { this.lastVT = vo.currentTime; this.voProg = ts; }
+      if (c && Store.d.set.voice && !vo.paused && !vo.ended && this.g >= c.g + c.dur - .02 && vo.currentTime < (vo.duration || 99) - .05 && ts - (this.voProg || 0) < 400) { this.hold += dt; if (this.hold < 2) adv = 0; } else this.hold = 0;
       this.pg = this.g; this.g += adv;
       for (const q of this.quizzes) if (!q.shown && this.pg < q.at && this.g >= q.at) { this.g = q.at; this.showQuiz(q); break; }
       // 音效
@@ -189,7 +190,7 @@ const Player = {
       this.cueI = ci; vo.pause();
       if (cue && this.g < cue.g + cue.dur + .3) {
         this.setSub(cue);
-        if (this.playing && Store.d.set.voice) { const off = this.g - cue.g; vo.src = 'vo/' + cue.id + '.mp3'; vo.playbackRate = Store.d.set.speed; try { vo.preservesPitch = true; } catch (e) { } const go = () => { try { if (off > .25) vo.currentTime = off; } catch (e) { } const p = vo.play(); if (p) p.catch(() => { }); }; if (vo.readyState >= 1) go(); else vo.addEventListener('loadedmetadata', go, { once: true }); }
+        if (this.playing && Store.d.set.voice && this.g - cue.g < cue.dur - .25) { const off = this.g - cue.g; vo.src = 'vo/' + cue.id + '.mp3'; vo.playbackRate = Store.d.set.speed; try { vo.preservesPitch = true; } catch (e) { } const go = () => { try { if (off > .25) vo.currentTime = off; } catch (e) { } const p = vo.play(); if (p) p.catch(() => { }); }; if (vo.readyState >= 1) go(); else vo.addEventListener('loadedmetadata', go, { once: true }); }
       } else this.setSub(null);
     }
     if (cue) { const end = cue.g + cue.dur + .5; if (this.g > end && $('subs').classList.contains('show') && !(Store.d.set.voice && !vo.paused)) $('subs').classList.remove('show'); }
