@@ -1,0 +1,488 @@
+[
+ {
+  "id": "1_0_0",
+  "ref": "2024 年 10 月 8 日，凌晨两点。加州一家廉价旅馆里，一位 76 岁的老人被电话吵醒。",
+  "tts": "二零二四年十月八日，凌晨两点。加州一家廉价旅馆里，一位七十六岁的老人被电话吵醒。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_0_1",
+  "ref": "电话那头说：您获得了诺贝尔物理学奖。",
+  "tts": "电话那头说：您获得了诺贝尔物理学奖。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_0_2",
+  "ref": "他的第一反应是：这会不会是个恶作剧？",
+  "tts": "他的第一反应是：这会不会是个恶作剧？",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_0_3",
+  "ref": "他叫杰弗里·辛顿。让他获奖的那个想法，诞生于 66 年前。",
+  "tts": "他叫杰弗里·辛顿。让他获奖的那个想法，诞生于六十六年前。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_0_4",
+  "ref": "这是一个关于等待的故事。",
+  "tts": "这是一个关于等待的故事。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_1_0",
+  "ref": "故事要从纽约的一所高中说起：布朗克斯科学高中。",
+  "tts": "故事要从纽约的一所高中说起：布朗克斯科学高中。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_1_1",
+  "ref": "四十年代，这里有两个天才少年，只差一届：罗森布拉特和明斯基。",
+  "tts": "四十年代，这里有两个天才少年，只差一届：罗森布拉特和明斯基。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_1_2",
+  "ref": "后来，一个成了康奈尔的心理学家，一个成了人工智能的奠基人。",
+  "tts": "后来，一个成了康奈尔的心理学家，一个成了人工智能的奠基人。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_1_3",
+  "ref": "谁也没想到，他们会站在一场世纪之争的两端。",
+  "tts": "谁也没想到，他们会站在一场世纪之争的两端。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_2_0",
+  "ref": "1958 年 7 月 7 日，华盛顿。美国海军请来一群记者，看一场演示。",
+  "tts": "一九五八年七月七日，华盛顿。美国海军请来一群记者，看一场演示。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_2_1",
+  "ref": "主角是一台 5 吨重、塞满整个房间的 IBM 704。",
+  "tts": "主角是一台五吨重、塞满整个房间的IBM七零四。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_2_2",
+  "ref": "研究员往里喂卡片：有的记号在左边，有的在右边。没人告诉它规则。",
+  "tts": "研究员往里喂卡片：有的记号在左边，有的在右边。没人告诉它规则。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_2_3",
+  "ref": "前 50 次，它完全分不清。50 次之后，它自己学会了。",
+  "tts": "前五十次，它完全分不清。五十次之后<#0.35#>它自己学会了。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_2_4",
+  "ref": "站在旁边讲解的，正是罗森布拉特。那天，他还差 4 天满 30 岁。",
+  "tts": "站在旁边讲解的，正是罗森布拉特。那天，他还差四天满三十岁。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_3_0",
+  "ref": "他给这套方法起名叫感知机，灵感来自大脑里的神经元。",
+  "tts": "他给这套方法起名叫感知机，灵感来自大脑里的神经元。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_3_1",
+  "ref": "几路信号进来，各乘一个权重，加起来超过门槛，就“亮灯”。",
+  "tts": "几路信号进来，各乘一个权重，加起来超过门槛，就亮灯。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_3_2",
+  "ref": "猜错了，就把权重调大一点，或调小一点。再猜，再调。",
+  "tts": "猜错了，就把权重调大一点，或调小一点。再猜，再调。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_3_3",
+  "ref": "机器不再靠人写规则，而是从错误里学习。",
+  "tts": "机器不再靠人写规则，而是从错误里学习。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_4_0",
+  "ref": "第二天，《纽约时报》登出标题：《海军新装置，边做边学》。",
+  "tts": "第二天，纽约时报登出标题：海军新装置，边做边学。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_4_1",
+  "ref": "报道说，海军预计它将来能走路、说话、看、写字、自我复制，甚至意识到自己的存在。",
+  "tts": "报道说，海军预计它将来能走路、说话、看、写字、自我复制，甚至意识到自己的存在。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_4_2",
+  "ref": "一时间，所有人都觉得：会思考的机器，就在眼前了。",
+  "tts": "一时间，所有人都觉得：会思考的机器，就在眼前了。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_5_0",
+  "ref": "两年后，它真的造出来了：Mark I 感知机。",
+  "tts": "两年后，它真的造出来了：马克一号感知机。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_5_1",
+  "ref": "它的“眼睛”，是 400 个光电管，排成 20 乘 20 的方阵。",
+  "tts": "它的眼睛，是四百个光电管，排成二十乘二十的方阵。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_5_2",
+  "ref": "后面是 512 个“联想单元”，一大团电线随机相连。",
+  "tts": "后面是五百一十二个联想单元，一大团电线随机相连。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_5_3",
+  "ref": "它的“记忆”是一排排电位器，学习时，靠小电机去拧动它们。",
+  "tts": "它的记忆是一排排电位器，学习时，靠小电机去拧动它们。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_5_4",
+  "ref": "1960 年 6 月，它公开亮相，学会了认字母。",
+  "tts": "一九六零年六月，它公开亮相，学会了认字母。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_6_0",
+  "ref": "但有一个人始终不买账：他的老校友，明斯基。",
+  "tts": "但有一个人始终不买账：他的老校友，明斯基。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_6_1",
+  "ref": "1969 年，明斯基和派珀特出了一本书，书名就叫《感知机》。",
+  "tts": "一九六九年，明斯基和派珀特出了一本书，书名就叫感知机。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_6_2",
+  "ref": "书里用数学证明：单层感知机只会画一条直线，有些简单问题，它永远学不会。",
+  "tts": "书里用数学证明：单层感知机只会画一条直线，有些简单问题，它永远学不会。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_6_3",
+  "ref": "比如这样斜对角摆放的两组点，叫“异或”。一条直线，怎么画都分不开。",
+  "tts": "比如这样斜对角摆放的两组点，叫异或。一条直线，怎么画都分不开。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_6_4",
+  "ref": "很多人把这本书读成了一句判决：神经网络，此路不通。",
+  "tts": "很多人把这本书读成了一句判决：神经网络，此路不通。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_7_0",
+  "ref": "经费撤走了，研究者纷纷转行。神经网络，进入了漫长的寒冬。",
+  "tts": "经费撤走了，研究者纷纷转行。神经网络，进入了漫长的寒冬。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_7_1",
+  "ref": "罗森布拉特在自家后山建了座天文台，还最早系统论证过，怎样用“凌星”找系外行星。",
+  "tts": "罗森布拉特在自家后山建了座天文台，还最早系统论证过，怎样用凌星找系外行星。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_7_2",
+  "ref": "后来的开普勒望远镜，就是这样找到了几千颗行星。",
+  "tts": "后来的开普勒望远镜，就是这样找到了几千颗行星。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_7_3",
+  "ref": "1971 年 7 月 11 日，他 43 岁生日那天，驾帆船出游，再也没有回来。",
+  "tts": "一九七一年七月十一日，他四十三岁生日那天，驾帆船出游<#0.3#>再也没有回来。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_7_4",
+  "ref": "他没能等到，证明自己是对的那一天。",
+  "tts": "他没能等到，证明自己是对的那一天。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_8_0",
+  "ref": "寒冬里，有个英国年轻人偏要逆行。他叫辛顿。",
+  "tts": "寒冬里，有个英国年轻人偏要逆行。他叫辛顿。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_8_1",
+  "ref": "他的高祖父，是发明布尔逻辑的数学家乔治·布尔。",
+  "tts": "他的高祖父，是发明布尔逻辑的数学家乔治·布尔。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_8_2",
+  "ref": "剑桥毕业后，他还跑去当了一年木匠学徒。",
+  "tts": "剑桥毕业后，他还跑去当了一年木匠学徒。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_8_3",
+  "ref": "在爱丁堡读博时，导师一再劝他放弃。他跟导师约好：六个月做不出来，我就改行。",
+  "tts": "在爱丁堡读博时，导师一再劝他放弃。他跟导师约好：六个月做不出来，我就改行。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_8_4",
+  "ref": "六个月到了，他说：再给我六个月。他后来笑称：幸好没告诉导师，其实要五十年。",
+  "tts": "六个月到了，他说<#0.25#>再给我六个月。他后来笑称：幸好没告诉导师，其实要五十年。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_9_0",
+  "ref": "1986 年，他和鲁梅尔哈特等人在《自然》发表论文，让反向传播广为人知。",
+  "tts": "一九八六年，他和鲁梅尔哈特等人在自然发表论文，让反向传播广为人知。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_9_1",
+  "ref": "网络猜错了，就把误差从最后一层一层层往回传，告诉每根连线该调多少。",
+  "tts": "网络猜错了，就把误差从最后一层，一层层往回传，告诉每根连线该调多少。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_9_2",
+  "ref": "这样，多层网络也能学习了。单个感知机分不开的“异或”，多加一层就迎刃而解。",
+  "tts": "这样，多层网络也能学习了。单个感知机分不开的异或，多加一层就迎刃而解。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_9_3",
+  "ref": "可那时电脑太慢、数据太少，几乎没人在乎。",
+  "tts": "可那时电脑太慢、数据太少，几乎没人在乎。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_9_4",
+  "ref": "辛顿去了多伦多，一坐又是二十多年冷板凳。",
+  "tts": "辛顿去了多伦多，一坐又是二十多年冷板凳。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_10_0",
+  "ref": "转机，来自一个没人看好的方向：数据。",
+  "tts": "转机，来自一个没人看好的方向：数据。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_10_1",
+  "ref": "2007 年，普林斯顿的年轻教授李飞飞，想给机器编一套“看图识字”的课本。",
+  "tts": "二零零七年，普林斯顿的年轻教授李飞飞，想给机器编一套看图识字的课本。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_10_2",
+  "ref": "前辈劝她别走这么远。她一算：雇学生来标，要将近 20 年。",
+  "tts": "前辈劝她别走这么远。她一算：雇学生来标，要将近二十年。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_10_3",
+  "ref": "她转向亚马逊的众包平台：“土耳其机器人”。",
+  "tts": "她转向亚马逊的众包平台：土耳其机器人。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_10_4",
+  "ref": "这名字来自 18 世纪一台会下棋的“机器人”，里面其实藏着真人。",
+  "tts": "这名字来自十八世纪一台会下棋的机器人，里面其实藏着真人。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_10_5",
+  "ref": "不到两年，167 个国家的 4 万 9 千人，标出了 1400 多万张图片：ImageNet。",
+  "tts": "不到两年，一百六十七个国家的四万九千人，标出了一千四百多万张图片：ImageNet。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_10_6",
+  "ref": "它第一次亮相，只分到一块海报板。第二年，她用它办起了一场比赛。",
+  "tts": "它第一次亮相，只分到一块海报板。第二年，她用它办起了一场比赛。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_11_0",
+  "ref": "2012 年，辛顿的学生伊利亚说服同学亚历克斯：我们去参赛。",
+  "tts": "二零一二年，辛顿的学生伊利亚说服同学亚历克斯：我们去参赛。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_11_1",
+  "ref": "在父母家的卧室里，两块打游戏的 GTX 580，一跑就是五六天。",
+  "tts": "在父母家的卧室里，两块打游戏的GTX五八零，一跑就是五六天。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_11_2",
+  "ref": "一块显卡只有 3GB 显存，装不下，他就把网络劈成两半，一块跑一半。",
+  "tts": "一块显卡只有三G显存，装不下，他就把网络劈成两半，一块跑一半。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_11_3",
+  "ref": "结果公布：第二名的错误率是 26.2%，他们只有 15.3%。",
+  "tts": "结果公布：第二名的错误率是百分之二十六点二，他们只有<#0.3#>百分之十五点三。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_11_4",
+  "ref": "10 月，佛罗伦萨，会场挤得水泄不通。",
+  "tts": "十月，佛罗伦萨，会场挤得水泄不通。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_11_5",
+  "ref": "杨立昆说：这是计算机视觉史上，毫无疑问的转折点。",
+  "tts": "杨立昆说：这是计算机视觉史上，毫无疑问的转折点。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_11_6",
+  "ref": "半个世纪前的想法，终于等来了数据和算力。",
+  "tts": "半个世纪前的想法，终于等来了数据和算力。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_12_0",
+  "ref": "两个月后，美国太浩湖畔，哈拉斯赌场酒店。",
+  "tts": "两个月后，美国太浩湖畔，哈拉斯赌场酒店。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_12_1",
+  "ref": "辛顿和两个学生刚注册了一家公司，一共三个人。",
+  "tts": "辛顿和两个学生刚注册了一家公司，一共三个人。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_12_2",
+  "ref": "谷歌、微软、百度、DeepMind，四家公司用邮件竞价，每轮至少加 100 万美元。",
+  "tts": "谷歌、微软、百度、DeepMind，四家公司用邮件竞价，每轮至少加一百万美元。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_12_3",
+  "ref": "价格一路涨到 4400 万美元。",
+  "tts": "价格一路涨到<#0.2#>四千四百万美元。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_12_4",
+  "ref": "快到午夜，65 岁的辛顿熬不住了，叫停拍卖，选了谷歌。",
+  "tts": "快到午夜，六十五岁的辛顿熬不住了，叫停拍卖，选了谷歌。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_12_5",
+  "ref": "整个科技行业都明白了：神经网络，值钱了。",
+  "tts": "整个科技行业都明白了：神经网络，值钱了。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_13_0",
+  "ref": "2017 年，谷歌 8 位研究者发表论文，标题化用披头士的歌：《注意力就是你所需要的一切》。",
+  "tts": "二零一七年，谷歌八位研究者发表论文，标题化用披头士的歌：注意力就是你所需要的一切。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_13_1",
+  "ref": "作者里最年轻的，是个 20 岁的实习生。",
+  "tts": "作者里最年轻的，是个二十岁的实习生。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_13_2",
+  "ref": "核心想法是：读一句话时，每个词都去“注意”其他词，找出谁跟自己最相关。",
+  "tts": "核心想法是：读一句话时，每个词都去注意其他词，找出谁跟自己最相关。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_13_3",
+  "ref": "比如“猫没吃鱼，因为它不饿”，这里的“它”，最在意的是“猫”。",
+  "tts": "比如<#0.2#>猫没吃鱼，因为它不饿。这里的它，最在意的是猫。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_13_4",
+  "ref": "这个架构，叫 Transformer。",
+  "tts": "这个架构，叫Transformer。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_13_5",
+  "ref": "2022 年底，ChatGPT 问世，据估算两个月用户破亿。它和 Claude，都建在 Transformer 之上。",
+  "tts": "二零二二年底，ChatGPT问世，据估算两个月用户破亿。它和Claude，都建在Transformer之上。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_14_0",
+  "ref": "回到开头那个凌晨：2024 年，辛顿和霍普菲尔德共同获得诺贝尔物理学奖。",
+  "tts": "回到开头那个凌晨：二零二四年，辛顿和霍普菲尔德共同获得诺贝尔物理学奖。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_14_1",
+  "ref": "他在电话里说：我本来约了今天做核磁共振，看来得取消了。",
+  "tts": "他在电话里说：我本来约了今天做核磁共振，看来得取消了。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_14_2",
+  "ref": "后来他打趣：伊利亚觉得该做，亚历克斯把它做成了，而我拿了诺贝尔奖。",
+  "tts": "后来他打趣：伊利亚觉得该做，亚历克斯把它做成了，而我拿了诺贝尔奖。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_14_3",
+  "ref": "早在 2014 年，他就拿过一个以罗森布拉特命名的奖。",
+  "tts": "早在二零一四年，他就拿过一个以罗森布拉特命名的奖。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_14_4",
+  "ref": "那台 Mark I 感知机，如今收藏在史密森尼博物馆。从 1958 到 2024，整整 66 年。",
+  "tts": "那台马克一号感知机，如今收藏在史密森尼博物馆。从一九五八到二零二四，整整六十六年。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_15_0",
+  "ref": "2019 年，强化学习先驱萨顿写了一篇短文：《苦涩的教训》。",
+  "tts": "二零一九年，强化学习先驱萨顿写了一篇短文：苦涩的教训。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_15_1",
+  "ref": "他回顾 70 年 AI 研究，结论是：人类精心设计的聪明办法，一次次输给了简单通用的方法，加上更多的算力。",
+  "tts": "他回顾七十年AI研究，结论是：人类精心设计的聪明办法，一次次输给了简单通用的方法，加上更多的算力。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_15_2",
+  "ref": "罗森布拉特没有错，他只是来得太早。",
+  "tts": "罗森布拉特没有错，他只是来得太早。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ },
+ {
+  "id": "1_15_3",
+  "ref": "从一个神经元，到几千亿个参数。今天，你正在和它说话。",
+  "tts": "从一个神经元，到几千亿个参数。今天<#0.35#>你正在和它说话。",
+  "hyp": "ERROR open() got an unexpected keyword argument 'metadata_errors'"
+ }
+]

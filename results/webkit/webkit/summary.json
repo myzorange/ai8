@@ -3,7 +3,9 @@
  "iphone_port": {
   "errors": [],
   "bad": [],
-  "notes": [],
+  "notes": [
+   "cred Page.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"#eDown\")\n"
+  ],
   "env": {
    "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1",
    "inner": [
@@ -11,12 +13,12 @@
     664,
     3
    ],
-   "ver": "v3-preview-5"
+   "ver": "v3-preview-6"
   },
   "swControlled": true,
-  "imgReadyS": 11.5,
+  "imgReadyS": 11.4,
   "poster": {
-   "ver": "v3-preview-5",
+   "ver": "v3-preview-6",
    "pLen": "约 8.1 分钟 · 16 幕 · 中途有 3 道小题",
    "total": 485.1,
    "quizzes": [
@@ -34,7 +36,7 @@
    "g": 2.75,
    "playing": true,
    "voPaused": false,
-   "voT": 6.97,
+   "voT": 6.9,
    "voErr": null,
    "voReady": 4,
    "voSrc": "1_0_0.mp3",
@@ -46,28 +48,28 @@
   },
   "perf_0_40s": {
    "frames": 49,
-   "gap50": 773,
-   "gap95": 989,
-   "gapMax": 1570,
+   "gap50": 774,
+   "gap95": 1029,
+   "gapMax": 1571,
    "over50": 49,
-   "ms50": 3,
+   "ms50": 4,
    "ms95": 11,
    "msMax": 12,
    "dq": 1
   },
   "av_0_40s": {
-   "n": 38,
-   "med": 1.753,
-   "p90": 3.76,
-   "max": 5.262,
-   "signedMed": 1.753,
+   "n": 37,
+   "med": 1.634,
+   "p90": 3.642,
+   "max": 5.187,
+   "signedMed": 1.634,
    "note": "audio minus film, s"
   },
   "state40s": {
    "g": 12.25,
    "playing": true,
    "voPaused": false,
-   "voT": 0.21,
+   "voT": 0.13,
    "voErr": null,
    "voReady": 4,
    "voSrc": "1_0_2.mp3",
@@ -83,14 +85,14 @@
     "name": "序 · 凌晨两点的电话",
     "t": 13.0,
     "perf": {
-     "frames": 5,
-     "gap50": 842,
-     "gap95": 1653,
-     "gapMax": 1653,
-     "over50": 5,
-     "ms50": 6,
-     "ms95": 27,
-     "msMax": 27,
+     "frames": 4,
+     "gap50": 835,
+     "gap95": 1672,
+     "gapMax": 1672,
+     "over50": 4,
+     "ms50": 5,
+     "ms95": 23,
+     "msMax": 23,
      "dq": 1
     }
    },
@@ -100,13 +102,13 @@
     "t": 35.7,
     "perf": {
      "frames": 4,
-     "gap50": 1170,
-     "gap95": 2194,
-     "gapMax": 2194,
+     "gap50": 1166,
+     "gap95": 2308,
+     "gapMax": 2308,
      "over50": 4,
      "ms50": 4,
-     "ms95": 30,
-     "msMax": 30,
+     "ms95": 28,
+     "msMax": 28,
      "dq": 1
     }
    },
@@ -116,13 +118,13 @@
     "t": 62.1,
     "perf": {
      "frames": 4,
-     "gap50": 1029,
-     "gap95": 1673,
-     "gapMax": 1673,
+     "gap50": 993,
+     "gap95": 1622,
+     "gapMax": 1622,
      "over50": 4,
-     "ms50": 5,
-     "ms95": 25,
-     "msMax": 25,
+     "ms50": 4,
+     "ms95": 26,
+     "msMax": 26,
      "dq": 1
     }
    },
@@ -132,13 +134,13 @@
     "t": 87.3,
     "perf": {
      "frames": 4,
-     "gap50": 1075,
-     "gap95": 1592,
-     "gapMax": 1592,
+     "gap50": 1079,
+     "gap95": 2283,
+     "gapMax": 2283,
      "over50": 4,
-     "ms50": 5,
-     "ms95": 6,
-     "msMax": 6,
+     "ms50": 4,
+     "ms95": 8,
+     "msMax": 8,
      "dq": 1
     }
    },
@@ -148,13 +150,13 @@
     "t": 107.4,
     "perf": {
      "frames": 4,
-     "gap50": 1159,
-     "gap95": 2355,
-     "gapMax": 2355,
+     "gap50": 1172,
+     "gap95": 2351,
+     "gapMax": 2351,
      "over50": 4,
      "ms50": 4,
-     "ms95": 33,
-     "msMax": 33,
+     "ms95": 34,
+     "msMax": 34,
      "dq": 1
     }
    },
@@ -164,13 +166,13 @@
     "t": 129.9,
     "perf": {
      "frames": 4,
-     "gap50": 997,
-     "gap95": 1753,
-     "gapMax": 1753,
+     "gap50": 1003,
+     "gap95": 1691,
+     "gapMax": 1691,
      "over50": 4,
-     "ms50": 7,
-     "ms95": 28,
-     "msMax": 28,
+     "ms50": 4,
+     "ms95": 27,
+     "msMax": 27,
      "dq": 1
     }
    },
@@ -180,9 +182,9 @@
     "t": 157.8,
     "perf": {
      "frames": 4,
-     "gap50": 981,
-     "gap95": 1599,
-     "gapMax": 1599,
+     "gap50": 974,
+     "gap95": 1601,
+     "gapMax": 1601,
      "over50": 4,
      "ms50": 5,
      "ms95": 8,
@@ -196,13 +198,13 @@
     "t": 189.9,
     "perf": {
      "frames": 4,
-     "gap50": 993,
-     "gap95": 1564,
-     "gapMax": 1564,
+     "gap50": 987,
+     "gap95": 1567,
+     "gapMax": 1567,
      "over50": 4,
-     "ms50": 8,
-     "ms95": 14,
-     "msMax": 14,
+     "ms50": 7,
+     "ms95": 9,
+     "msMax": 9,
      "dq": 1
     }
    },
@@ -212,11 +214,11 @@
     "t": 221.5,
     "perf": {
      "frames": 4,
-     "gap50": 976,
-     "gap95": 1761,
-     "gapMax": 1761,
+     "gap50": 992,
+     "gap95": 1786,
+     "gapMax": 1786,
      "over50": 4,
-     "ms50": 4,
+     "ms50": 5,
      "ms95": 31,
      "msMax": 31,
      "dq": 1
@@ -228,13 +230,13 @@
     "t": 252.0,
     "perf": {
      "frames": 4,
-     "gap50": 986,
-     "gap95": 1871,
-     "gapMax": 1871,
+     "gap50": 997,
+     "gap95": 1863,
+     "gapMax": 1863,
      "over50": 4,
-     "ms50": 7,
-     "ms95": 12,
-     "msMax": 12,
+     "ms50": 6,
+     "ms95": 9,
+     "msMax": 9,
      "dq": 1
     }
    },
@@ -244,13 +246,13 @@
     "t": 289.3,
     "perf": {
      "frames": 4,
-     "gap50": 960,
-     "gap95": 1769,
-     "gapMax": 1769,
+     "gap50": 972,
+     "gap95": 2036,
+     "gapMax": 2036,
      "over50": 4,
-     "ms50": 7,
-     "ms95": 31,
-     "msMax": 31,
+     "ms50": 5,
+     "ms95": 14,
+     "msMax": 14,
      "dq": 1
     }
    },
@@ -260,13 +262,13 @@
     "t": 329.3,
     "perf": {
      "frames": 4,
-     "gap50": 992,
-     "gap95": 1582,
-     "gapMax": 1582,
+     "gap50": 1103,
+     "gap95": 1557,
+     "gapMax": 1557,
      "over50": 4,
      "ms50": 6,
-     "ms95": 15,
-     "msMax": 15,
+     "ms95": 10,
+     "msMax": 10,
      "dq": 1
     }
    },
@@ -276,13 +278,13 @@
     "t": 363.8,
     "perf": {
      "frames": 4,
-     "gap50": 960,
-     "gap95": 1614,
-     "gapMax": 1614,
+     "gap50": 982,
+     "gap95": 1599,
+     "gapMax": 1599,
      "over50": 4,
      "ms50": 6,
-     "ms95": 11,
-     "msMax": 11,
+     "ms95": 7,
+     "msMax": 7,
      "dq": 1
     }
    },
@@ -292,13 +294,13 @@
     "t": 398.5,
     "perf": {
      "frames": 4,
-     "gap50": 959,
-     "gap95": 1609,
-     "gapMax": 1609,
+     "gap50": 964,
+     "gap95": 1667,
+     "gapMax": 1667,
      "over50": 4,
      "ms50": 4,
-     "ms95": 6,
-     "msMax": 6,
+     "ms95": 8,
+     "msMax": 8,
      "dq": 1
     }
    },
@@ -308,13 +310,13 @@
     "t": 433.8,
     "perf": {
      "frames": 4,
-     "gap50": 1133,
-     "gap95": 2347,
-     "gapMax": 2347,
+     "gap50": 1031,
+     "gap95": 1584,
+     "gapMax": 1584,
      "over50": 4,
-     "ms50": 3,
-     "ms95": 24,
-     "msMax": 24,
+     "ms50": 6,
+     "ms95": 20,
+     "msMax": 20,
      "dq": 1
     }
    },
@@ -324,11 +326,11 @@
     "t": 464.2,
     "perf": {
      "frames": 4,
-     "gap50": 960,
-     "gap95": 1597,
-     "gapMax": 1597,
+     "gap50": 970,
+     "gap95": 1621,
+     "gapMax": 1621,
      "over50": 4,
-     "ms50": 5,
+     "ms50": 4,
      "ms95": 10,
      "msMax": 10,
      "dq": 1
@@ -340,23 +342,23 @@
     "t": 481.4,
     "perf": {
      "frames": 4,
-     "gap50": 992,
-     "gap95": 1715,
-     "gapMax": 1715,
+     "gap50": 1000,
+     "gap95": 1725,
+     "gapMax": 1725,
      "over50": 4,
-     "ms50": 5,
-     "ms95": 9,
-     "msMax": 9,
+     "ms50": 7,
+     "ms95": 14,
+     "msMax": 14,
      "dq": 1
     }
    }
   ],
   "av_scenes": {
    "n": 117,
-   "med": 0.749,
-   "p90": 1.474,
+   "med": 0.735,
+   "p90": 1.472,
    "max": 3.338,
-   "signedMed": 0.749,
+   "signedMed": 0.735,
    "note": "audio minus film, s"
   },
   "quiz": [
@@ -373,23 +375,22 @@
     "i": 1,
     "shown": false,
     "after": {
-     "quizOpen": true,
-     "playing": false,
-     "g": 170.2
+     "quizOpen": false,
+     "playing": true,
+     "g": 169.8
     }
    },
    {
     "i": 2,
-    "shown": true,
+    "shown": false,
     "after": {
-     "quizOpen": false,
-     "playing": true,
-     "g": 170.3
+     "quizOpen": true,
+     "playing": false,
+     "g": 345.8
     }
    }
   ],
-  "end": true,
-  "credits": 44,
+  "end": false,
   "errs_in_page": []
  }
 }
