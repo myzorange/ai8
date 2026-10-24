@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI 八堂课</title>
+<meta name="theme-color" content="#03050b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AI八堂课">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="app.css">
+</head><body>
+<canvas id="mapcv" aria-hidden="true"></canvas>
+
+<section id="home" class="screen">
+  <div class="home-in">
+    <header class="hero">
+      <span class="hud">AI ROADMAP // 8 LESSONS</span>
+      <div class="brand">AI 八堂课</div>
+      <p class="lead">跟着 Nick Saraev 的《The Last AI Roadmap Video You’ll Ever Watch》，用八堂动画课，从神经元讲到 AI 赚钱。</p>
+      <div class="stats" id="stats"></div>
+      <button class="btn pri cta" id="cont"></button>
+    </header>
+    <div class="hud" style="margin:6px 0 4px">COURSE MAP // 课程地图</div>
+    <div class="map" id="map"></div>
+    <div class="tiles">
+      <button class="tile glass" id="tLib"><b>学习资料库</b><span>原视频提到的全部视频、文章和工具</span></button>
+      <button class="tile glass" id="tSet"><b>设置</b><span>音乐、音效、字幕、语速</span></button>
+      <a class="tile glass" id="tYT" href="https://www.youtube.com/watch?v=KjKlBvX9G7w" target="_blank" rel="noopener"><b>看原视频</b><span>Nick Saraev · 36 分钟（英文）</span></a>
+    </div>
+    <p class="foot">旁白是你自己的声音（MiniMax 克隆）。动画、配乐和音效均为原创。<span id="verTxt"></span></p>
+  </div>
+</section>
+
+<section id="lesson" class="screen" hidden>
+  <div class="stage" id="stage">
+    <canvas id="cv"></canvas>
+    <div class="scrim"></div>
+    <div class="subs" id="subs"><span class="ln" id="subLn"></span></div>
+    <div class="bar top">
+      <button class="ib" id="bBack" aria-label="返回课程地图"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="ttl"><span class="hud" id="lTag"></span><b id="lTitle"></b></div>
+      <button class="ib" id="bSet" aria-label="设置"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </div>
+    <div class="bar bottom" id="ctrl">
+      <div class="prog" id="prog"><div class="rail"><div class="fill" id="pFill"></div></div><div id="pTicks"></div><div class="knob" id="pKnob"></div><div class="tip" id="pTip"></div></div>
+      <button class="ib fill" id="bPlay" aria-label="播放/暂停"><svg viewBox="0 0 24 24" id="icPlay"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="ib" id="bRe" aria-label="重听这一句"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+      <span class="time" id="tTime">0:00 / 0:00</span>
+      <span class="sp"></span>
+      <button class="ib spd" id="bSpd" aria-label="语速">1.0×</button>
+      <button class="ib" id="bCC" aria-label="字幕开关"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 10.5a2 2 0 1 0 0 3M16.5 10.5a2 2 0 1 0 0 3"/></svg></button>
+      <button class="ib" id="bFS" aria-label="全屏"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    </div>
+    <div class="poster" id="poster">
+      <span class="hud" id="pTag"></span>
+      <button class="big" id="bBig" aria-label="开始播放"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+      <div class="pl" id="pLen"></div>
+      <div class="row" id="pRow"></div>
+    </div>
+    <div class="ov" id="quizOv" hidden><div class="qcard glass" id="qCard"></div></div>
+    <div class="ov" id="endOv" hidden><div class="endc glass" id="endCard"></div></div>
+    <div class="hint" id="hint">↓ 向下滑：思考题 · 闯关 · 学习资料</div>
+  </div>
+  <div class="lbody">
+    <section class="sec"><span class="hud">KEY POINTS</span><h2>本课要点</h2><div class="points" id="points"></div></section>
+    <section class="sec"><span class="hud">THINK</span><h2>思考题</h2><div class="qa" id="qa"></div></section>
+    <section class="sec" id="gameSec"><span class="hud">GAME</span><h2 id="gName"></h2><div class="game glass" id="game"></div></section>
+    <section class="sec"><span class="hud">RESOURCES</span><h2>想深入，就看这些</h2><div class="res" id="res"></div></section>
+    <nav class="lnav"><button class="btn ghost" id="bPrev">← 上一课</button><button class="btn pri" id="bNext">下一课 →</button></nav>
+  </div>
+</section>
+
+<section id="lib" class="screen" hidden>
+  <div class="page">
+    <div class="pagebar"><button class="ib" id="libBack" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h1>学习资料库</h1></div>
+    <p style="color:var(--mute);font-size:14px;line-height:1.7;margin:0 0 14px">原视频里推荐的视频、文章和工具，按课程排好了，点开就是原链接。</p>
+    <div class="filt" id="filt"></div>
+    <div id="libList"></div>
+  </div>
+</section>
+
+<div class="sheet" id="sheet" hidden><div class="in glass" id="sheetIn"></div></div>
+<div class="toast glass" id="toast" hidden></div>
+<audio id="vo" preload="auto" playsinline></audio>
+<script src="engine.js"></script>
+<script src="film.js"></script>
+<script src="lesson1.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body></html>
