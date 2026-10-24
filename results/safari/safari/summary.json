@@ -1,0 +1,346 @@
+{
+ "mac_land": {
+  "notes": [],
+  "env": {
+   "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+   "inner": [
+    1280,
+    848,
+    1
+   ],
+   "ver": "v3-preview-4"
+  },
+  "swActiveS": 8.1,
+  "swControlled": true,
+  "imgReadyS": 3.1,
+  "poster": {
+   "scenes": 17,
+   "imgsOk": 45,
+   "sw": true,
+   "pLen": "约 8.1 分钟 · 16 幕 · 中途有 3 道小题",
+   "ver": "v3-preview-4",
+   "quizzes": [
+    96.1,
+    170.2,
+    345.8
+   ],
+   "total": 485.1,
+   "imgsAll": 45
+  },
+  "hook": "ok",
+  "play9s": {
+   "cls": "stage playing idle",
+   "voPaused": false,
+   "voSrc": "1_0_1.mp3",
+   "g": 9.44,
+   "voErr": null,
+   "voReady": 4,
+   "actx": "running",
+   "errs": [],
+   "dq": 1,
+   "voT": 0.9,
+   "sub": "电话那头说：您获得了诺贝尔物理学奖。",
+   "playing": true
+  }
+ },
+ "land": {
+  "notes": [
+   "FATAL \"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connectionpool.py\", line 793, in urlopen\n    response = self._make_request(\n               ^^^^^^^^^^^^^^^^^^^\n  File \"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connectionpool.py\", line 540, in _make_request\n    response = conn.getresponse()\n               ^^^^^^^^^^^^^^^^^^\n  File \"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connection.py\", line 638, in getresponse\n    httplib_response = super().getresponse()\n                       ^^^^^^^^^^^^^^^^^^^^^\n  File \"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/http/client.py\", line 1430, in getresponse\n    response.begin()\n  File \"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/http/client.py\", line 331, in begin\n    version, status, reason = self._read_status()\n                              ^^^^^^^^^^^^^^^^^^^\n  File \"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/http/client.py\", line 292, in _read_status\n    line = str(self.fp.readline(_MAXLINE + 1), \"iso-8859-1\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/socket.py\", line 720, in readinto\n    return self._sock.recv_into(b)\n           ^^^^^^^^^^^^^^^^^^^^^^^\nurllib3.exceptions.ProtocolError: ('Connection aborted.', ConnectionResetError(54, 'Connection reset by peer'))\n"
+  ]
+ },
+ "mac_port": {
+  "notes": [],
+  "env": {
+   "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+   "inner": [
+    430,
+    880,
+    1
+   ],
+   "ver": "v3-preview-4"
+  },
+  "scenes": [
+   {
+    "n": 0,
+    "name": "序 · 凌晨两点的电话",
+    "t": 13.0,
+    "perf": {
+     "frames": 2796,
+     "gapMax": 261,
+     "over50": 30,
+     "ms95": 4,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 32,
+     "gap95": 29
+    }
+   },
+   {
+    "n": 1,
+    "name": "第一幕 · 两个少年",
+    "t": 35.7,
+    "perf": {
+     "frames": 208,
+     "gapMax": 103,
+     "over50": 5,
+     "ms95": 6,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 7,
+     "gap95": 40
+    }
+   },
+   {
+    "n": 2,
+    "name": "第二幕 · 华盛顿，1958",
+    "t": 62.1,
+    "perf": {
+     "frames": 200,
+     "gapMax": 88,
+     "over50": 4,
+     "ms95": 5,
+     "dq": 1,
+     "ms50": 3,
+     "gap50": 17,
+     "msMax": 20,
+     "gap95": 31
+    }
+   },
+   {
+    "n": 3,
+    "name": "第三幕 · 感知机",
+    "t": 87.3,
+    "perf": {
+     "frames": 172,
+     "gapMax": 65,
+     "over50": 1,
+     "ms95": 4,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 12,
+     "gap95": 35
+    }
+   },
+   {
+    "n": 4,
+    "name": "第四幕 · 报纸沸腾",
+    "t": 107.4,
+    "perf": {
+     "frames": 163,
+     "gapMax": 75,
+     "over50": 6,
+     "ms95": 6,
+     "dq": 1,
+     "ms50": 4,
+     "gap50": 17,
+     "msMax": 19,
+     "gap95": 42
+    }
+   },
+   {
+    "n": 5,
+    "name": "第五幕 · Mark I",
+    "t": 129.9,
+    "perf": {
+     "frames": 78,
+     "gapMax": 238,
+     "over50": 17,
+     "ms95": 7,
+     "dq": 1,
+     "ms50": 4,
+     "gap50": 36,
+     "msMax": 22,
+     "gap95": 93
+    }
+   },
+   {
+    "n": 6,
+    "name": "第六幕 · 判决",
+    "t": 157.8,
+    "perf": {
+     "frames": 110,
+     "gapMax": 95,
+     "over50": 10,
+     "ms95": 6,
+     "dq": 1,
+     "ms50": 3,
+     "gap50": 29,
+     "msMax": 11,
+     "gap95": 60
+    }
+   },
+   {
+    "n": 7,
+    "name": "第七幕 · 7 月 11 日",
+    "t": 189.9,
+    "perf": {
+     "frames": 195,
+     "gapMax": 50,
+     "over50": 0,
+     "ms95": 5,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 10,
+     "gap95": 31
+    }
+   },
+   {
+    "n": 8,
+    "name": "第八幕 · 再给我六个月",
+    "t": 221.5,
+    "perf": {
+     "frames": 188,
+     "gapMax": 77,
+     "over50": 3,
+     "ms95": 4,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 43,
+     "gap95": 21
+    }
+   },
+   {
+    "n": 9,
+    "name": "第九幕 · 反向传播",
+    "t": 252.0,
+    "perf": {
+     "frames": 161,
+     "gapMax": 99,
+     "over50": 2,
+     "ms95": 5,
+     "dq": 1,
+     "ms50": 3,
+     "gap50": 17,
+     "msMax": 12,
+     "gap95": 36
+    }
+   },
+   {
+    "n": 10,
+    "name": "第十幕 · 一套课本",
+    "t": 289.3,
+    "perf": {
+     "frames": 184,
+     "gapMax": 138,
+     "over50": 1,
+     "ms95": 4,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 117,
+     "gap95": 26
+    }
+   },
+   {
+    "n": 11,
+    "name": "第十一幕 · 卧室里的显卡",
+    "t": 329.3,
+    "perf": {
+     "frames": 171,
+     "gapMax": 264,
+     "over50": 3,
+     "ms95": 4,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 12,
+     "gap95": 28
+    }
+   },
+   {
+    "n": 12,
+    "name": "第十二幕 · 太浩湖拍卖",
+    "t": 363.8,
+    "perf": {
+     "frames": 188,
+     "gapMax": 67,
+     "over50": 1,
+     "ms95": 4,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 10,
+     "gap95": 24
+    }
+   },
+   {
+    "n": 13,
+    "name": "第十三幕 · 注意力",
+    "t": 398.5,
+    "perf": {
+     "frames": 193,
+     "gapMax": 53,
+     "over50": 1,
+     "ms95": 3,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 9,
+     "gap95": 25
+    }
+   },
+   {
+    "n": 14,
+    "name": "第十四幕 · 66 年",
+    "t": 433.8,
+    "perf": {
+     "frames": 172,
+     "gapMax": 80,
+     "over50": 5,
+     "ms95": 4,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 16,
+     "gap95": 36
+    }
+   },
+   {
+    "n": 15,
+    "name": "尾声 · 苦涩的教训",
+    "t": 464.2,
+    "perf": {
+     "frames": 191,
+     "gapMax": 33,
+     "over50": 0,
+     "ms95": 3,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 5,
+     "gap95": 21
+    }
+   },
+   {
+    "n": 16,
+    "name": "片尾",
+    "t": 481.4,
+    "perf": {
+     "frames": 191,
+     "gapMax": 41,
+     "over50": 0,
+     "ms95": 3,
+     "dq": 1,
+     "ms50": 2,
+     "gap50": 17,
+     "msMax": 6,
+     "gap95": 21
+    }
+   }
+  ],
+  "av_scenes": {
+   "signedMed": -0.173,
+   "n": 335,
+   "p90": 0.404,
+   "note": "audio minus film, s",
+   "med": 0.173,
+   "max": 1.175
+  },
+  "errs_in_page": []
+ }
+}
