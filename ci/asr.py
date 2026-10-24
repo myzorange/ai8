@@ -11,7 +11,7 @@ for cid, text, tts in rows:
     f = f'vo/{cid}.mp3'
     try:
         urllib.request.urlretrieve(URL + f, f)
-        segs, info = m.transcribe(f, language='zh', beam_size=5, vad_filter=False, condition_on_previous_text=False)
+        segs, info = m.transcribe(f, language='zh', beam_size=5, vad_filter=False, condition_on_previous_text=False, initial_prompt='以下是普通话的句子。')
         hyp = ''.join(s.text for s in segs).strip()
     except Exception as e:
         hyp = 'ERROR ' + str(e)[:200]
@@ -19,3 +19,5 @@ for cid, text, tts in rows:
     print(cid, '|', text, '|', hyp, flush=True)
 json.dump(res, open(f'{OUT}/asr.json', 'w'), ensure_ascii=False, indent=1)
 print('done %.0fs' % (time.time() - t0))
+import sys
+if sum(r['hyp'].startswith('ERROR') for r in res) > len(res) // 2: sys.exit('most clips failed to transcribe')

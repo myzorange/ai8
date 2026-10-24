@@ -11,7 +11,9 @@ HOOK = r"""(() => { if (window.__hooked) return 'already'; window.__hooked = 1;
  const o = Player.render.bind(Player);
  Player.render = function () { const r = o(); if (Player.playing && typeof r === 'number') __dt.push(r); return r; };
  let last = 0; const f = t => { if (last && Player.playing) __gap.push(t - last); last = t; requestAnimationFrame(f); }; requestAnimationFrame(f);
- setInterval(() => { const vo = document.getElementById('vo'), F = Player.film, c = F && F.cues[Player.cueI]; if (!c || vo.paused || !Player.playing) return; __av.push(vo.currentTime - (Player.g - c.g) * Store.d.set.speed); }, 250);
+ let lastAv = 0; const fa = t => { requestAnimationFrame(fa); if (t - lastAv < 240) return; const vo = document.getElementById('vo'), F = Player.film, c = F && F.cues[Player.cueI]; if (!c || vo.paused || !Player.playing || Player.g < c.g + .4 || Player.g > c.g + c.dur - .3) return; lastAv = t; __av.push(vo.currentTime - (Player.g - c.g) * Store.d.set.speed); }; requestAnimationFrame(fa);
+ window.__ctu = []; let lv = -1, lt = 0; setInterval(() => { const vo = document.getElementById('vo'); if (vo.paused) { lv = -1; return; } const n = performance.now(); if (vo.currentTime !== lv) { if (lv >= 0 && __ctu.length < 400) __ctu.push(n - lt); lv = vo.currentTime; lt = n; } }, 4);
+ window.__subL = []; setInterval(() => { const ln = document.getElementById('subLn'), b = document.getElementById('subs'); if (Player.playing && b.classList.contains('show') && ln.textContent) __subL.push(ln.getClientRects().length); }, 500);
  return 'ok'; })()"""
 
 STATS = r"""(() => { const q = (a, p) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); return +s[Math.min(s.length - 1, Math.floor(p * s.length))].toFixed(2); };
@@ -23,6 +25,9 @@ AV = r"""(() => { const a = __av.map(Math.abs).sort((x, y) => x - y), sg = [..._
 STATE = r"""(() => { const vo = document.getElementById('vo'); return { g: +Player.g.toFixed(2), playing: Player.playing, voPaused: vo.paused, voT: +vo.currentTime.toFixed(2), voErr: vo.error ? vo.error.code : null, voReady: vo.readyState, voSrc: (vo.currentSrc || '').split('/').pop(), sub: document.getElementById('subLn').textContent.slice(0, 60), dq: Player.dq, actx: AudioCtl.ctx ? AudioCtl.ctx.state : null, cls: document.getElementById('stage').className, errs: (window.__errs || []).slice(0, 6) }; })()"""
 
 POSTER = r"""(() => ({ ver: typeof VER !== 'undefined' ? VER : null, pLen: document.getElementById('pLen').textContent, total: +Player.film.total.toFixed(1), quizzes: Player.quizzes.map(q => +q.at.toFixed(1)), scenes: Player.film.scenes.length, imgsOk: Object.values(IMG.R).filter(r => r.ok).length, imgsAll: Object.keys(IMG.R).length, sw: !!(navigator.serviceWorker && navigator.serviceWorker.controller) }))()"""
+
+CTU = r"""(() => { const s = [...__ctu].sort((a, b) => a - b); return s.length ? { n: s.length, med: +s[s.length >> 1].toFixed(1), p90: +s[Math.floor(s.length * .9)].toFixed(1), note: 'ms between audio currentTime changes' } : { n: 0 }; })()"""
+SUBL = r"""(() => { const r = { n: __subL.length, max: Math.max(0, ...__subL), lines: [1, 2, 3].map(k => __subL.filter(x => x === k).length) }; __subL.length = 0; return r; })()"""
 
 SCENES = "Player.film.scenes.map(s => ({ n: s.n, name: s.name, start: s.start, dur: s.dur }))"
 ENV = "({ ua: navigator.userAgent, inner: [innerWidth, innerHeight, devicePixelRatio], ver: typeof VER !== 'undefined' ? VER : null })"
