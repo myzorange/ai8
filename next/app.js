@@ -120,7 +120,7 @@ const Player = {
   },
   async open(id) {
     this.id = id; const LD = LDATA[id], C = LCODE[id]; this.film = new Film(LD, C.code, DURS, { intro: C.intro, outro: C.outro });
-    this.quizzes = (MIDQ[id] || []).map(q => { const sc = this.film.scenes[q.after + 1], nx = this.film.scenes[q.after + 2]; return Object.assign({}, q, { at: sc.start + sc.dur - (nx ? (nx.code.tdur ?? .8) : 0) - .05 }); });
+    const qo = this.film.scenes[0] && this.film.scenes[0].intro ? 1 : 0; this.quizzes = (MIDQ[id] || []).map(q => { const sc = this.film.scenes[q.after + qo], nx = this.film.scenes[q.after + qo + 1]; return Object.assign({}, q, { at: sc.start + sc.dur - (nx ? (nx.code.tdur ?? .8) : 0) - .05 }); });
     this.g = 0; this.pg = 0; this.cueI = -1; this.ended = false; this.playing = false; this.curScene = -1; this.quiz = null;
     const L = Store.L(id); this.filmSig = Math.round(this.film.total); this.resumeAt = L.pos && L.posV === this.filmSig && L.pos > 8 && L.pos < this.film.total - 8 ? L.pos : 0;
     $('lTag').textContent = `LESSON ${String(id).padStart(2, '0')} · ${META[id - 1].topic}`; $('lTitle').textContent = META[id - 1].title;

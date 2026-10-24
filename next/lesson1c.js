@@ -148,7 +148,7 @@ L1S.push({
   draw(t, S, F) {
     const X = L1X, Y = L1Y, C = X.C, { W, H: h, P, v } = S, G = LAY(S), x = S.mid, k = i => F.cue(i) - .2;
     H.bg(S, t, {});
-    if (t < k(5)) STAMP(S, t, .3, '2017.06 · GOOGLE', '谷歌 · 一篇 15 页的论文', { a: 1 - X.SG(t, k(5) - .3, k(5)) });
+    if (t < k(5)) STAMP(S, t, .3, '2017.06 · GOOGLE', '谷歌 · 八位研究者的论文', { a: 1 - X.SG(t, k(5) - .3, k(5)) });
     else STAMP(S, t, k(5) + .2, '2022.11.30 · CHATGPT', '大模型时代');
     const toks = (s, R, kwT) => { const n = s.length, gap = R.w / n; return s.map((w, i) => [R.x + gap * (i + .5), R.y + R.h / 2, w]); };
     shots(t, [

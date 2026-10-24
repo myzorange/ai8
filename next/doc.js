@@ -143,9 +143,9 @@ function LAY(S) {
     return { P, top, bot, main: { x: W * .055, y: top, w: W * .545, h: bot - top }, side: { x: W * .64, y: top + h * .03, w: W * .31, h: bot - top - h * .03 },
       wide: { x: W * .055, y: top, w: W * .89, h: bot - top }, mid: { x: W * .2, y: top, w: W * .6, h: bot - top }, stamp: { x: W * .945, y: h * .085, al: 'right' } };
   }
-  const top = h * .2, mh = h * .31, bot = h * .79;
+  const hy = h * .094 + v * 3.6, sy = Math.max(h * .163, hy + v * 3.2), top = Math.max(h * .2, sy + v * 4.4), mh = Math.min(h * .31, (h * .79 - top) * .5), bot = h * .79;
   return { P, top, bot, main: { x: W * .05, y: top + h * .015, w: W * .9, h: mh }, side: { x: W * .06, y: top + h * .02 + mh + h * .03, w: W * .88, h: bot - (top + h * .05 + mh) },
-    wide: { x: W * .05, y: top + h * .02, w: W * .9, h: bot - top - h * .02 }, mid: { x: W * .05, y: top + h * .02, w: W * .9, h: bot - top - h * .02 }, stamp: { x: W * .075, y: h * .163, al: 'left' } };
+    wide: { x: W * .05, y: top + h * .02, w: W * .9, h: bot - top - h * .02 }, mid: { x: W * .05, y: top + h * .02, w: W * .9, h: bot - top - h * .02 }, stamp: { x: W * .075, y: sy, al: 'left' } };
 }
 /* 时间地点戳 */
 function STAMP(S, t, t0, l1, l2, o = {}) {

@@ -190,11 +190,11 @@ L1S.push({
         T(S.hud, clk, cx, cy, { f: 'mono', size: big, w: 500, c: C.priHi, al: 'center', a: a * X.SG(t, .6, 1.2), sh: { c: C.pri, a: .7 } });
         const tp = F.kw(0, '吵醒') - .2, lit = X.SG(t, tp, tp + .2);
         X.phone(S, x, P ? W * .5 : W * .27, P ? h * .74 : h * .66, v * (P ? 10 : 9), lit, t, a * X.SG(t, 1, 1.6));
-        TAG(S, S.hud, '76 岁', P ? W * .5 : W * .27, P ? h * .55 : h * .25, X.SG(t, F.kw(0, '76') - .1, F.kw(0, '76') + .4) * a, { al: 'center', size: v * 1.6, c: C.gold, f: 'sans', w: 700 });
+        TAG(S, S.hud, '76 岁', P ? W * .5 : W * .27, P ? h * .62 - v * 7.5 : h * .25, X.SG(t, F.kw(0, '76') - .1, F.kw(0, '76') + .4) * a, { al: 'center', size: v * 1.6, c: C.gold, f: 'sans', w: 700 });
       }],
       [tN, tH, (a, lt) => {
         const tq = F.cue(2) - .1, R = P ? G.main : G.main;
-        X.wave(S, x, P ? W * .1 : W * .08, P ? h * .2 : h * .2, P ? W * .8 : W * .84, v * 4, t, a * (1 - X.SG(t, tq, tq + .5)), 1);
+        X.wave(S, x, P ? W * .1 : W * .08, P ? G.top + v * 1.5 : h * .2, P ? W * .8 : W * .84, v * 4, t, a * (1 - X.SG(t, tq, tq + .5)), 1);
         const m = X.photo(S, a * X.SG(t, tN + .2, tN + .9), 'A23', seg(t, tN, tH + .5), { R: P ? { x: W * .1, y: h * .27, w: W * .8, h: W * .41 } : { x: W * .14, y: h * .3, w: W * .44, h: W * .225 }, z0: 1, z1: 1.06, scan: seg(t, tN + .3, tN + 1.6), frame: 1 });
         TAG(S, S.hud, 'THE NOBEL PRIZE IN PHYSICS 2024', P ? W / 2 : W * .36, P ? h * .27 + W * .41 + v * 3 : h * .3 + W * .225 + v * 3, X.SG(t, F.kw(1, '物理') - .2, F.kw(1, '物理') + .4) * a, { al: 'center', c: C.gold, size: v * 1.3 });
         const qa = X.SG(t, tq, tq + .4) * a;
