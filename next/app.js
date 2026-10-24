@@ -47,7 +47,14 @@ const AudioCtl = {
     }
     if (this.ctx) { try { const b = this.ctx.createBuffer(1, 1, 22050), s = this.ctx.createBufferSource(); s.buffer = b; s.connect(this.ctx.destination); s.start(0); } catch (e) { } if (this.ctx.state !== 'running') this.ctx.resume().catch(() => { }); }
   },
-  preload() { ['main', 'cold'].forEach(n => this.get('bgm/' + n + '.mp3')); SFX_ALL.forEach(n => this.get('sfx/' + n + '.mp3')); },
+  /* 背景音乐马上取；音效两个两个地取，按片中先用到的先取，免得几十个请求一起去和第一句旁白抢加载 */
+  preload() { ['main', 'cold'].forEach(n => this.get('bgm/' + n + '.mp3')); this.preloadSfx(); },
+  preloadSfx() {
+    const first = [], F = Player.film;
+    if (F) { const at = []; for (const sc of F.scenes) { try { if (sc.code.keys) sc.code.keys(F.F(sc)); for (const [tt, nm] of (sc.code.sfx || [])) at.push([sc.start + tt, nm]); } catch (e) { } } at.sort((a, b) => a[0] - b[0]).forEach(([, nm]) => first.push(nm)); }
+    const q = [...new Set([...first, ...SFX_ALL])].filter(n => !this.buf['sfx/' + n + '.mp3']); let busy = 0;
+    const next = () => { while (busy < 2 && q.length) { busy++; this.get('sfx/' + q.shift() + '.mp3').then(() => { busy--; next(); }); } }; next();
+  },
   get(u) {
     if (this.buf[u]) return this.buf[u];
     return (this.buf[u] = fetch(u).then(r => r.arrayBuffer()).then(a => new Promise((res, rej) => this.ctx.decodeAudioData(a, res, rej))).catch(() => null));
@@ -55,8 +62,8 @@ const AudioCtl = {
   /* 音效：o.dur 长音效（环境声）到点淡出；o.film 影片里的音效，暂停或拖进度时一起停掉 */
   live: [],
   async sfx(n, vol = 1, o = {}) {
-    if (!Store.d.set.sfx || !this.ctx) return; const b = await this.get('sfx/' + n + '.mp3'); if (!b) return;
-    if (o.film && !Player.playing) return;
+    if (!Store.d.set.sfx || !this.ctx) return; const t0 = this.ctx.currentTime, b = await this.get('sfx/' + n + '.mp3'); if (!b) return;
+    if (o.film && (!Player.playing || this.ctx.currentTime - t0 > .3)) return;   /* 影片里的音效来晚了就不放，宁缺勿错拍 */
     const now = this.ctx.currentTime, s = this.ctx.createBufferSource(); s.buffer = b; const g = this.ctx.createGain(); g.gain.setValueAtTime(vol, now); s.connect(g); g.connect(this.sGain);
     s.start(now);
     if (o.dur && o.dur < b.duration) { const fo = Math.min(.6, o.dur * .3); g.gain.setValueAtTime(vol, now + o.dur - fo); g.gain.linearRampToValueAtTime(0, now + o.dur); s.stop(now + o.dur + .05); }
@@ -167,10 +174,10 @@ const Player = {
     if (this.quiz || !this.film) return; if (this.ended || this.g >= this.film.total - .05) { this.g = 0; this.ended = false; $('endOv').hidden = true; }
     this.playing = true; this.cueI = -1; $('stage').classList.add('playing'); $('stage').classList.remove('paused'); this.icon(); AudioCtl.on = true; AudioCtl.setMood(this.sceneMood()); AudioCtl.level(); this.wake();
   },
-  pause() { this.playing = false; $('vo').pause(); AudioCtl.stopFilm(); $('stage').classList.remove('playing', 'idle'); if ($('poster').hidden && !this.ended) $('stage').classList.add('paused'); this.icon(); AudioCtl.on = false; AudioCtl.level(); if (this.film && this.g > 5) { Store.L(this.id).pos = this.g; Store.L(this.id).posV = this.filmSig; Store.save(); } },
+  pause() { this.playing = false; this.voPend = false; $('vo').pause(); AudioCtl.stopFilm(); $('stage').classList.remove('playing', 'idle'); if ($('poster').hidden && !this.ended) $('stage').classList.add('paused'); this.icon(); AudioCtl.on = false; AudioCtl.level(); if (this.film && this.g > 5) { Store.L(this.id).pos = this.g; Store.L(this.id).posV = this.filmSig; Store.save(); } },
   toggle() { if (!$('poster').hidden) { this.start(this.resumeAt || 0); return; } this.playing ? this.pause() : this.play(); },
   icon() { $('icPlay').innerHTML = this.playing ? '<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>' : '<path d="M8 5v14l11-7z"/>'; },
-  seek(g) { this.g = clamp(g, 0, this.film.total); this.pg = this.g; this.cueI = -1; this.hold = 0; this.warm = {}; $('vo').pause(); AudioCtl.stopFilm(); this.ended = false; $('endOv').hidden = true; this.render(); this.updateUI(); },
+  seek(g) { this.g = clamp(g, 0, this.film.total); this.pg = this.g; this.cueI = -1; this.hold = 0; this.voPend = false; this.warm = {}; $('vo').pause(); AudioCtl.stopFilm(); this.ended = false; $('endOv').hidden = true; this.render(); this.updateUI(); },
   replay() { const c = this.film.cues, i = Math.max(0, this.film.cueAt(this.g)); const j = this.g - (c[i] ? c[i].g : 0) < .8 && i > 0 ? i - 1 : i; if (c[j]) this.seek(c[j].g - .05); if (!this.playing && $('poster').hidden) this.play(); },
   jumpCue(d) { const c = this.film.cues; let i = this.film.cueAt(this.g); i = clamp(i + d, 0, c.length - 1); this.seek(c[i].g - .05); },
   jumpScene(d) { const s = this.film.scenes; const i = clamp(this.film.sceneAt(this.g) + d, 0, s.length - 1); this.seek(s[i].start + .01); },
@@ -221,10 +228,13 @@ const Player = {
       const c = F.cues[this.cueI]; let adv = dt * Store.d.set.speed;
       if (vo.currentTime !== this.lastVT) { this.lastVT = vo.currentTime; this.voProg = ts; }
       if (c && Store.d.set.voice && !vo.paused && !vo.ended && this.g >= c.g + c.dur - .02 && vo.currentTime < (vo.duration || 99) - .05 && ts - (this.voProg || 0) < 400) { this.hold += dt; if (this.hold < 2) adv = 0; } else this.hold = 0;
+      if (this.voPend) { if (Store.d.set.voice && this.voWait < 2.5) { this.voWait += dt; adv = 0; } else this.voPend = false; }   /* 这句的声音还没响：画面等它 */
       /* 声画同步：旁白真正在走时，画面时间轻轻追着声音走（只放慢或加快，从不倒退） */
       if (c && Store.d.set.voice && !vo.paused && !vo.ended && !this.hold && ts - (this.voProg || 0) < 300 && this.g >= c.g && this.g < c.g + c.dur - .15) {
         const drift = vo.currentTime + (ts - this.voProg) / 1000 * Store.d.set.speed - (this.g + adv - c.g);   /* 和这一帧要画出的画面时间比；currentTime 有的浏览器更新得慢，按上次变化的时刻外推 */
-        if (Math.abs(drift) > .02 && Math.abs(drift) < .6) adv = Math.max(0, adv + drift * Math.min(1, dt * 3));   /* 每句开头声音起播慢几十毫秒，画面慢慢等它，追到 20ms 以内 */   /* 差太多（比如声音没能跳到位）就不追，免得画面停住 */
+        if (Math.abs(drift) > .02 && Math.abs(drift) < .6) adv = Math.max(0, adv + drift * Math.min(1, dt * 3));   /* 每句开头声音起播慢几十毫秒，画面慢慢等它，追到 20ms 以内 */
+        else if (drift >= .6 && drift < 4) adv += drift;   /* 声音领先很多（画面被卡住过，或切到后台又回来）：画面直接跳到声音的位置 */
+        else if (drift <= -.6) adv = 0;   /* 声音落后很多（中途卡了一下）：画面停下来等它，一个字也不丢 */
       }
       this.pg = this.g; this.g += adv;
       for (const q of this.quizzes) if (!q.shown && this.pg < q.at && this.g >= q.at) { this.g = q.at; this.showQuiz(q); break; }
@@ -246,7 +256,15 @@ const Player = {
       this.cueI = ci; vo.pause();
       if (cue && this.g < cue.g + cue.dur + .3) {
         this.setSub(cue);
-        if (this.playing && Store.d.set.voice && this.g - cue.g < cue.dur - .25) { const off = this.g - cue.g; vo.src = 'vo/' + cue.id + '.mp3'; vo.playbackRate = Store.d.set.speed; try { vo.preservesPitch = true; } catch (e) { } const go = () => { try { if (off > .25) vo.currentTime = off; } catch (e) { } const p = vo.play(); if (p) p.catch(() => { }); }; if (vo.readyState >= 1) go(); else vo.addEventListener('loadedmetadata', go, { once: true }); }
+        if (this.playing && Store.d.set.voice && this.g - cue.g < cue.dur - .25) {
+          if (this.voGo) vo.removeEventListener('loadedmetadata', this.voGo);
+          vo.src = 'vo/' + cue.id + '.mp3'; vo.playbackRate = Store.d.set.speed; try { vo.preservesPitch = true; } catch (e) { }
+          /* 句子加载好那一刻才算从哪儿开始放：加载慢了也能和画面对上；换了句子或暂停了，旧的这次就作废 */
+          /* 声音真正响起来之前，画面停在这句开头等它（最多 2.5 秒，取不到声音就照常往下放） */
+          this.voPend = true; this.voWait = 0;
+          const go = () => { this.voGo = null; if (!this.playing || this.cueI !== ci) return; const off = this.g - cue.g; try { if (off > .25) vo.currentTime = off; } catch (e) { } const p = vo.play(), done = () => { if (this.cueI === ci) this.voPend = false; }; if (p) p.then(done, done); else done(); };
+          if (vo.readyState >= 1) go(); else { this.voGo = go; vo.addEventListener('loadedmetadata', go, { once: true }); }
+        }
       } else this.setSub(null);
     }
     if (cue) { const end = cue.g + cue.dur + .5; if (this.g > end && $('subs').classList.contains('show') && !(Store.d.set.voice && !vo.paused)) $('subs').classList.remove('show'); }
