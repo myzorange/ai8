@@ -78,7 +78,7 @@ const AudioCtl = {
 const Player = {
   st: null, film: null, id: 0, g: 0, pg: 0, playing: false, last: 0, cueI: -1, hold: 0, quiz: null, raf: 0, ended: false, dq: 1, perf: { n: 0, s: 0 }, kws: [], subOn: false, curScene: -1,
   init() {
-    this.st = new Stage($('cv')); const st = $('stage');
+    this.st = new Stage($('film')); const st = $('stage');
     window.addEventListener('resize', () => this.resize());
     $('bBig').onclick = () => this.start(this.resumeAt || 0);
     $('bPlay').onclick = e => { e.stopPropagation(); this.toggle(); };
@@ -136,7 +136,7 @@ const Player = {
   close() { this.pause(); if (this.film && this.g > 5 && !this.ended) { Store.L(this.id).pos = this.g; Store.save(); } },
   resize() {
     if (Router.cur !== 'lesson') return; const el = $('stage'), w = el.clientWidth, h = el.clientHeight; if (!w || !h) return;
-    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1) * this.dq); this.st.resize(w, h, dpr); this.st.q = this.dq; this.render();
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1) * this.dq); this.st.q = this.dq; this.st.resize(w, h, dpr); this.render();
   },
   render() { if (!this.film) return; const t0 = performance.now(); const g = !$('poster').hidden ? (this.resumeAt || 3.9) : this.g; this.film.draw(this.st, Math.min(g, this.film.total - .001)); return performance.now() - t0; },
   start(at) {
@@ -314,7 +314,7 @@ const Home = {
     $('verTxt').textContent = ' 版本 ' + VER;
   },
   start() {
-    if (!this.st) { this.st = new Stage($('mapcv')); this.st.k = Object.assign({}, K, { grain: 0, vig: .5 }); window.addEventListener('resize', () => this.size()); }
+    if (!this.st) { this.st = new Stage($('mapbg'), { single: true }); this.st.k = Object.assign({}, K, { grain: 0, vig: .5 }); this.st.applyLook(); window.addEventListener('resize', () => this.size()); }
     this.size(); if (!this.raf) this.raf = requestAnimationFrame(t => this.loop(t));
   },
   size() { this.st.resize(innerWidth, innerHeight, 1); },
@@ -385,8 +385,8 @@ const Router = {
   async route() {
     const h = location.hash || '#/'; const m = h.match(/^#\/l\/(\d+)/), prev = this.cur;
     if (prev === 'lesson') Player.close();
-    ['home', 'lesson', 'lib'].forEach(s => $(s).hidden = true); $('mapcv').hidden = false; $('toast').hidden = true;
-    if (m && LCODE[+m[1]]) { this.cur = 'lesson'; $('lesson').hidden = false; $('mapcv').hidden = true; window.scrollTo(0, 0); LessonPage.render(+m[1]); await Player.open(+m[1]); }
+    ['home', 'lesson', 'lib'].forEach(s => $(s).hidden = true); $('mapbg').hidden = false; $('toast').hidden = true;
+    if (m && LCODE[+m[1]]) { this.cur = 'lesson'; $('lesson').hidden = false; $('mapbg').hidden = true; window.scrollTo(0, 0); LessonPage.render(+m[1]); await Player.open(+m[1]); }
     else if (h.startsWith('#/lib')) { this.cur = 'lib'; $('lib').hidden = false; window.scrollTo(0, 0); Lib.render(); Home.start(); }
     else { this.cur = 'home'; $('home').hidden = false; Home.render(); Home.start(); if (prev) window.scrollTo(0, 0); }
   },
